@@ -303,11 +303,17 @@ function migrate(){
     }
   }
   if(S.sync && S.sync.repo===undefined){ S.sync.repo=""; S.sync.branch="main"; S.sync.lastRepo=null; save(); }
-  if(!Array.isArray(S.cycleDone)){
-    // seed from the old pointer-based assumption: slots before the pointer were done
-    S.cycleDone = Array.from({length:S.pointer||0}, (_,i)=>i);
+  if(!Array.isArray(S.cycleDone)) S.cycleDone = [];
+  if(!S.cycleStart){
+    // anchor the current cycle to this week's Monday, then derive checkmarks from history
+    const d = new Date();
+    const day = (d.getDay()+6)%7; // days since Monday
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()-day);
+    S.cycleStart = d.getTime();
     save();
   }
+  recomputeCycle(false);
 }
 function save(){
   S.savedAt = Date.now();
@@ -645,6 +651,7 @@ function bind(){
   const cyc = $("#cycleReset");
   if(cyc) cyc.onclick = ()=>{
     if(confirm("Start a fresh cycle? All checkmarks clear (your history is untouched).")){
+      S.cycleStart = Date.now();
       S.cycleDone = [];
       save(); queueSync(); render();
     }
@@ -709,6 +716,7 @@ function bind(){
   document.querySelectorAll("[data-delsess]").forEach(b=> b.onclick=()=>{
     if(confirm("Delete this session permanently?")){
       S.sessions = S.sessions.filter(s=>s.id!==b.dataset.delsess);
+      recomputeCycle(false);
       save(); queueSync(); render();
     }
   });
@@ -769,38 +777,40 @@ function finishWorkout(){
   a.finishedAt = Date.now();
   S.sessions.push({id:a.id, workoutId:a.workoutId, date:a.date, startedAt:a.startedAt, finishedAt:a.finishedAt, entries:a.entries});
   S.active = null;
-  advancePointer(a.workoutId);
+  recomputeCycle(true);
   S.override = null;
   save(); render();
   toast("Workout saved 💪");
   if(S.sync.gistId) syncNow(false);
   if(S.sync.repo) repoBackup(false);
 }
-function advancePointer(wid){
-  // check off the slot this workout fulfills (prefer the current pointer slot)
-  let slot = -1;
-  if(ROTATION[S.pointer]===wid && !S.cycleDone.includes(S.pointer)){
-    slot = S.pointer;
+function recomputeCycle(announce){
+  // the cycle's checkmarks are always derived from actual logged sessions since cycleStart
+  const done = [];
+  S.sessions
+    .filter(s=>s.startedAt >= S.cycleStart)
+    .sort((a,b)=>a.startedAt-b.startedAt)
+    .forEach(s=>{
+      for(let i=0;i<ROTATION.length;i++){
+        if(ROTATION[i]===s.workoutId && !done.includes(i)){ done.push(i); break; }
+      }
+    });
+  if(done.length >= ROTATION.length){
+    // full cycle in the books → start a fresh one from now
+    S.cycleStart = Date.now();
+    S.cycleDone = [];
+    if(announce) toast("Cycle complete — starting a fresh one 🔁");
   } else {
-    for(let k=0;k<ROTATION.length;k++){
+    S.cycleDone = done;
+  }
+  // if the suggested day is already done, move to the next unchecked one
+  if(S.cycleDone.includes(S.pointer)){
+    for(let k=1;k<=ROTATION.length;k++){
       const idx = (S.pointer+k)%ROTATION.length;
-      if(ROTATION[idx]===wid && !S.cycleDone.includes(idx)){ slot = idx; break; }
+      if(!S.cycleDone.includes(idx)){ S.pointer = idx; break; }
     }
   }
-  if(slot>-1) S.cycleDone.push(slot);
-  // whole cycle done → fresh cycle
-  if(S.cycleDone.length >= ROTATION.length){
-    S.cycleDone = [];
-    S.pointer = slot>-1 ? (slot+1)%ROTATION.length : 0;
-    toast("Cycle complete — starting a fresh one 🔁");
-    return;
-  }
-  // suggest the next slot that hasn't been done yet
-  const from = slot>-1 ? slot : S.pointer;
-  for(let k=1;k<=ROTATION.length;k++){
-    const idx = (from+k)%ROTATION.length;
-    if(!S.cycleDone.includes(idx)){ S.pointer = idx; return; }
-  }
+  save();
 }
 function openPicker(){
   let h = `<h3>Pick today's workout</h3><div class="picker">`;
@@ -1010,7 +1020,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleDone:S.cycleDone, sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -1049,14 +1059,16 @@ async function syncNow(announce){
       const extra = S.sessions.filter(s=>!ids.has(s.id));
       S.program = remote.program;
       S.pointer = remote.pointer;
-      S.cycleDone = Array.isArray(remote.cycleDone) ? remote.cycleDone : S.cycleDone;
+      if(remote.cycleStart) S.cycleStart = remote.cycleStart;
       S.sessions = remote.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
+      recomputeCycle(false);
       save();
     } else if(remote){
       const ids = new Set(S.sessions.map(s=>s.id));
       const extra = (remote.sessions||[]).filter(s=>!ids.has(s.id));
       if(extra.length){
         S.sessions = S.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
+        recomputeCycle(false);
         save();
       }
     }
@@ -1257,8 +1269,9 @@ function importJSON(e){
       if(!d.program || !Array.isArray(d.sessions)) throw new Error("not an Iron Log file");
       S.program = d.program;
       S.pointer = d.pointer||0;
-      S.cycleDone = Array.isArray(d.cycleDone) ? d.cycleDone : [];
+      if(d.cycleStart) S.cycleStart = d.cycleStart;
       S.sessions = d.sessions;
+      recomputeCycle(false);
       save(); queueSync(); render(); toast("Imported ✓");
     }catch(err){ toast("Import failed: "+err.message); }
   };
