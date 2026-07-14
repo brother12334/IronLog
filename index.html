@@ -53,6 +53,10 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 }
 .cycle-row{display:flex;justify-content:space-between;align-items:center;margin:26px 2px 0;color:var(--faint);font-size:12px}
 .cycle-row button{background:none;border:none;color:var(--faint);font:11px var(--mono);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer;padding:4px}
+.rev-stat{margin:8px 0;font-size:15px;color:var(--text)}
+.rev-head{font-family:var(--disp);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:16px 0 4px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.rev-line{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:14.5px}
+.rev-line .num{color:var(--dim)}
 .plate.cur{opacity:1;transform:scale(1.12);box-shadow:inset 0 0 0 4px rgba(0,0,0,.28), inset 0 0 0 11px rgba(255,255,255,.06), 0 0 0 2px var(--bg), 0 0 0 4px var(--text)}
 .plate small{position:absolute;bottom:-18px;left:0;right:0;text-align:center;color:var(--faint);font:10px var(--mono);letter-spacing:0}
 .plates-wrap{margin-bottom:30px}
@@ -87,7 +91,12 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
   background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--dim);
   border-radius:11px;
 }
-.ex-insight{font-size:13.5px;color:var(--arms);margin:-6px 0 12px;line-height:1.4}
+.ex-insight{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--text);margin:-6px 0 12px;line-height:1.4}
+.ins-tag{
+  flex-shrink:0;font-family:var(--disp);font-size:11.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.09em;color:var(--arms);
+  border:1px solid rgba(232,182,44,.45);padding:2px 8px;border-radius:6px;
+}
 .ll-tag{
   font-family:var(--disp);font-size:12px;font-weight:700;line-height:1.15;
   text-transform:uppercase;letter-spacing:.09em;color:var(--dim);margin-right:3px;
@@ -147,6 +156,7 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 .prog-ex .meta{font:12.5px var(--mono);color:var(--dim);margin-top:2px}
 .icon-btns{display:flex;gap:5px;flex-shrink:0}
 .icon-btns button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--dim);cursor:pointer;font-size:15px}
+.ex-ctl button{width:32px;height:32px;font-size:13px}
 
 /* modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;justify-content:center;z-index:50}
@@ -628,14 +638,28 @@ function insight(exName){
     return a.length ? a.reduce((x,y)=>x+y,0)/a.length : NaN;
   };
   const t0 = top(h[0]), t1 = top(h[1]);
-  if(t0.w > t1.w) return "📈 Moved up from "+t1.w+" lb last session — see how it holds";
+  const isBw = t0.w === 0; // no load logged = bodyweight movement
+  if(t0.w > t1.w){
+    return {tag:"Trend", msg: t1.w===0
+      ? "Added load to a bodyweight movement — see how it holds"
+      : "Moved up from "+t1.w+" lb last session — see how it holds"};
+  }
   if(t0.w === t1.w){
     const tOld = top(h[h.length-1]);
-    if(tOld.w===t0.w && t0.r - tOld.r >= 2) return "📈 Reps climbing at "+t0.w+" lb ("+tOld.r+" → "+t0.r+") — might be ready for more weight";
-    if(t1.r - t0.r >= 2) return "📉 Reps dipped at "+t0.w+" lb ("+t1.r+" → "+t0.r+") — could be fatigue";
+    const at = isBw ? "" : "at "+t0.w+" lb ";
+    if(tOld.w===t0.w && t0.r - tOld.r >= 2){
+      return {tag:"Trend", msg:"Reps climbing "+at+"("+tOld.r+" → "+t0.r+")"+(isBw
+        ? " — bodyweight is getting comfortable"
+        : " — may be ready for more weight")};
+    }
+    if(t1.r - t0.r >= 2){
+      return {tag:"Watch", msg:"Reps dipped "+at+"("+t1.r+" → "+t0.r+") — could be fatigue"};
+    }
   }
   const r0 = avgRpe(h[0]), r1 = avgRpe(h[1]);
-  if(!isNaN(r0) && !isNaN(r1) && r0>=9.3 && r1>=9.3) return "🔥 Consistently near failure here two sessions running";
+  if(!isNaN(r0) && !isNaN(r1) && r0>=9.3 && r1>=9.3){
+    return {tag:"Watch", msg:"Consistently near failure here two sessions running"};
+  }
   return null;
 }
 function fmtSet(st){
@@ -670,7 +694,7 @@ function plateStrip(){
     html += `<button class="${cls}" data-slot="${i}" style="background:${m.color}" aria-label="Slot ${i+1}: ${m.name}${done?" (done)":""}">${m.short}<small>${i+1}</small>${done?'<span class="pcheck">✓</span>':""}</button>`;
   });
   html += "</div>";
-  html += `<div class="cycle-row"><span class="num">${S.cycleDone.length} of ${ROTATION.length} done this cycle</span><button id="cycleReset">reset cycle</button></div>`;
+  html += `<div class="cycle-row"><span class="num">${S.cycleDone.length} of ${ROTATION.length} done this cycle</span><span>${S.lastReview?'<button id="lastReviewBtn">last review</button> ':''}<button id="cycleReset">reset cycle</button></span></div>`;
   return html + "</div>";
 }
 
@@ -701,7 +725,7 @@ function viewToday(){
     const ins = insight(e.name);
     h += `<div class="ex-head"><b>${esc(e.name)}${other?'<span class="alt-badge">⇄</span>':''}</b><span class="ex-target">${e.sets}×${esc(e.reps)}${e.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(e.rpe))+'</span>':""}</span></div>`;
     if(ll) h += ll;
-    if(ins) h += `<div class="ex-insight">${esc(ins)}</div>`;
+    if(ins) h += `<div class="ex-insight"><span class="ins-tag">${esc(ins.tag)}</span><span>${esc(ins.msg)}</span></div>`;
     let subBits = [];
     if(!ll) subBits.push('no sessions logged yet');
     if(other) subBits.push('alternates with '+esc(other.name)+' next '+m.name.toLowerCase()+' day');
@@ -742,7 +766,16 @@ function viewActiveSession(){
     const last = lastSetsFor(a.workoutId, en.name);
     const ll = lastBox(a.workoutId, en.name);
     h += `<div class="card ex">
-      <div class="ex-head"><b>${esc(en.name)}</b><span class="ex-target">${en.sets.length}×${esc(en.reps||"")}${en.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(en.rpe))+'</span>':""}</span></div>`;
+      <div class="ex-head"><b>${esc(en.name)}</b>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="ex-target">${en.sets.length}×${esc(en.reps||"")}${en.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(en.rpe))+'</span>':""}</span>
+          <span class="icon-btns ex-ctl">
+            <button data-exup="${ei}" aria-label="Move earlier">↑</button>
+            <button data-exdown="${ei}" aria-label="Move later">↓</button>
+            <button data-exskip="${ei}" aria-label="Skip today">✕</button>
+          </span>
+        </span>
+      </div>`;
     if(ll) h += ll;
     if(en.note) h += `<div class="ex-note">${esc(en.note)}</div>`;
     h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
@@ -920,6 +953,8 @@ function bind(){
       save(); queueSync(); render();
     }
   };
+  const lrev = $("#lastReviewBtn");
+  if(lrev) lrev.onclick = ()=> openCycleReview(S.lastReview);
 
   const start = $("#startBtn");
   if(start) start.onclick = ()=> startWorkout(todaysWorkoutId());
@@ -966,6 +1001,38 @@ function bind(){
 
   const fin = $("#finishBtn");
   if(fin) fin.onclick = finishWorkout;
+  function harvestActive(){
+    if(!S.active) return;
+    document.querySelectorAll(".set input[data-e], .set select[data-e]").forEach(el=>{
+      const {e,s,f} = el.dataset;
+      if(S.active.entries[e] && S.active.entries[e].sets[s]) S.active.entries[e].sets[s][f] = el.value;
+    });
+    const n = $("#sessNote");
+    if(n) S.active.note = n.value;
+  }
+  document.querySelectorAll("[data-exup]").forEach(b=> b.onclick=()=>{
+    const i = parseInt(b.dataset.exup,10);
+    if(i<=0) return;
+    harvestActive();
+    [S.active.entries[i-1], S.active.entries[i]] = [S.active.entries[i], S.active.entries[i-1]];
+    save(); render();
+  });
+  document.querySelectorAll("[data-exdown]").forEach(b=> b.onclick=()=>{
+    const i = parseInt(b.dataset.exdown,10);
+    if(i>=S.active.entries.length-1) return;
+    harvestActive();
+    [S.active.entries[i], S.active.entries[i+1]] = [S.active.entries[i+1], S.active.entries[i]];
+    save(); render();
+  });
+  document.querySelectorAll("[data-exskip]").forEach(b=> b.onclick=()=>{
+    const i = parseInt(b.dataset.exskip,10);
+    if(confirm("Skip "+S.active.entries[i].name+" today? It won't appear in this session's log.")){
+      harvestActive();
+      S.active.entries.splice(i,1);
+      save(); render();
+      toast("Skipped — it'll be back next time");
+    }
+  });
   const sn = $("#sessNote");
   if(sn) sn.onchange = ()=>{ S.active.note = sn.value; save(); };
   const disc = $("#discardBtn");
@@ -1056,6 +1123,7 @@ function finishWorkout(){
   S.override = null;
   save(); render();
   celebrate(cycleFinished ? "cycle" : "workout", wid, Math.round(vol));
+  if(cycleFinished && S.lastReview) openCycleReview(S.lastReview);
   toast("Workout saved 💪");
   if(S.sync.gistId) syncNow(false);
   if(S.sync.repo) repoBackup(false);
@@ -1072,7 +1140,9 @@ function recomputeCycle(announce){
       }
     });
   if(done.length >= ROTATION.length){
-    // full cycle in the books → start a fresh one from now
+    // full cycle in the books → capture the review, then start fresh
+    S.lastReview = buildCycleReview();
+    S.lastCycle = {start:S.cycleStart, end:Date.now()};
     S.cycleStart = Date.now();
     S.cycleDone = [];
     if(announce) toast("Cycle complete — starting a fresh one 🔁");
@@ -1273,6 +1343,62 @@ function renderSessEditor(s){
     hideModal(); render();
     if(S.sync.repo) repoBackup(false);
   };
+}
+
+/* ---------- cycle review ---------- */
+function cycleSummary(start, end){
+  const sess = S.sessions.filter(s=>s.startedAt>=start && s.startedAt<=end);
+  let vol = 0;
+  const perDay = {}, exTop = {};
+  sess.forEach(s=>{
+    perDay[s.workoutId] = (perDay[s.workoutId]||0)+1;
+    s.entries.forEach(e=>{
+      e.sets.forEach(st=>{ vol += (parseFloat(st.weight)||0)*(parseFloat(st.reps)||0); });
+      const t = e.sets.reduce((b,st)=>{
+        const w = parseFloat(st.weight)||0;
+        return b==null||w>b ? w : b;
+      }, null);
+      if(t!=null) exTop[e.name] = Math.max(exTop[e.name]||0, t);
+    });
+  });
+  return {vol:Math.round(vol), n:sess.length, perDay, exTop};
+}
+function buildCycleReview(){
+  const now = Date.now();
+  const cur = cycleSummary(S.cycleStart, now);
+  const prev = S.lastCycle ? cycleSummary(S.lastCycle.start, S.lastCycle.end) : null;
+  const moved = [], stalled = [];
+  if(prev){
+    Object.keys(cur.exTop).forEach(name=>{
+      if(!(name in prev.exTop)) return;
+      const d = cur.exTop[name] - prev.exTop[name];
+      if(d > 0) moved.push({name, from:prev.exTop[name], to:cur.exTop[name]});
+      else if(d === 0 && cur.exTop[name] > 0) stalled.push({name, w:cur.exTop[name]});
+    });
+  }
+  return {cur, prevVol: prev?prev.vol:null, moved:moved.slice(0,6), stalled:stalled.slice(0,6), when:now};
+}
+function openCycleReview(r){
+  if(!r || !r.cur) return;
+  const pct = (r.prevVol && r.prevVol>0) ? Math.round((r.cur.vol - r.prevVol)/r.prevVol*100) : null;
+  const dayLine = Object.keys(META).filter(k=>r.cur.perDay[k]).map(k=>META[k].name+" ×"+r.cur.perDay[k]).join(" · ");
+  let h = `<h3>Cycle review</h3>
+  <div class="rev-stat"><span class="num" style="font-size:26px;font-weight:600">${r.cur.vol.toLocaleString()} lb</span> total volume
+    ${pct!=null?`<span class="num" style="color:${pct>=0?"var(--ok)":"var(--bad)"};margin-left:8px">${pct>=0?"+":""}${pct}% vs last cycle</span>`:""}</div>
+  <div class="rev-stat">${r.cur.n} workouts — ${esc(dayLine)}</div>`;
+  if(r.moved.length){
+    h += `<div class="rev-head">Moved up</div>`;
+    r.moved.forEach(m=>{ h += `<div class="rev-line"><b>${esc(m.name)}</b><span class="num">${m.from} → ${m.to} lb</span></div>`; });
+  }
+  if(r.stalled.length){
+    h += `<div class="rev-head">Held steady</div>`;
+    r.stalled.forEach(m=>{ h += `<div class="rev-line"><b>${esc(m.name)}</b><span class="num">${m.w} lb</span></div>`; });
+  }
+  if(!r.moved.length && !r.stalled.length && r.prevVol==null){
+    h += `<div class="sub" style="margin-top:10px">First full cycle logged — from the next one on, this review compares against it.</div>`;
+  }
+  h += `<button class="btn" style="margin-top:16px" id="closeModal">Done</button>`;
+  showModal(h);
 }
 
 /* ---------- modal ---------- */
