@@ -66,6 +66,12 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
   opacity:.45;filter:grayscale(.6);transition:all .15s;
 }
 .feel-btn.on{opacity:1;filter:none;border-color:var(--ok);transform:scale(1.12)}
+.ci-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.ci-field label{display:block;color:var(--faint);font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.ci-field input,.ci-field select{
+  width:100%;padding:12px 8px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card2);color:var(--text);font-family:var(--mono);font-size:16px;text-align:center;appearance:none;
+}
 .seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .seg button{
   flex:1;padding:14px;background:var(--card2);border:none;color:var(--dim);cursor:pointer;
@@ -331,9 +337,63 @@ body.shake{animation:shakeX .55s both}
 
 @keyframes prUp{0%{opacity:0;transform:translateY(4px) scale(.5)}18%{opacity:1;transform:translateY(-10px) scale(1.25)}100%{opacity:0;transform:translateY(-56px) scale(1)}}
 .pr-float{
-  position:fixed;z-index:99;pointer-events:none;
+  position:fixed;z-index:300;pointer-events:none;
   font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.06em;color:var(--arms);
   text-shadow:0 0 18px rgba(232,182,44,.9);animation:prUp 1.25s ease-out both;
+}
+
+/* rest stopwatch — blue flow */
+.rest-full{
+  position:fixed;inset:0;z-index:150;overflow:hidden;
+  background:linear-gradient(168deg,#050e1c 0%,#081f3d 52%,#0a3060 100%);
+  display:flex;align-items:center;justify-content:center;animation:fadeIn .2s both;
+}
+.rest-flow{position:absolute;border-radius:50%;filter:blur(64px);pointer-events:none}
+.rest-flow.f1{width:72vmin;height:72vmin;background:radial-gradient(circle,rgba(31,111,216,.55),transparent 65%);top:-16%;left:-12%;animation:flowDrift 9s ease-in-out infinite alternate}
+.rest-flow.f2{width:84vmin;height:84vmin;background:radial-gradient(circle,rgba(40,194,255,.4),transparent 62%);bottom:-26%;right:-16%;animation:flowDrift 12s ease-in-out infinite alternate-reverse}
+.rest-flow.f3{width:46vmin;height:46vmin;background:radial-gradient(circle,rgba(90,160,255,.3),transparent 60%);top:38%;left:52%;animation:flowDrift 7.5s ease-in-out infinite alternate}
+@keyframes flowDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(8vmin,-6vmin) scale(1.16)}}
+.rest-stack{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;transform:translateY(-3vh)}
+.rest-label{
+  font-family:var(--disp);font-size:21px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.3em;color:#7fb3e8;text-indent:.3em;
+}
+.rest-ringwrap{position:relative;display:flex;align-items:center;justify-content:center;padding:9vmin 11vmin}
+.rest-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(90,170,255,.4);animation:ringBreath 3.4s ease-in-out infinite}
+.rest-ring.r2{inset:-16px;border-color:rgba(60,140,235,.2);animation-delay:-1.7s}
+@keyframes ringBreath{0%,100%{transform:scale(.955);opacity:.45}50%{transform:scale(1.045);opacity:1}}
+.rest-full .rest-time{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;
+  font-size:clamp(64px,21vw,110px);color:#eaf5ff;line-height:1;
+  text-shadow:0 0 46px rgba(64,160,255,.85), 0 0 110px rgba(40,194,255,.4);
+}
+.rest-stopbtn{
+  width:auto;padding:16px 50px;
+  background:linear-gradient(135deg,#2f8fe8,#28c2ff);color:#041325;
+  box-shadow:0 0 32px rgba(45,150,240,.45);
+}
+.rest-x{
+  position:absolute;top:calc(16px + env(safe-area-inset-top));right:16px;
+  width:50px;height:50px;border-radius:50%;border:1px solid rgba(120,180,255,.35);
+  background:rgba(12,40,75,.55);color:#cfe7ff;font-size:19px;cursor:pointer;z-index:1;
+}
+.rest-mini{
+  position:fixed;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;
+  display:flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#0b2648,#0d3767);border:1px solid rgba(90,160,255,.4);
+  border-radius:999px;padding:6px 7px 6px 6px;box-shadow:0 8px 28px rgba(5,25,55,.7);
+  animation:fadeIn .18s both;
+}
+.rest-mini .rest-expand{
+  display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;
+  color:#dbeeff;padding:5px 7px;
+}
+.rest-mini .rest-time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;color:#dbeeff}
+.rest-dot{width:10px;height:10px;border-radius:50%;background:#28c2ff;box-shadow:0 0 8px rgba(40,194,255,.9);animation:dotPulse 1s ease-in-out infinite}
+.rest-stop-mini{
+  width:38px;height:38px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#2f8fe8,#28c2ff);
+  color:#041325;font-size:14px;cursor:pointer;
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
@@ -527,6 +587,7 @@ function migrate(){
     save();
   }
   if(!S.viewMode) S.viewMode = "regular";
+  if(!S.checkins) S.checkins = {};
   recomputeCycle(false);
 }
 function inferCycleStart(){
@@ -646,6 +707,84 @@ function prFloat(anchor){
   p.style.top = (r.top - 6) + "px";
   document.body.appendChild(p);
   setTimeout(()=>p.remove(), 1350);
+}
+
+/* ---------- rest stopwatch ---------- */
+function markPriorDone(ei, si){
+  if(!S.active) return;
+  let changed = false;
+  S.active.entries.forEach((en,i)=>{
+    en.sets.forEach((st,j)=>{
+      const prior = i < ei || (i === ei && j < si);
+      if(prior && !st.done && (String(st.weight||"").trim() || String(st.reps||"").trim() || String(st.rpe||"").trim())){
+        st.done = true;
+        changed = true;
+        const btn = document.querySelector(`.set .chk[data-e="${i}"][data-s="${j}"]`);
+        if(btn) btn.classList.add("on");
+      }
+    });
+  });
+  if(changed) save();
+}
+let restTick = null;
+function fmtClock(sec){ const m=Math.floor(sec/60), s=sec%60; return m+":"+String(s).padStart(2,"0"); }
+function restElapsed(){
+  return (S.active && S.active.restTimer) ? Math.max(0, Math.floor((Date.now()-S.active.restTimer.start)/1000)) : 0;
+}
+function recordRestIfRunning(){
+  const rt = S.active && S.active.restTimer;
+  if(!rt) return;
+  const sec = Math.floor((Date.now()-rt.start)/1000);
+  const set = S.active.entries[rt.e] && S.active.entries[rt.e].sets[rt.s];
+  if(set && sec >= 3) set.rest = sec;
+  S.active.restTimer = null;
+  save();
+}
+function startRest(e, s){
+  recordRestIfRunning();
+  S.active.restTimer = {start: Date.now(), e, s, min: false};
+  save();
+  showRestUI(false);
+}
+function stopRest(){
+  const sec = restElapsed();
+  recordRestIfRunning();
+  hideRestUI();
+  toast("Rest: "+fmtClock(sec));
+}
+function showRestUI(min){
+  if(!S.active || !S.active.restTimer){ hideRestUI(); return; }
+  S.active.restTimer.min = !!min;
+  save();
+  let el = document.getElementById("restUI");
+  if(!el){ el = document.createElement("div"); el.id = "restUI"; document.body.appendChild(el); }
+  if(min){
+    el.className = "rest-mini";
+    el.innerHTML = `<button class="rest-expand"><span class="rest-dot"></span><span class="rest-time num">${fmtClock(restElapsed())}</span></button><button class="rest-stop-mini" aria-label="Stop rest">■</button>`;
+    el.querySelector(".rest-expand").onclick = ()=> showRestUI(false);
+    el.querySelector(".rest-stop-mini").onclick = stopRest;
+  } else {
+    el.className = "rest-full";
+    el.innerHTML = `<div class="rest-flow f1"></div><div class="rest-flow f2"></div><div class="rest-flow f3"></div>
+      <button class="rest-x" aria-label="Minimize">✕</button>
+      <div class="rest-stack">
+        <div class="rest-label">Rest</div>
+        <div class="rest-ringwrap"><span class="rest-ring"></span><span class="rest-ring r2"></span><div class="rest-time num">${fmtClock(restElapsed())}</div></div>
+        <button class="btn rest-stopbtn">Stop rest</button>
+      </div>`;
+    el.querySelector(".rest-x").onclick = ()=> showRestUI(true);
+    el.querySelector(".rest-stopbtn").onclick = stopRest;
+  }
+  if(!restTick) restTick = setInterval(()=>{
+    const ui = document.getElementById("restUI");
+    if(!ui || !S.active || !S.active.restTimer){ hideRestUI(); return; }
+    ui.querySelectorAll(".rest-time").forEach(t=> t.textContent = fmtClock(restElapsed()));
+  }, 250);
+}
+function hideRestUI(){
+  const el = document.getElementById("restUI");
+  if(el) el.remove();
+  if(restTick){ clearInterval(restTick); restTick = null; }
 }
 function rpeTxt(v){ return v ? "RPE "+v : ""; }
 
@@ -806,6 +945,19 @@ function plateStrip(){
   return html + "</div>";
 }
 
+function checkinCard(){
+  const ci = S.checkins[todayStr()] || {};
+  const logged = ci.weight || ci.sleep || ci.energy;
+  return `<div class="card">
+    <div class="ex-head" style="margin-bottom:8px"><b style="font-family:var(--disp);font-size:17px;text-transform:uppercase;letter-spacing:.04em">Daily check-in</b><span class="sub num">${logged?"✓ logged":"optional · 5 seconds"}</span></div>
+    <div class="ci-row">
+      <div class="ci-field"><label>Weight (lb)</label><input id="ciW" inputmode="decimal" value="${ci.weight??""}" placeholder="—"></div>
+      <div class="ci-field"><label>Sleep (hrs)</label><input id="ciS" inputmode="decimal" value="${ci.sleep??""}" placeholder="—"></div>
+      <div class="ci-field"><label>Energy</label><select id="ciE"><option value="">—</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${String(ci.energy)===String(n)?"selected":""}>${n}</option>`).join("")}</select></div>
+    </div>
+  </div>`;
+}
+
 /* ---------- TODAY ---------- */
 function viewToday(){
   const wid = todaysWorkoutId();
@@ -818,6 +970,7 @@ function viewToday(){
   }
 
   if(S.restDay && S.restDay.date === todayStr()){
+    h += checkinCard();
     h += `<div class="card" style="text-align:center;padding:34px 20px">
       <h3 style="font-size:26px">Rest day</h3>
       <div class="sub" style="margin-top:8px">Recovery is where the growth happens. Your rotation picks back up tomorrow with <b>${m.name}</b>.</div>
@@ -833,6 +986,7 @@ function viewToday(){
     </div>
     <div class="sub">Next up in your rotation. Tap a plate above to move your week, or pick a different workout below.</div>
   </div>`;
+  h += checkinCard();
 
   h += `<div class="card">`;
   let finLabeled = false;
@@ -1211,10 +1365,31 @@ function bind(){
   const swap = $("#swapBtn");
   if(swap) swap.onclick = openPicker;
 
+  ["ciW","ciS","ciE"].forEach(id=>{
+    const el = $("#"+id);
+    if(el) el.onchange = ()=>{
+      const d = todayStr();
+      const ci = S.checkins[d] || {};
+      if(id==="ciW") ci.weight = el.value.trim();
+      if(id==="ciS") ci.sleep = el.value.trim();
+      if(id==="ciE") ci.energy = el.value;
+      S.checkins[d] = ci;
+      save(); queueSync();
+    };
+  });
+
   document.querySelectorAll(".set input, .set select").forEach(el=>{
     el.onchange = ()=>{
-      const {e,s,f} = el.dataset;
-      S.active.entries[e].sets[s][f] = el.value;
+      const ei = parseInt(el.dataset.e,10), si = parseInt(el.dataset.s,10), f = el.dataset.f;
+      const st = S.active.entries[ei].sets[si];
+      st[f] = el.value;
+      if(String(el.value).trim() !== ""){
+        markPriorDone(ei, si);
+        // stopwatch fires only once the user has entered all three: lbs, reps, and RPE
+        const full = String(st.weight||"").trim() && String(st.reps||"").trim() && String(st.rpe||"").trim();
+        const alreadyTiming = S.active.restTimer && S.active.restTimer.e===ei && S.active.restTimer.s===si;
+        if(full && !st.done && !st.rest && !alreadyTiming) startRest(ei, si);
+      }
       save();
     };
   });
@@ -1236,6 +1411,13 @@ function bind(){
         const lastW = lastArr && lastArr[s] ? parseFloat(lastArr[s].weight) : NaN;
         const curW = parseFloat(st.weight);
         if(!isNaN(curW) && !isNaN(lastW) && curW > lastW) prFloat(el);
+        // stopwatch only when the user's lbs + reps + RPE are all in
+        if(String(st.weight||"").trim() && String(st.reps||"").trim() && String(st.rpe||"").trim() && !st.rest) startRest(parseInt(e,10), parseInt(s,10));
+      } else {
+        // unchecking: cancel its running timer and clear its recorded rest
+        const rt = S.active.restTimer;
+        if(rt && rt.e===parseInt(e,10) && rt.s===parseInt(s,10)){ S.active.restTimer=null; hideRestUI(); }
+        delete st.rest;
       }
       el.classList.toggle("on", st.done);
       save();
@@ -1331,7 +1513,7 @@ function bind(){
   });
   const disc = $("#discardBtn");
   if(disc) disc.onclick = ()=>{
-    if(confirm("Discard this workout? Nothing will be saved.")){ S.active=null; save(); render(); }
+    if(confirm("Discard this workout? Nothing will be saved.")){ S.active=null; hideRestUI(); save(); render(); }
   };
 
   const rep = $("#reportBtn");
@@ -1402,6 +1584,7 @@ function startWorkout(wid){
 }
 function finishWorkout(){
   const a = S.active;
+  if(a.restTimer){ a.restTimer = null; hideRestUI(); }
   const logged = a.entries.some(e=>e.sets.some(st=>st.done || st.reps));
   if(!logged && !confirm("No sets logged — finish anyway?")) return;
   a.entries.forEach(e=>{ e.sets = e.sets.filter(st=>st.done || st.reps || st.weight); });
@@ -1739,7 +1922,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -1782,12 +1965,14 @@ async function syncNow(announce){
       if(remote.restDay!==undefined) S.restDay = remote.restDay;
       if(remote.lastCycle) S.lastCycle = remote.lastCycle;
       if(remote.lastReview) S.lastReview = remote.lastReview;
+      S.checkins = Object.assign({}, S.checkins||{}, remote.checkins||{});
       S.sessions = remote.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
       recomputeCycle(false);
       save();
     } else if(remote){
       const ids = new Set(S.sessions.map(s=>s.id));
       const extra = (remote.sessions||[]).filter(s=>!ids.has(s.id));
+      S.checkins = Object.assign({}, remote.checkins||{}, S.checkins||{});
       if(extra.length){
         S.sessions = S.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
         recomputeCycle(false);
@@ -1835,7 +2020,16 @@ function buildReportHTML(){
     const dur = durFmt(s);
     const metaBits = [];
     if(dur) metaBits.push("Duration: "+dur);
+    const rests = [];
+    s.entries.forEach(e=>e.sets.forEach(st=>{ if(st.rest) rests.push(st.rest); }));
+    if(rests.length) metaBits.push("Avg rest: "+fmtClock(Math.round(rests.reduce((a,b)=>a+b,0)/rests.length)));
     if(s.feel) metaBits.push("Feel: "+FEELS[s.feel-1]+" ("+s.feel+"/5)");
+    const ci = (S.checkins||{})[s.date];
+    if(ci){
+      if(ci.weight) metaBits.push("Bodyweight: "+esc(ci.weight)+" lb");
+      if(ci.sleep) metaBits.push("Sleep: "+esc(ci.sleep)+" h");
+      if(ci.energy) metaBits.push("Energy: "+esc(ci.energy)+"/10");
+    }
     if(s.note) metaBits.push("Note: "+esc(s.note));
     body += `<h2>${longDate(s.date)} — ${m.name} Day</h2>
     ${metaBits.length?`<p class="meta">${metaBits.join(" · ")}</p>`:""}
@@ -1998,6 +2192,7 @@ function importJSON(e){
       S.program = d.program;
       S.pointer = d.pointer||0;
       if(d.cycleStart) S.cycleStart = d.cycleStart;
+      if(d.checkins) S.checkins = d.checkins;
       S.sessions = d.sessions;
       recomputeCycle(false);
       save(); queueSync(); render(); toast("Imported ✓");
@@ -2021,6 +2216,7 @@ function importJSON(e){
   setTimeout(bye, 2450);
 })();
 render();
+if(S.active && S.active.restTimer) showRestUI(S.active.restTimer.min);
 if(S.sync.token && S.sync.gistId){ setSyncStatus("pending"); syncNow(false); }
 document.addEventListener("visibilitychange", ()=>{
   if(document.visibilityState==="visible" && S.sync.token && S.sync.gistId) syncNow(false);
