@@ -604,6 +604,7 @@ function migrate(){
   }
   if(!S.viewMode) S.viewMode = "regular";
   if(!S.checkins) S.checkins = {};
+  if(!Array.isArray(S.deleted)) S.deleted = [];
   recomputeCycle(false);
 }
 function inferCycleStart(){
@@ -1564,7 +1565,9 @@ function bind(){
   document.querySelectorAll("[data-resumesess]").forEach(b=> b.onclick=()=> resumeSession(b.dataset.resumesess));
   document.querySelectorAll("[data-delsess]").forEach(b=> b.onclick=()=>{
     if(confirm("Delete this session permanently?")){
-      S.sessions = S.sessions.filter(s=>s.id!==b.dataset.delsess);
+      const id = b.dataset.delsess;
+      S.sessions = S.sessions.filter(s=>s.id!==id);
+      if(!S.deleted.includes(id)) S.deleted.push(id);
       recomputeCycle(false);
       save(); queueSync(); render();
     }
@@ -1870,10 +1873,11 @@ function renderSessEditor(s){
   };
 
   const ne = $("#sessNoteEdit");
-  if(ne) ne.onchange = ()=>{ s.note = ne.value.trim(); save(); queueSync(); };
+  if(ne) ne.onchange = ()=>{ s.note = ne.value.trim(); s.edited = Date.now(); save(); queueSync(); };
   document.querySelectorAll("#modal [data-feele]").forEach(b=> b.onclick=()=>{
     const v = parseInt(b.dataset.feele,10);
     s.feel = s.feel===v ? null : v;
+    s.edited = Date.now();
     save(); queueSync();
     document.querySelectorAll("#modal [data-feele]").forEach(x=>x.classList.toggle("on", parseInt(x.dataset.feele,10)===s.feel));
   });
@@ -1883,6 +1887,7 @@ function renderSessEditor(s){
   document.querySelectorAll("[data-rmex]").forEach(b=> b.onclick=()=>{
     if(confirm("Remove this exercise from the session?")){
       s.entries.splice(parseInt(b.dataset.rmex,10),1);
+      s.edited = Date.now();
       save(); queueSync();
       renderSessEditor(s);
     }
@@ -1895,6 +1900,7 @@ function renderSessEditor(s){
     const sets = newSets.filter(st=>String(st.reps).trim()||String(st.weight).trim()).map(st=>({weight:st.weight, reps:st.reps, rpe:st.rpe, done:true}));
     if(!sets.length){ toast("Fill in at least one set"); return; }
     s.entries.push({name, sets});
+    s.edited = Date.now();
     save(); queueSync();
     renderSessEditor(s);
     toast("Added "+name);
@@ -1995,7 +2001,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -2017,6 +2023,28 @@ async function connectGist(){
       await syncNow(true);
     }
   }catch(err){ toast("GitHub error: "+err.message); }
+}
+function mergeSessions(localArr, remoteArr, tomb){
+  const byId = new Map();
+  const consider = s=>{
+    if(tomb.has(s.id)) return;
+    const prev = byId.get(s.id);
+    if(!prev){ byId.set(s.id, s); return; }
+    // keep the version edited most recently (fall back to finishedAt)
+    const t = s.edited || s.finishedAt || 0;
+    const pt = prev.edited || prev.finishedAt || 0;
+    if(t >= pt) byId.set(s.id, s);
+  };
+  localArr.forEach(consider);
+  remoteArr.forEach(consider);
+  return [...byId.values()].sort((a,b)=>a.startedAt-b.startedAt);
+}
+function pickRestDay(localRD, remoteRD){
+  // prefer whichever rest day falls within the current cycle window; never let blank erase a real one
+  const inCycle = rd => rd && rd.date && (new Date(rd.date+"T12:00:00").getTime() >= (S.cycleStart - 24*3600e3));
+  if(inCycle(localRD)) return localRD;
+  if(inCycle(remoteRD)) return remoteRD;
+  return localRD || remoteRD || null;
 }
 function reconcileCycleAfterMerge(remoteCycleStart){
   // adopt the earliest reasonable anchor so no session belonging to the
@@ -2041,23 +2069,25 @@ async function syncNow(announce){  if(!S.sync.token || !S.sync.gistId){ if(annou
       try{ remote = JSON.parse(content); }catch(e){}
     }
     if(remote && remote.savedAt > S.savedAt){
-      const ids = new Set(remote.sessions.map(s=>s.id));
-      const extra = S.sessions.filter(s=>!ids.has(s.id));
+      const tomb = new Set([...(S.deleted||[]), ...(remote.deleted||[])]);
       S.program = remote.program;
       S.pointer = remote.pointer;
-      if(remote.restDay!==undefined) S.restDay = remote.restDay;
+      S.restDay = pickRestDay(S.restDay, remote.restDay);
       if(remote.lastCycle) S.lastCycle = remote.lastCycle;
       if(remote.lastReview) S.lastReview = remote.lastReview;
       S.checkins = Object.assign({}, S.checkins||{}, remote.checkins||{});
-      S.sessions = remote.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
+      S.deleted = [...tomb];
+      S.sessions = mergeSessions(S.sessions, remote.sessions, tomb);
       reconcileCycleAfterMerge(remote.cycleStart);
       save();
     } else if(remote){
-      const ids = new Set(S.sessions.map(s=>s.id));
-      const extra = (remote.sessions||[]).filter(s=>!ids.has(s.id));
+      const tomb = new Set([...(S.deleted||[]), ...(remote.deleted||[])]);
       S.checkins = Object.assign({}, remote.checkins||{}, S.checkins||{});
-      if(extra.length){
-        S.sessions = S.sessions.concat(extra).sort((a,b)=>a.startedAt-b.startedAt);
+      S.restDay = pickRestDay(S.restDay, remote.restDay);
+      S.deleted = [...tomb];
+      const before = JSON.stringify(S.sessions.map(s=>s.id+":"+(s.edited||0)));
+      S.sessions = mergeSessions(S.sessions, remote.sessions||[], tomb);
+      if(JSON.stringify(S.sessions.map(s=>s.id+":"+(s.edited||0))) !== before){
         reconcileCycleAfterMerge(remote.cycleStart);
         save();
       }
