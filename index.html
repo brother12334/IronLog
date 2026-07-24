@@ -483,6 +483,69 @@ body.shake{animation:shakeX .55s both}
   78%{transform:scale(1.08)}
   100%{opacity:1;transform:scale(1)}
 }
+
+/* single-arm "start side" hint */
+.arm-hint{
+  display:inline-block;font-size:13px;color:var(--text);
+  background:rgba(232,182,44,.12);border:1px solid rgba(232,182,44,.45);
+  border-radius:9px;padding:6px 11px;margin:-2px 0 12px;line-height:1.35;
+}
+.arm-hint b{font-family:var(--disp);font-size:15px;letter-spacing:.05em;color:var(--arms)}
+
+/* ================= CYCLE "WRAPPED" ================= */
+#wrapped{
+  position:fixed;inset:0;z-index:210;overflow:hidden;color:#fff;
+  display:flex;flex-direction:column;font-family:var(--disp);
+  animation:fadeIn .35s both;
+}
+#wrapped.out{opacity:0;transition:opacity .4s ease}
+.wr-bg{position:absolute;inset:0;z-index:0;transition:background .55s ease}
+.wr-bars{position:relative;z-index:3;display:flex;gap:5px;padding:calc(12px + env(safe-area-inset-top)) 14px 6px}
+.wr-bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.28);overflow:hidden}
+.wr-bar>i{display:block;height:100%;width:0;background:#fff;border-radius:2px}
+.wr-bar.done>i{width:100%}
+.wr-bar.active>i{animation:wrFill var(--wrdur,5200ms) linear forwards}
+@keyframes wrFill{from{width:0}to{width:100%}}
+.wr-top{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:3px 16px 0}
+.wr-brand{font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.85}
+.wr-x{background:none;border:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:4px 8px;opacity:.85}
+.wr-stage{position:relative;z-index:2;flex:1;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+.wr-nav{position:absolute;left:0;right:0;top:78px;bottom:0;z-index:4;display:flex}
+.wr-nav>div{cursor:pointer}
+.wr-nav .wr-prev{flex:1}
+.wr-nav .wr-next{flex:2.4}
+.wr-slide{width:100%;max-width:560px;animation:wrIn .55s cubic-bezier(.2,1,.3,1) both}
+@keyframes wrIn{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.wr-hero{font-size:clamp(30px,10vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:.03em;line-height:1.04}
+.wr-kicker{font-size:15px;letter-spacing:.18em;text-transform:uppercase;opacity:.82;margin-bottom:12px}
+.wr-big{
+  font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;
+  font-size:clamp(56px,21vw,130px);line-height:.92;letter-spacing:-.03em;
+  text-shadow:0 6px 34px rgba(0,0,0,.4);
+}
+.wr-unit{font-family:var(--disp);font-size:clamp(20px,7vw,34px);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:6px}
+.wr-sub{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;opacity:.94;margin:18px auto 0;max-width:440px}
+.wr-pill{
+  display:inline-block;font-family:var(--mono);font-size:15px;letter-spacing:.05em;
+  background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.3);
+  border-radius:999px;padding:9px 18px;margin-top:18px;
+}
+.wr-list{display:flex;flex-direction:column;gap:10px;text-align:left;max-width:410px;margin:22px auto 0}
+.wr-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:17px;
+  border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:9px;
+}
+.wr-row .num{font-family:var(--mono);font-weight:600;opacity:.96;white-space:nowrap}
+.wr-daychips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.wr-daychip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border-radius:999px;padding:8px 14px;font-family:var(--mono);font-size:15px}
+.wr-daychip .dot{width:13px;height:13px;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+.wr-emoji{font-size:clamp(58px,22vw,116px);line-height:1;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))}
+.wr-done{margin-top:28px}
+.wr-done button{
+  background:#fff;color:#111;border:none;border-radius:999px;padding:15px 38px;cursor:pointer;
+  font-family:var(--disp);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.06em;
+}
 </style>
 </head>
 <body>
@@ -506,7 +569,7 @@ body.shake{animation:shakeX .55s both}
       <path class="spark spark2" d="M400 348 C406 394 410 398 456 404 C410 410 406 414 400 460 C394 414 390 410 344 404 C390 398 394 394 400 348 Z" fill="none" stroke="#b08344" stroke-width="6"/>
     </svg>
     <div class="splash-word">Iron Log</div>
-    <div class="splash-ver">v1.7</div>
+    <div class="splash-ver">v1.8</div>
   </div>
 </div>
 <div id="app"></div>
@@ -521,7 +584,7 @@ body.shake{animation:shakeX .55s both}
 
 <script>
 "use strict";
-const APP_VERSION = "1.7";
+const APP_VERSION = "1.8";
 /* ================= DATA ================= */
 const LS_KEY = "ironlog.v1";
 const GIST_FILE = "ironlog-data.json";
@@ -913,6 +976,16 @@ function todaysWorkoutId(){
 function altIndex(wid){
   return S.sessions.filter(s=>s.workoutId===wid).length % 2;
 }
+// A movement done one arm at a time (curls, kickbacks, single-arm rows…). Auto-detected
+// from the note/name so it also covers any single-arm exercise you add later, on any day.
+function isSingleArm(e){
+  const s = (e.name||"") + " " + (e.note||"");
+  return /\b(single|one)[- ]?arm\b|\bper arm\b|\beach arm\b|\bl\s*\/\s*r\b|alternat[a-z]*\s+(l\/r|arms?|left|right|side)/i.test(s);
+}
+// Which arm to START with this session. Flips every session of that day:
+// session 0,2,4 → Right first; 1,3,5 → Left first.
+function startSideFor(wid){ return altIndex(wid) === 0 ? "R" : "L"; }
+function sideWord(side){ return side === "L" ? "LEFT" : "RIGHT"; }
 function activeVariant(wid, e){
   if(!e.alt) return e;
   return altIndex(wid)===0 ? e : e.alt;
@@ -1107,6 +1180,7 @@ function viewToday(){
     h += `<div class="ex-head"><b>${esc(e.name)}${other?'<span class="alt-badge">⇄</span>':''}</b><span class="ex-target">${e.sets}×${esc(e.reps)}${e.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(e.rpe))+'</span>':""}</span></div>`;
     if(ll) h += ll;
     if(ins) h += `<div class="ex-insight"><span class="ins-tag">${esc(ins.tag)}</span><span>${esc(ins.msg)}</span></div>`;
+    if(isSingleArm(e)) h += `<div class="arm-hint">Start with <b>${sideWord(startSideFor(wid))}</b> arm this session · alternate each set</div>`;
     let subBits = [];
     if(!ll) subBits.push('no sessions logged yet');
     if(other) subBits.push('alternates with '+esc(other.name)+' next '+m.name.toLowerCase()+' day');
@@ -1160,6 +1234,7 @@ function viewActiveSession(){
       </div>`;
     if(ll) h += ll;
     if(en.note) h += `<div class="ex-note">${esc(en.note)}</div>`;
+    if(en.startSide) h += `<div class="arm-hint">Start with <b>${sideWord(en.startSide)}</b> arm · alternate each set</div>`;
     h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
     en.sets.forEach((st,si)=>{
       h += `<div class="set">
@@ -1255,6 +1330,7 @@ function viewFocusSession(){
     <div class="ex-target" style="margin:2px 0 10px">${en.sets.length}×${esc(en.reps||"")}${en.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(en.rpe))+'</span>':""}</div>`;
   if(ll) h += ll;
   if(en.note) h += `<div class="ex-note">${esc(en.note)}</div>`;
+  if(en.startSide) h += `<div class="arm-hint">Start with <b>${sideWord(en.startSide)}</b> arm · alternate each set</div>`;
   h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
   en.sets.forEach((st,si)=>{
     h += `<div class="set">
@@ -1298,13 +1374,9 @@ function viewHistory(){
   </div>`;
   const rl = (S.restLog||[]).slice().sort();
   h += `<div class="card">
-    <div class="ex-head" style="margin-bottom:8px"><b style="font-family:var(--disp);font-size:16px;text-transform:uppercase;letter-spacing:.04em">Rest days</b><span class="sub num">${rl.length} logged</span></div>
-    <div class="sub" style="margin:-2px 0 10px">Log any day you rested. These appear in your report and export.</div>
-    ${rl.length ? `<div class="rl-list">${rl.map(d=>`<span class="rl-chip">${fmtDate(d)}<button data-rmrest="${d}" aria-label="Remove">✕</button></span>`).join("")}</div>` : `<div class="sub" style="margin-bottom:8px">None logged yet.</div>`}
-    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
-      <input type="date" id="restDateIn" value="${todayStr()}" style="flex:1;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-family:var(--mono);font-size:15px">
-      <button class="btn small" id="addRestBtn" style="width:auto;padding:11px 20px">Add</button>
-    </div>
+    <div class="ex-head" style="margin-bottom:8px"><b style="font-family:var(--disp);font-size:16px;text-transform:uppercase;letter-spacing:.04em">Rest days</b><span class="sub num">${rl.length} total</span></div>
+    <div class="sub" style="margin:-2px 0 10px">Every day you've rested, across all cycles. Add or remove rest days in <b>Settings</b>.</div>
+    ${rl.length ? `<div class="rl-list">${rl.map(d=>`<span class="rl-chip" style="padding:5px 12px">${fmtDate(d)}</span>`).join("")}</div>` : `<div class="sub" style="margin-bottom:2px">None logged yet.</div>`}
   </div>`;
   [...S.sessions].reverse().forEach(s=>{
     const m = META[s.workoutId];
@@ -1380,6 +1452,7 @@ function viewProgram(){
 /* ---------- SYNC / SETTINGS ---------- */
 function viewSync(){
   const c = S.sync;
+  const restLog = (S.restLog||[]).slice().sort();
   let h = `<div class="hdr"><h1>Settings</h1><span class="date num">v${APP_VERSION}</span></div>
   <div class="card">
     <h3>Preferences</h3>
@@ -1411,6 +1484,15 @@ function viewSync(){
       <button class="btn ghost small" id="repoBackupBtn" ${c.repo?"":"disabled"}>Back up now</button>
     </div>
     <div class="sub num" style="margin-top:8px">${c.lastRepo?"Last repo backup "+new Date(c.lastRepo).toLocaleString():"No repo backups yet"}</div>
+  </div>
+  <div class="card">
+    <h3>Rest days</h3>
+    <div class="sub" style="margin:4px 0 10px">Log a day you rested, or remove one added by mistake. Rest days show in History and your report.</div>
+    ${restLog.length ? `<div class="rl-list">${restLog.map(d=>`<span class="rl-chip">${fmtDate(d)}<button data-rmrest="${d}" aria-label="Remove">✕</button></span>`).join("")}</div>` : `<div class="sub" style="margin-bottom:8px">None logged yet.</div>`}
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+      <input type="date" id="restDateIn" value="${todayStr()}" style="flex:1;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-family:var(--mono);font-size:15px">
+      <button class="btn small" id="addRestBtn" style="width:auto;padding:11px 20px">Add</button>
+    </div>
   </div>
   <div class="card">
     <h3>Backup</h3>
@@ -1464,10 +1546,13 @@ function bind(){
     if(!used){
       if(confirm("Take today as your rest day? You get one per cycle.")){
         S.restDay = {date: todayStr()};
+        // also log it permanently so it survives cycle resets and shows in History
+        if(!S.restLog.includes(todayStr())){ S.restLog.push(todayStr()); S.restLog.sort(); }
         save(); queueSync(); render();
       }
     } else if(S.restDay.date === todayStr()){
       if(confirm("Cancel today's rest day?")){
+        S.restLog = S.restLog.filter(d=>d!==S.restDay.date);
         S.restDay = null;
         save(); queueSync(); render();
       }
@@ -1477,12 +1562,16 @@ function bind(){
   };
   const ur = $("#undoRestBtn");
   if(ur) ur.onclick = ()=>{
+    // decided to train after all → this wasn't a rest day, so unlog it too
+    if(S.restDay && S.restDay.date) S.restLog = S.restLog.filter(d=>d!==S.restDay.date);
     S.restDay = null;
     save(); queueSync(); render();
   };
   const crb = $("#clearRestBtn");
   if(crb) crb.onclick = ()=>{
-    if(confirm("Clear this cycle's rest day? You'll be able to take one again.")){
+    // frees the per-cycle allowance but keeps the day in the permanent rest log —
+    // you still rested that day, you're just allowing another rest this cycle.
+    if(confirm("Free up this cycle's rest day so you can take another? The day stays in your rest history — remove it in Settings if it was a mistake.")){
       S.restDay = null;
       save(); queueSync(); render();
     }
@@ -1659,11 +1748,15 @@ function bind(){
     else toast("That day's already logged");
   };
   document.querySelectorAll("[data-rmrest]").forEach(b=> b.onclick=()=>{
-    S.restLog = S.restLog.filter(x=>x!==b.dataset.rmrest);
+    const d = b.dataset.rmrest;
+    if(!confirm("Remove rest day "+fmtDate(d)+"?")) return;
+    S.restLog = S.restLog.filter(x=>x!==d);
+    if(S.restDay && S.restDay.date===d) S.restDay = null;   // also clear the cycle marker if it was this day
     save(); queueSync(); render();
   });
 
-  document.querySelectorAll(".sess").forEach(c=>{    c.onclick = e=>{
+  document.querySelectorAll(".sess").forEach(c=>{
+    c.onclick = e=>{
       if(e.target.dataset.delsess || e.target.dataset.editsess || e.target.dataset.resumesess) return;
       c.classList.toggle("open");
     };
@@ -1715,6 +1808,9 @@ function bind(){
 
 /* ---------- workout flow ---------- */
 function startWorkout(wid){
+  // lock in this session's starting arm now, so it can't shift if the session count
+  // changes later (e.g. resuming from history splices a session out of the list).
+  const side = startSideFor(wid);
   S.active = {
     id: uid(),
     workoutId: wid,
@@ -1723,6 +1819,7 @@ function startWorkout(wid){
     entries: resolvedProgram(wid).map(({chosen:e, isFinisher})=>({
       name: e.name, reps: e.reps, rpe: e.rpe, note: e.note, fin: isFinisher||undefined,
       superset: e.superset||undefined, supersetEnd: e.supersetEnd||undefined,
+      startSide: isSingleArm(e) ? side : undefined,
       sets: Array.from({length:e.sets}, ()=>({weight:"",reps:"",rpe:"",done:false}))
     }))
   };
@@ -1746,6 +1843,7 @@ function resumeSession(id){
     restTimer: null,
     entries: s.entries.map(e=>({
       name: e.name, reps: e.reps, rpe: e.rpe, note: e.note, fin: e.fin||undefined,
+      startSide: isSingleArm(e) ? (e.startSide || startSideFor(s.workoutId)) : undefined,
       sets: e.sets.map(st=>Object.assign({}, st))
     }))
   };
@@ -1784,7 +1882,7 @@ function finishWorkout(){
   S.override = null;
   save(); render();
   celebrate(cycleFinished ? "cycle" : "workout", wid, Math.round(vol));
-  if(cycleFinished && S.lastReview) openCycleReview(S.lastReview);
+  if(cycleFinished && S.lastReview) setTimeout(()=>openCycleReview(S.lastReview), 1100);
   toast("Workout saved 💪");
   if(S.sync.gistId) syncNow(false);
   if(S.sync.repo) repoBackup(false);
@@ -2022,14 +2120,21 @@ function renderSessEditor(s){
 /* ---------- cycle review ---------- */
 function cycleSummary(start, end){
   const sess = S.sessions.filter(s=>s.startedAt>=start && s.startedAt<=end);
-  let vol = 0, durTotal = 0, durN = 0, feelTotal = 0, feelN = 0;
-  const perDay = {}, exTop = {};
+  let vol = 0, durTotal = 0, durN = 0, feelTotal = 0, feelN = 0, totalReps = 0, totalSets = 0;
+  let heaviest = null;               // {name, w, reps} — single heaviest load touched
+  const perDay = {}, exTop = {}, exVol = {};
   sess.forEach(s=>{
     perDay[s.workoutId] = (perDay[s.workoutId]||0)+1;
     if(s.startedAt && s.finishedAt && s.finishedAt>s.startedAt){ durTotal += (s.finishedAt-s.startedAt); durN++; }
     if(s.feel){ feelTotal += s.feel; feelN++; }
     s.entries.forEach(e=>{
-      e.sets.forEach(st=>{ vol += (parseFloat(st.weight)||0)*(parseFloat(st.reps)||0); });
+      e.sets.forEach(st=>{
+        const w = parseFloat(st.weight)||0, reps = parseFloat(st.reps)||0;
+        vol += w*reps;
+        if(reps>0){ totalSets++; totalReps += reps; }
+        exVol[e.name] = (exVol[e.name]||0) + w*reps;
+        if(w>0 && (!heaviest || w>heaviest.w)) heaviest = {name:e.name, w, reps};
+      });
       const t = e.sets.reduce((b,st)=>{
         const w = parseFloat(st.weight)||0;
         return b==null||w>b ? w : b;
@@ -2039,7 +2144,15 @@ function cycleSummary(start, end){
   });
   const avgDurMin = durN ? Math.round(durTotal/durN/60000) : null;
   const avgFeel = feelN ? Math.round(feelTotal/feelN*10)/10 : null;
-  return {vol:Math.round(vol), n:sess.length, perDay, exTop, avgDurMin, avgFeel};
+  // most-worked movement by total volume
+  let topVolEx = null;
+  Object.keys(exVol).forEach(name=>{ if(exVol[name]>0 && (!topVolEx || exVol[name]>topVolEx.vol)) topVolEx = {name, vol:exVol[name]}; });
+  // rest days that fall inside this cycle's window
+  const restCount = (S.restLog||[]).filter(d=>{
+    const ms = new Date(d+"T12:00:00").getTime();
+    return ms>=start && ms<=end;
+  }).length;
+  return {vol:Math.round(vol), n:sess.length, perDay, exTop, avgDurMin, avgFeel, totalReps, totalSets, heaviest, topVolEx, restCount};
 }
 function buildCycleReview(){
   const now = Date.now();
@@ -2056,7 +2169,13 @@ function buildCycleReview(){
   }
   return {cur, prevVol: prev?prev.vol:null, moved:moved.slice(0,6), stalled:stalled.slice(0,6), when:now};
 }
+// Router: full-screen "Wrapped" slideshow by default; plain modal when motion is reduced.
 function openCycleReview(r){
+  if(!r || !r.cur) return;
+  if(reducedMotion()) openCycleReviewSimple(r);
+  else openCycleWrapped(r);
+}
+function openCycleReviewSimple(r){
   if(!r || !r.cur) return;
   const pct = (r.prevVol && r.prevVol>0) ? Math.round((r.cur.vol - r.prevVol)/r.prevVol*100) : null;
   const dayLine = Object.keys(META).filter(k=>r.cur.perDay[k]).map(k=>META[k].name+" ×"+r.cur.perDay[k]).join(" · ");
@@ -2079,6 +2198,190 @@ function openCycleReview(r){
   }
   h += `<button class="btn" style="margin-top:16px" id="closeModal">Done</button>`;
   showModal(h);
+}
+
+/* ---------- cycle review — "Wrapped" slideshow ---------- */
+function wrCountUp(el, target, dur){
+  if(!el) return;
+  const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (cb=>setTimeout(()=>cb(Date.now()),16));
+  dur = dur || 1400;
+  let t0 = null;
+  const tick = now=>{
+    if(!el.isConnected) return;
+    if(t0===null) t0 = now;
+    const p = Math.min(1,(now-t0)/dur);
+    const eased = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(target*eased).toLocaleString();
+    if(p<1) raf(tick);
+  };
+  raf(tick);
+}
+function buildWrappedSlides(r){
+  const cur = r.cur || {};
+  const DH = DAY_HEX;
+  const slides = [];
+  // 1 — intro
+  slides.push({
+    bg:"linear-gradient(160deg,#e05248,#4a82e0 52%,#46a85c)",
+    html:`<div class="wr-emoji">🏋️</div>
+      <div class="wr-kicker" style="margin-top:14px">Cycle complete</div>
+      <div class="wr-hero">Your cycle,<br>wrapped</div>
+      <div class="wr-sub">${cur.n||0} ${cur.n===1?"workout":"workouts"} in the books. Let's look back at what you moved.</div>`
+  });
+  // 2 — total volume
+  const pct = (r.prevVol && r.prevVol>0) ? Math.round((cur.vol-r.prevVol)/r.prevVol*100) : null;
+  slides.push({
+    bg:"linear-gradient(160deg,#2a1466,#e05248)",
+    html:`<div class="wr-kicker">You moved a total of</div>
+      <div class="wr-big"><span id="wrVol">0</span></div>
+      <div class="wr-unit">pounds</div>
+      ${pct!=null
+        ? `<div class="wr-pill">${pct>=0?"▲ +"+pct:"▼ "+pct}% vs last cycle</div>`
+        : `<div class="wr-sub">Your first full cycle — the baseline every future one gets measured against.</div>`}`,
+    onShow:st=>wrCountUp(st.querySelector("#wrVol"), cur.vol||0, 1700)
+  });
+  // 3 — workouts + day breakdown
+  const dayChips = Object.keys(META).filter(k=>cur.perDay && cur.perDay[k])
+    .map(k=>`<span class="wr-daychip"><span class="dot" style="background:${DH[k]}"></span>${META[k].name} ×${cur.perDay[k]}</span>`).join("");
+  slides.push({
+    bg:"linear-gradient(160deg,#0c4a37,#4a82e0)",
+    html:`<div class="wr-kicker">You showed up</div>
+      <div class="wr-big"><span id="wrN">0</span></div>
+      <div class="wr-unit">${cur.n===1?"workout":"workouts"}</div>
+      ${dayChips?`<div class="wr-daychips">${dayChips}</div>`:""}`,
+    onShow:st=>wrCountUp(st.querySelector("#wrN"), cur.n||0, 900)
+  });
+  // 4 — reps + sets
+  if(cur.totalReps){
+    slides.push({
+      bg:"linear-gradient(160deg,#6e3b00,#e8b62c)",
+      html:`<div class="wr-kicker">That added up to</div>
+        <div class="wr-big"><span id="wrReps">0</span></div>
+        <div class="wr-unit">reps</div>
+        <div class="wr-sub">across <b>${(cur.totalSets||0).toLocaleString()}</b> working sets. Every single one counted.</div>`,
+      onShow:st=>wrCountUp(st.querySelector("#wrReps"), cur.totalReps||0, 1600)
+    });
+  }
+  // 5 — heaviest load
+  if(cur.heaviest && cur.heaviest.w>0){
+    slides.push({
+      bg:"linear-gradient(160deg,#4a0d0d,#e05248)",
+      html:`<div class="wr-kicker">Heaviest weight you touched</div>
+        <div class="wr-big"><span id="wrHv">0</span></div>
+        <div class="wr-unit">lb</div>
+        <div class="wr-sub">on <b>${esc(cur.heaviest.name)}</b>${cur.heaviest.reps?` — for ${cur.heaviest.reps} reps`:""}. 💪</div>`,
+      onShow:st=>wrCountUp(st.querySelector("#wrHv"), cur.heaviest.w||0, 1200)
+    });
+  }
+  // 6 — lifts that climbed
+  if(r.moved && r.moved.length){
+    slides.push({
+      bg:"linear-gradient(160deg,#0c3d1c,#46a85c)",
+      html:`<div class="wr-kicker">Getting stronger</div>
+        <div class="wr-hero" style="font-size:clamp(26px,9vw,44px)">Lifts that<br>climbed</div>
+        <div class="wr-list">${r.moved.slice(0,5).map(m=>`<div class="wr-row"><span>${esc(m.name)}</span><span class="num">${m.from} → ${m.to} lb</span></div>`).join("")}</div>`
+    });
+  }
+  // 7 — most-worked movement
+  if(cur.topVolEx && cur.topVolEx.name){
+    slides.push({
+      bg:"linear-gradient(160deg,#191f5e,#4a82e0)",
+      html:`<div class="wr-kicker">Your most-worked movement</div>
+        <div class="wr-hero" style="font-size:clamp(26px,8.5vw,46px)">${esc(cur.topVolEx.name)}</div>
+        <div class="wr-pill">${Math.round(cur.topVolEx.vol).toLocaleString()} lb of total volume</div>`
+    });
+  }
+  // 8 — feel + duration + rest
+  if(cur.avgFeel || cur.avgDurMin || cur.restCount){
+    const feelEmoji = cur.avgFeel ? FEELS[Math.min(4,Math.max(0,Math.round(cur.avgFeel)-1))] : "";
+    let sub = "";
+    if(cur.avgDurMin) sub = `Average session ran about <b>${cur.avgDurMin} minutes</b>${cur.restCount?`, with <b>${cur.restCount}</b> rest day${cur.restCount>1?"s":""} to recover`:""}.`;
+    else if(cur.restCount) sub = `<b>${cur.restCount}</b> rest day${cur.restCount>1?"s":""} taken to recover.`;
+    slides.push({
+      bg:"linear-gradient(160deg,#3a2e00,#e8b62c)",
+      html:`<div class="wr-kicker">How it felt</div>
+        ${cur.avgFeel?`<div class="wr-emoji">${feelEmoji}</div><div class="wr-unit" style="margin-top:10px">${cur.avgFeel} / 5 on average</div>`:`<div class="wr-hero">Recovery<br>counts too</div>`}
+        ${sub?`<div class="wr-sub">${sub}</div>`:""}`
+    });
+  }
+  // 9 — outro
+  slides.push({
+    bg:"linear-gradient(160deg,#46a85c,#4a82e0 52%,#e05248)",
+    html:`<div class="wr-emoji">🔁</div>
+      <div class="wr-hero" style="margin-top:10px">Onto the<br>next cycle</div>
+      <div class="wr-sub">Fresh slate, same iron. Go get it.</div>
+      <div class="wr-done"><button id="wrDone">Let's go</button></div>`,
+    onShow:st=>{ const b = st.querySelector("#wrDone"); if(b) b.onclick = ()=>{ const w=document.getElementById("wrapped"); if(w && !w.classList.contains("out")){ w.classList.add("out"); setTimeout(()=>w.remove(),420); } }; }
+  });
+  return slides;
+}
+function openCycleWrapped(r){
+  if(!r || !r.cur){ return; }
+  const slides = buildWrappedSlides(r);
+  if(slides.length < 2){ openCycleReviewSimple(r); return; }
+  const old = document.getElementById("wrapped"); if(old) old.remove();
+  const el = document.createElement("div");
+  el.id = "wrapped";
+  el.innerHTML = `
+    <div class="wr-bg"></div>
+    <div class="wr-bars">${slides.map((s,i)=>`<div class="wr-bar" data-b="${i}"><i></i></div>`).join("")}</div>
+    <div class="wr-top"><span class="wr-brand">Iron Log · Wrapped</span><button class="wr-x" aria-label="Close">✕</button></div>
+    <div class="wr-stage"></div>
+    <div class="wr-nav"><div class="wr-prev" aria-label="Previous"></div><div class="wr-next" aria-label="Next"></div></div>`;
+  document.body.appendChild(el);
+  const stage = el.querySelector(".wr-stage");
+  const bg = el.querySelector(".wr-bg");
+  const nav = el.querySelector(".wr-nav");
+  const DUR = 5200;
+  let idx = 0, timer = null;
+  const close = ()=>{
+    if(el.classList.contains("out")) return;
+    clearTimeout(timer);
+    el.classList.add("out");
+    setTimeout(()=>el.remove(), 420);
+  };
+  const show = i=>{
+    idx = Math.max(0, Math.min(i, slides.length-1));
+    clearTimeout(timer);
+    const sl = slides[idx];
+    bg.style.background = sl.bg;
+    stage.innerHTML = `<div class="wr-slide">${sl.html}</div>`;
+    // story-style progress bars
+    el.querySelectorAll(".wr-bar").forEach((b,j)=>{
+      b.classList.remove("active","done");
+      const fi = b.querySelector("i");
+      fi.style.animation = "none";
+      if(j<idx){ b.classList.add("done"); fi.style.width = "100%"; }
+      else { fi.style.width = "0"; }
+    });
+    const active = el.querySelector(`.wr-bar[data-b="${idx}"]`);
+    if(active){
+      active.style.setProperty("--wrdur", DUR+"ms");
+      const fi = active.querySelector("i");
+      void fi.offsetWidth;              // reflow so the fill animation restarts
+      fi.style.animation = "";
+      fi.style.width = "";
+      active.classList.add("active");
+    }
+    // last slide has an actual button → don't let the tap-nav overlay eat the click
+    nav.style.display = (idx===slides.length-1) ? "none" : "flex";
+    if(sl.onShow) sl.onShow(stage);
+    if(idx < slides.length-1) timer = setTimeout(()=>show(idx+1), DUR);
+  };
+  const next = ()=>{ if(idx < slides.length-1) show(idx+1); else close(); };
+  const prev = ()=>{ show(idx-1); };
+  el.querySelector(".wr-x").onclick = close;
+  el.querySelector(".wr-next").onclick = next;
+  el.querySelector(".wr-prev").onclick = prev;
+  let sx = null;
+  el.addEventListener("touchstart", e=>{ sx = e.touches[0].clientX; }, {passive:true});
+  el.addEventListener("touchend", e=>{
+    if(sx==null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    sx = null;
+    if(Math.abs(dx) > 55){ dx<0 ? next() : prev(); }
+  });
+  show(0);
 }
 
 /* ---------- modal ---------- */
@@ -2175,7 +2478,8 @@ function reconcileCycleAfterMerge(remoteCycleStart){
   recomputeCycle(false);
   pruneRestDay();
 }
-async function syncNow(announce){  if(!S.sync.token || !S.sync.gistId){ if(announce) toast("Connect first"); return; }
+async function syncNow(announce){
+  if(!S.sync.token || !S.sync.gistId){ if(announce) toast("Connect first"); return; }
   try{
     const g = await gistFetch("gists/"+S.sync.gistId);
     const f = g.files && g.files[GIST_FILE];
@@ -2211,7 +2515,11 @@ async function syncNow(announce){  if(!S.sync.token || !S.sync.gistId){ if(annou
     }
     await gistFetch("gists/"+S.sync.gistId, {method:"PATCH", body: JSON.stringify({files:{[GIST_FILE]:{content:payload()}}})});
     S.sync.lastSync = Date.now();
-    save();
+    // we just pushed the current state (with its existing savedAt) to the gist —
+    // saveQuiet keeps our savedAt in lock-step with what's in the gist instead of
+    // bumping it to now(), which would falsely mark this device as "newer" and cause
+    // every subsequent open to re-push and confuse other devices' merge decisions.
+    saveQuiet();
     setSyncStatus("ok");
     if(TAB==="sync"||announce) render();
     if(announce) toast("Synced ✓");
@@ -2248,7 +2556,10 @@ function buildReportInner(){
     const m = META[s.workoutId];
     const vol = s.entries.reduce((t,e)=>t+e.sets.reduce((u,st)=>u+((parseFloat(st.weight)||0)*(parseFloat(st.reps)||0)),0),0);
     const dur = durFmt(s);
+    const clock = ms => new Date(ms).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
     const metaBits = [];
+    if(s.startedAt) metaBits.push("Started: "+clock(s.startedAt));
+    if(s.finishedAt) metaBits.push("Ended: "+clock(s.finishedAt));
     if(dur) metaBits.push("Duration: "+dur);
     if(s.feel) metaBits.push("Feel: "+FEELS[s.feel-1]+" ("+s.feel+"/5)");
     const ci = (S.checkins||{})[s.date];
@@ -2319,7 +2630,7 @@ function openReport(){
 }
 function downloadDoc(){
   if(!S.sessions.length){ toast("Nothing to report yet"); return; }
-  const blob = new Blob(["\ufeff"+buildReportHTML()], {type:"application/msword"});
+  const blob = new Blob(["﻿"+buildReportHTML()], {type:"application/msword"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "training-report-"+todayStr()+".doc";
@@ -2367,8 +2678,8 @@ function buildCSV(){
     return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
   }).join(",")).join("\n");
 }
-async function repoPut(path, content, message){
-  const branch = S.sync.branch || "main";
+async function repoPut(path, content, message, branch){
+  branch = branch || S.sync.branch || "main";
   for(let attempt=1; attempt<=3; attempt++){
     let sha = null;
     try{
@@ -2396,9 +2707,35 @@ async function repoBackup(announce){
   if(repoBusy){ repoAgain = true; return; }
   repoBusy = true;
   try{
+    // Preflight: confirm the repo is reachable with this token, and learn its REAL
+    // default branch. This is what turns the useless bare "404" into a fixable message
+    // and quietly recovers from a main/master mismatch.
+    let repoInfo;
+    try{
+      repoInfo = await gistFetch("repos/"+S.sync.repo);
+    }catch(e){
+      const m = String(e.message);
+      if(m.startsWith("404")){
+        throw new Error("repo '"+S.sync.repo+"' not visible to this token. Check it's spelled owner/repo, and that your token has the FULL 'repo' scope — a gist-only token gets 404 here, and private repos 404 without it.");
+      }
+      if(m.startsWith("401")){ throw new Error("token invalid or expired — paste a fresh one above."); }
+      if(m.startsWith("403")){ throw new Error("token lacks the 'repo' scope. Regenerate a classic token with the 'repo' box checked."); }
+      throw e;
+    }
+    // Fall back to the repo's actual default branch if the configured one doesn't exist.
+    let branch = S.sync.branch || repoInfo.default_branch || "main";
+    try{
+      await gistFetch("repos/"+S.sync.repo+"/branches/"+encodeURIComponent(branch)+"?t="+Date.now());
+    }catch(e){
+      if(String(e.message).startsWith("404") && repoInfo.default_branch && repoInfo.default_branch!==branch){
+        branch = repoInfo.default_branch;
+        S.sync.branch = branch; save();
+        if(announce) toast("Branch not found — switched to '"+branch+"'");
+      }
+    }
     const stamp = new Date().toLocaleString();
-    await repoPut("workout-log.csv", buildCSV(), "Workout log update — "+stamp);
-    await repoPut("ironlog-backup.json", payload(), "Data backup — "+stamp);
+    await repoPut("workout-log.csv", buildCSV(), "Workout log update — "+stamp, branch);
+    await repoPut("ironlog-backup.json", payload(), "Data backup — "+stamp, branch);
     S.sync.lastRepo = Date.now();
     save();
     setSyncStatus("ok");
