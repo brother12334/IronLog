@@ -244,7 +244,8 @@
  "pointer": 4,
  "cycleStart": 1784779200000,
  "cycleDone": [
-  2
+  2,
+  0
  ],
  "restDay": {
   "date": "2026-07-22"
@@ -1922,7 +1923,212 @@
    "note": "Did flat smith chest press intense, 45s for a few sets before i did the finisher",
    "feel": 5,
    "edited": 1784930746274
+  },
+  {
+   "id": "mrzg8ho6w2yv4",
+   "workoutId": "chest",
+   "date": "2026-07-24",
+   "startedAt": 1784928319350,
+   "finishedAt": 1784934644164,
+   "entries": [
+    {
+     "name": "Dumbbell Bench Press",
+     "reps": "8-10",
+     "rpe": "9",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "40",
+       "reps": "15",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 190
+      },
+      {
+       "weight": "40",
+       "reps": "12",
+       "rpe": "9",
+       "done": true,
+       "rest": 179
+      },
+      {
+       "weight": "40",
+       "reps": "11",
+       "rpe": "10",
+       "done": true,
+       "rest": 253
+      }
+     ]
+    },
+    {
+     "name": "Incline Dumbbell Bench Press",
+     "reps": "8-12",
+     "rpe": "8-9",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "40",
+       "reps": "7",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 166
+      },
+      {
+       "weight": "40",
+       "reps": "10",
+       "rpe": "10",
+       "done": true,
+       "rest": 264
+      },
+      {
+       "weight": "40",
+       "reps": "7",
+       "rpe": "10",
+       "done": true,
+       "rest": 347
+      }
+     ]
+    },
+    {
+     "name": "Mid Cable Fly (on bench)",
+     "reps": "10-12",
+     "rpe": "7-8",
+     "note": "",
+     "sets": [
+      {
+       "weight": "40",
+       "reps": "15",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 146
+      },
+      {
+       "weight": "40",
+       "reps": "14",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 229
+      },
+      {
+       "weight": "40",
+       "reps": "12",
+       "rpe": "10",
+       "done": true,
+       "rest": 295
+      }
+     ]
+    },
+    {
+     "name": "Cable Chest Press (on bench)",
+     "reps": "10-12",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "50",
+       "reps": "11",
+       "rpe": "9",
+       "done": true,
+       "rest": 246
+      },
+      {
+       "weight": "50",
+       "reps": "12",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 213
+      },
+      {
+       "weight": "50",
+       "reps": "12",
+       "rpe": "10",
+       "done": true,
+       "rest": 185
+      }
+     ]
+    },
+    {
+     "name": "Guillotine Press",
+     "reps": "8-10",
+     "rpe": "",
+     "note": "",
+     "sets": [
+      {
+       "weight": "30",
+       "reps": "14",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 227
+      },
+      {
+       "weight": "30",
+       "reps": "13",
+       "rpe": "8",
+       "done": true,
+       "rest": 391
+      },
+      {
+       "weight": "30",
+       "reps": "17",
+       "rpe": "10",
+       "done": true,
+       "rest": 1065
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "160",
+       "reps": "10",
+       "rpe": "7",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Leg Raises",
+     "reps": "8-10",
+     "rpe": "9-10",
+     "note": "bodyweight",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "",
+       "reps": "13",
+       "rpe": "6",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "supersetEnd": true,
+     "sets": [
+      {
+       "weight": "160",
+       "reps": "4",
+       "rpe": "7",
+       "done": true
+      }
+     ]
+    }
+   ],
+   "note": "Got very fatigued by the end",
+   "feel": 4
   }
  ],
- "savedAt": 1784930746274
+ "savedAt": 1784934644165
 }
