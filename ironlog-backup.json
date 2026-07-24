@@ -2124,11 +2124,29 @@
        "done": true
       }
      ]
+    },
+    {
+     "name": "Smith Machine Flat Bench Press",
+     "sets": [
+      {
+       "weight": "45",
+       "reps": "6",
+       "rpe": "9.5",
+       "done": true
+      },
+      {
+       "weight": "45",
+       "reps": "5",
+       "rpe": "10",
+       "done": true
+      }
+     ]
     }
    ],
    "note": "Got very fatigued by the end",
-   "feel": 4
+   "feel": 4,
+   "edited": 1784934689531
   }
  ],
- "savedAt": 1784934644165
+ "savedAt": 1784934689531
 }
