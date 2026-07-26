@@ -241,11 +241,12 @@
    }
   ]
  },
- "pointer": 4,
+ "pointer": 3,
  "cycleStart": 1784779200000,
  "cycleDone": [
   2,
-  0
+  0,
+  1
  ],
  "restDay": {
   "date": "2026-07-22"
@@ -328,6 +329,9 @@
   },
   "2026-07-24": {
    "sleep": "5.5"
+  },
+  "2026-07-26": {
+   "energy": "6"
   }
  },
  "deleted": [
@@ -2146,7 +2150,183 @@
    "note": "Got very fatigued by the end",
    "feel": 4,
    "edited": 1784934689531
+  },
+  {
+   "id": "ms1avu7lafe2f",
+   "workoutId": "back",
+   "date": "2026-07-26",
+   "startedAt": 1785040263345,
+   "finishedAt": 1785045713592,
+   "entries": [
+    {
+     "name": "Lat Pulldown",
+     "reps": "8-10",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "110",
+       "reps": "13",
+       "rpe": "8",
+       "done": true,
+       "rest": 414
+      },
+      {
+       "weight": "110",
+       "reps": "13",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 298
+      },
+      {
+       "weight": "110",
+       "reps": "18",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 427
+      }
+     ]
+    },
+    {
+     "name": "Mid Row",
+     "reps": "8-10",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "130",
+       "reps": "13",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 310
+      },
+      {
+       "weight": "130",
+       "reps": "12",
+       "rpe": "9",
+       "done": true,
+       "rest": 443
+      },
+      {
+       "weight": "130",
+       "reps": "11",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 353
+      }
+     ]
+    },
+    {
+     "name": "Dumbbell RDL",
+     "reps": "8-10",
+     "rpe": "9-10",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "35",
+       "reps": "15",
+       "rpe": "8",
+       "done": true,
+       "rest": 166
+      },
+      {
+       "weight": "35",
+       "reps": "12",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 326
+      },
+      {
+       "weight": "35",
+       "reps": "13",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 208
+      }
+     ]
+    },
+    {
+     "name": "Cable Lat Prayer",
+     "reps": "10-12",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "70",
+       "reps": "17",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 383
+      },
+      {
+       "weight": "70",
+       "reps": "13",
+       "rpe": "8",
+       "done": true,
+       "rest": 416
+      },
+      {
+       "weight": "70",
+       "reps": "11",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 503
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "160",
+       "reps": "10",
+       "rpe": "9.5",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Leg Raises",
+     "reps": "8-10",
+     "rpe": "9-10",
+     "note": "bodyweight",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "",
+       "reps": "15",
+       "rpe": "7",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "supersetEnd": true,
+     "sets": [
+      {
+       "weight": "160",
+       "reps": "6",
+       "rpe": "9.5",
+       "done": true
+      }
+     ]
+    }
+   ],
+   "note": "Got very fatigued by the end",
+   "feel": 4
   }
  ],
- "savedAt": 1784934689531
+ "savedAt": 1785045713593
 }
