@@ -203,7 +203,8 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 .set .chk.on{background:var(--ok);border-color:var(--ok);color:#0d1a10}
 .set-labels{display:grid;grid-template-columns:38px 1fr 1fr 86px 48px;gap:7px;color:var(--faint);font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
 .set-labels span{text-align:center}
-.rpe-help{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.rpe-help,.term{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.term{color:inherit;font:inherit}
 .last{color:var(--faint);font:12px var(--mono);grid-column:2/6;margin-top:-4px;margin-bottom:2px;padding-left:2px}
 
 /* workout picker */
@@ -258,10 +259,11 @@ nav{
   padding:9px 0 calc(9px + env(safe-area-inset-bottom));z-index:40;
 }
 nav button{
-  background:none;border:none;color:var(--faint);cursor:pointer;
-  font-family:var(--disp);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
-  padding:10px 16px;border-radius:10px;
+  background:none;border:none;color:var(--faint);cursor:pointer;flex:1;min-width:0;
+  font-family:var(--disp);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  padding:10px 4px;border-radius:10px;white-space:nowrap;
 }
+@media (min-width:420px){nav button{font-size:16px;letter-spacing:.07em;padding:10px 10px}}
 nav button.on{color:var(--text);background:var(--card2)}
 
 /* toast */
@@ -546,6 +548,171 @@ body.shake{animation:shakeX .55s both}
   background:#fff;color:#111;border:none;border-radius:999px;padding:15px 38px;cursor:pointer;
   font-family:var(--disp);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.06em;
 }
+
+/* ================= PROFILE SWITCHER ================= */
+.prof-bar{
+  display:flex;align-items:center;gap:12px;width:100%;margin:0 0 16px;
+  padding:11px 14px;border-radius:14px;cursor:pointer;text-align:left;
+  background:var(--card);border:1px solid var(--line);color:var(--text);
+  transition:border-color .15s, transform .12s;
+}
+.prof-bar:active{transform:scale(.985)}
+.prof-av{
+  flex-shrink:0;width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.03em;color:#15150f;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.22);
+}
+.prof-av.sm{width:32px;height:32px;font-size:13.5px}
+.prof-av.xs{width:30px;height:30px;font-size:13px;box-shadow:inset 0 0 0 2px rgba(0,0,0,.22), 0 0 0 1px var(--line)}
+.prof-txt{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.25}
+.prof-txt b{font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prof-txt small{color:var(--faint);font:11.5px var(--mono);letter-spacing:.03em}
+.prof-chev{color:var(--faint);font-size:20px;line-height:1;flex-shrink:0;padding-right:2px}
+.prof-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.prof-item{
+  display:flex;align-items:center;gap:12px;width:100%;padding:11px 13px;
+  border-radius:13px;background:var(--card2);border:1px solid var(--line);
+  color:var(--text);cursor:pointer;text-align:left;
+}
+.prof-item.on{border-color:var(--ok);background:rgba(70,168,92,.09)}
+.prof-tick{color:var(--ok);font-size:18px;flex-shrink:0}
+.prof-mini{
+  background:none;border:none;padding:0;margin:0;cursor:pointer;
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
+.prof-mini .prof-chev{font-size:15px}
+.hdr .hdr-right{display:flex;align-items:center;gap:10px}
+.uni-badge{
+  display:inline-block;font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  color:var(--arms);border:1px solid rgba(232,182,44,.45);border-radius:5px;
+  padding:1px 6px;margin-left:5px;vertical-align:middle;
+}
+
+/* ================= PR BADGE ================= */
+.pr-badge{
+  display:inline-block;font:10.5px var(--mono);font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:#241c00;background:var(--arms);border-radius:5px;
+  padding:2px 6px;margin-left:6px;vertical-align:middle;
+  box-shadow:0 0 12px rgba(232,182,44,.45);
+}
+.set.is-pr input{border-color:rgba(232,182,44,.55)}
+.pr-row{margin:-3px 0 7px;padding-left:47px}
+.pr-row:empty{display:none}
+
+/* ================= BODY / TRAINING STRESS MAP ================= */
+.metric-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
+.metric-scroll::-webkit-scrollbar{display:none}
+.metric-seg{display:inline-flex;gap:7px;padding-bottom:2px}
+.metric-seg button{
+  flex-shrink:0;padding:10px 15px;border-radius:11px;cursor:pointer;
+  background:var(--card2);border:1px solid var(--line);color:var(--dim);
+  font-family:var(--disp);font-size:15.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;
+}
+.metric-seg button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.bm-card{padding:14px 10px 10px}
+.bm-figs{display:flex;gap:6px;justify-content:center;align-items:flex-start}
+.bm-fig{flex:1;min-width:0;max-width:270px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bm-fig svg{width:100%;height:auto;display:block;overflow:visible}
+.bm-fig-label{font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--faint)}
+.bm-m{cursor:pointer;transition:opacity .18s}
+.bm-m:active{opacity:.7}
+.bm-inert{fill:#2a2a31}
+.bm-legend{display:flex;flex-wrap:wrap;gap:5px 12px;justify-content:center;margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.bm-lg{display:flex;align-items:center;gap:6px;font:11px var(--mono);color:var(--dim)}
+.bm-sw{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.bm-explain{font-size:13.5px;color:var(--dim);line-height:1.45;margin:10px 2px 0}
+.bm-rank{display:flex;flex-direction:column;gap:1px}
+.bm-row{
+  display:flex;align-items:center;gap:10px;padding:9px 2px;
+  border-bottom:1px solid var(--line);cursor:pointer;
+}
+.bm-row:last-child{border-bottom:none}
+.bm-row .bm-name{flex:1;min-width:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bm-row .bm-val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;color:var(--dim);flex-shrink:0}
+.bm-bar{flex:0 0 84px;height:7px;border-radius:4px;background:var(--card2);overflow:hidden}
+.bm-bar>i{display:block;height:100%;border-radius:4px}
+.bm-tagpill{
+  font:10px var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  border-radius:5px;padding:2px 6px;flex-shrink:0;
+}
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.sys-tile{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.sys-tile .sys-k{font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.sys-tile .sys-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;font-weight:600;line-height:1.15;margin-top:3px}
+.sys-tile .sys-s{font-size:12px;color:var(--dim);margin-top:2px;line-height:1.35}
+
+/* weak points */
+.wp{border-left:3px solid var(--faint);background:var(--card2);border-radius:11px;padding:11px 13px;margin-bottom:9px}
+.wp.sev3{border-left-color:var(--bad)}
+.wp.sev2{border-left-color:var(--arms)}
+.wp.sev1{border-left-color:var(--back)}
+.wp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wp-head b{font-size:15.5px}
+.wp-sev{font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--faint);flex-shrink:0}
+.wp-why{font-size:13.5px;color:var(--dim);margin-top:4px;line-height:1.45}
+.wp-fix{font-size:13.5px;margin-top:6px;line-height:1.45}
+.wp-fix b{font-family:var(--disp);font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--ok)}
+
+/* ================= WORKOUT QUALITY SCORE ================= */
+.sc-hero{display:flex;align-items:center;gap:16px;margin-bottom:4px}
+.sc-ring{
+  position:relative;width:104px;height:104px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(var(--scc,var(--ok)) var(--scp,0%), var(--card2) 0);
+}
+.sc-ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--card)}
+.sc-ring-in{position:relative;text-align:center;line-height:1}
+.sc-grade{font-family:var(--disp);font-weight:700;font-size:34px;letter-spacing:.02em}
+.sc-total{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-top:3px}
+.sc-blurb{font-size:14.5px;color:var(--dim);line-height:1.45}
+.sc-blurb b{color:var(--text)}
+.sc-sec{border-top:1px solid var(--line);padding:11px 0 10px}
+.sc-sec:first-of-type{border-top:none}
+.sc-sh{display:flex;align-items:center;gap:9px}
+.sc-sh .sc-n{flex:1;min-width:0;font-size:15px;font-weight:600}
+.sc-sh .sc-pts{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--dim);flex-shrink:0}
+.sc-sg{
+  flex-shrink:0;width:30px;text-align:center;font-family:var(--disp);font-weight:700;
+  font-size:15px;border-radius:6px;padding:2px 0;
+}
+.sc-track{height:6px;border-radius:3px;background:var(--card2);overflow:hidden;margin:7px 0 6px}
+.sc-track>i{display:block;height:100%;border-radius:3px}
+.sc-why{font-size:13px;color:var(--dim);line-height:1.5}
+.sc-why li{margin:1px 0}
+.sc-why ul{margin:0;padding-left:17px}
+.sc-tip{font-size:13px;color:var(--text);margin-top:5px;line-height:1.45}
+.sc-tip b{font-family:var(--disp);font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--arms)}
+.sc-pill{
+  display:inline-block;font:11px var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  border-radius:6px;padding:3px 8px;margin:0 5px 5px 0;
+}
+.sc-badge{
+  display:inline-flex;align-items:center;gap:5px;font:11.5px var(--mono);
+  border-radius:6px;padding:2px 7px;flex-shrink:0;
+}
+
+/* ================= GLOSSARY ================= */
+.gl-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.gl-chip{
+  background:var(--card2);border:1px solid var(--line);border-radius:999px;
+  padding:9px 15px;cursor:pointer;color:var(--text);
+  font-family:var(--mono);font-size:13px;
+}
+.gl-chip:active{transform:scale(.97)}
+.gl-def{font-size:15px;color:var(--text);line-height:1.55;margin:10px 0}
+.gl-def b{color:var(--text)}
+.gl-scale{margin:14px 0 4px}
+.gl-bar{display:flex;height:22px;border-radius:7px;overflow:hidden;font:10px var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.gl-bar>span{display:flex;align-items:center;justify-content:center;color:#15150f;font-weight:600}
+.gl-ticks{display:flex;margin-top:5px;font:10.5px var(--mono);color:var(--faint)}
+.gl-ticks>span{flex:1;text-align:center}
+.gl-table{width:100%;border-collapse:collapse;margin:10px 0 2px;font-family:var(--mono);font-size:13px}
+.gl-table td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.gl-table td:first-child{color:var(--dim);white-space:nowrap;padding-right:10px}
+.gl-table tr:last-child td{border-bottom:none}
+.gl-note{font-size:13px;color:var(--faint);line-height:1.5;margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -576,15 +743,16 @@ body.shake{animation:shakeX .55s both}
 <nav>
   <button data-tab="today" class="on">Today</button>
   <button data-tab="history">History</button>
+  <button data-tab="body">Body</button>
   <button data-tab="program">Program</button>
-  <button data-tab="sync">Settings</button>
+  <button data-tab="sync">Setup</button>
 </nav>
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
 <div id="toast"></div>
 
 <script>
 "use strict";
-const APP_VERSION = "1.8";
+const APP_VERSION = "1.9";
 /* ================= DATA ================= */
 const LS_KEY = "ironlog.v1";
 const GIST_FILE = "ironlog-data.json";
@@ -596,19 +764,192 @@ const META = {
   shoulders:{name:"Shoulders", short:"SH", color:"var(--shoulders)"},
   legs:{name:"Legs", short:"LG", color:"var(--legs)"}
 };
-const RPE_INFO_TITLE = "What is RPE?";
-const RPE_INFO_HTML = `
-<p><b>RPE</b> stands for <b>Rate of Perceived Exertion</b> — how hard a set felt, on a scale of 1 to 10.</p>
-<div class="rpe-scale">
-RPE 10 &nbsp;→ all-out, no reps left<br>
-RPE 9 &nbsp;&nbsp;→ 1 rep left in the tank<br>
-RPE 8 &nbsp;&nbsp;→ 2 reps left<br>
-RPE 7 &nbsp;&nbsp;→ 3 reps left<br>
-RPE 6 &nbsp;&nbsp;→ 4+ reps left, easy
+/* =====================================================================
+   GLOSSARY — every piece of jargon the app uses is tappable.
+
+   Anywhere a term like MEV shows up it's wrapped in term("mev","MEV"), which renders a
+   dotted-underlined word. Tapping it opens the entry below. One delegated click
+   listener handles the whole app, so it survives every re-render.
+   ===================================================================== */
+function term(id, label){
+  return `<span class="term" data-term="${id}" role="button" tabindex="0">${label==null?id:label}</span>`;
+}
+// Shared tail for the three volume landmarks — they only make sense as a set.
+const VOL_LANDMARK_SCALE = `
+<div class="gl-scale">
+  <div class="gl-bar">
+    <span style="flex:10;background:#3f5f8c">too little</span>
+    <span style="flex:10;background:#46a85c">the sweet spot</span>
+    <span style="flex:4;background:#e8b62c">hard but ok</span>
+    <span style="flex:5;background:#e05248">too much</span>
+  </div>
+  <div class="gl-ticks"><span>0</span><span>MEV</span><span>MAV</span><span>MRV</span><span></span></div>
 </div>
-<p>A target like <span class="num">RPE 8-9</span> means: pick a weight where you finish the set with about 1–2 reps still in you.</p>`;
+<p>All three are counted in <b>${term("hardset","hard sets")} per muscle per week</b>. Three sets of bench press count as 3 chest sets, and partial credit goes to your front delts and triceps, because they did real work too.</p>
+<p style="color:var(--faint);font-size:13.5px">These landmarks come from the volume-landmark framework popularised by Mike Israetel and Renaissance Periodization. They're <b>population averages with wide individual variation</b> — treat them as a starting frame, not a law. Yours may sit higher or lower.</p>`;
+
+const GLOSSARY = {
+  rpe:{title:"RPE — Rate of Perceived Exertion", html:`
+    <p><b>RPE</b> is how hard a set felt, on a 1–10 scale. What it really measures is <b>how many reps you had left</b>.</p>
+    <div class="rpe-scale">
+    RPE 10 &nbsp;→ all-out, no reps left<br>
+    RPE 9 &nbsp;&nbsp;→ 1 rep left in the tank<br>
+    RPE 8 &nbsp;&nbsp;→ 2 reps left<br>
+    RPE 7 &nbsp;&nbsp;→ 3 reps left<br>
+    RPE 6 &nbsp;&nbsp;→ 4+ reps left, easy
+    </div>
+    <p>A target like <span class="num">RPE 8-9</span> means: pick a weight where you finish the set with about 1–2 reps still in you.</p>
+    <p>It's the single most useful number you can log. Weight and reps say what you lifted; RPE says how close to your limit it was — which is what actually decides whether the set grew anything.</p>`},
+
+  mev:{title:"MEV — Minimum Effective Volume", html:`
+    <div class="gl-def"><b>The least weekly work a muscle needs before it grows at all.</b></div>
+    <p>Below MEV you're maintaining at best, even if the sessions feel brutal. Effort doesn't substitute for volume here — a muscle needs a certain amount of total work per week before it has a reason to adapt.</p>
+    <p>This is the line the Body tab's <b>weak point detection</b> uses. If a muscle sits under its MEV two weeks running, it gets flagged, because that's a muscle you're spending gym time on without getting growth back.</p>
+    ${VOL_LANDMARK_SCALE}`},
+
+  mav:{title:"MAV — Maximum Adaptive Volume", html:`
+    <div class="gl-def"><b>The productive middle, where you get the most growth per set you invest.</b></div>
+    <p>Between ${term("mev","MEV")} and MAV is where you want to live most of the time. Adding sets in this range keeps paying off.</p>
+    <p>Above MAV you're still growing and can still recover, but each extra set returns less than the one before it — so it's a range to use deliberately for a hard block, not to sit in year-round.</p>
+    ${VOL_LANDMARK_SCALE}`},
+
+  mrv:{title:"MRV — Maximum Recoverable Volume", html:`
+    <div class="gl-def"><b>The most a muscle can recover from. Past this, sets cost fatigue but stop buying growth.</b></div>
+    <p>Going over MRV doesn't just waste the extra sets — it digs a hole. Recovery debt accumulates, your loads on everything else start slipping, and joints and connective tissue take the strain. It usually shows up as strength going <em>backwards</em> while you're working harder than ever.</p>
+    <p>This is why the <b>${term("injury","injury risk")}</b> metric weights volume-past-MRV most heavily of all its flags.</p>
+    ${VOL_LANDMARK_SCALE}`},
+
+  hardset:{title:"Hard set (working set)", html:`
+    <div class="gl-def"><b>A set taken close enough to failure to actually drive growth — roughly ${term("rpe","RPE")} 7 or above.</b></div>
+    <p>Warm-ups and easy back-off sets don't count. Research on hypertrophy consistently shows the stimulus falls off sharply once you're more than about 4 reps from failure — so counting every set you performed would badly overstate your real training volume.</p>
+    <p>Iron Log counts any set with reps logged as a working set, and uses your logged ${term("rpe","RPE")} to judge how hard it was. If you don't log RPE, it assumes a normal hard set (RPE 8) rather than throwing the set away.</p>
+    <p><b>Partial credit:</b> a muscle that assists gets a fraction of a set, not a whole one. A bench press pays 1.0 to chest, 0.5 to front delts and 0.5 to triceps. That's why the per-muscle numbers can look odd next to your session total — and why the whole-body tile counts real sets performed instead of summing the columns.</p>`},
+
+  acwr:{title:"Acute : chronic workload ratio", html:`
+    <div class="gl-def"><b>This week's training load divided by your recent four-week weekly average.</b></div>
+    <table class="gl-table">
+      <tr><td>under 0.8×</td><td>You've backed off a lot — fine for a deliberate light week, detraining if it lasts.</td></tr>
+      <tr><td>0.8 – 1.5×</td><td>The safe band. Load is progressing at a rate your body can absorb.</td></tr>
+      <tr><td>over 1.5×</td><td>A spike. This is the best-established injury marker in sports science — jumping load faster than your tissues adapt is what hurts people, more than the absolute amount.</td></tr>
+    </table>
+    <p>The practical read: it's not how much you do, it's how fast you <em>changed</em> how much you do. A 1.5× week is how a motivated Monday becomes a strained something on Thursday.</p>
+    <p>Iron Log needs about four weeks of history before this means anything, so it shows a dash until then.</p>`},
+
+  e1rm:{title:"Estimated 1RM", html:`
+    <div class="gl-def"><b>What you could probably lift for one rep, worked backwards from a set you actually did.</b></div>
+    <p>Iron Log uses the Epley formula: <span class="num">weight × (1 + reps ÷ 30)</span>. So 100 lb × 10 reps estimates a 133 lb single.</p>
+    <p>Why bother: it lets the app compare sets that aren't alike. 100×10 and 115×6 are hard to rank by eye, but as estimated 1RMs (133 vs 138) it's clear the second was stronger. That's how <b>${term("growth","growth")}</b> and <b>progressive overload</b> get measured when your reps move around week to week.</p>
+    <p>It's only reliable in the low-rep range, so the calculation caps reps at 12 — otherwise a 20-rep set would inflate the estimate wildly.</p>`},
+
+  fatigue:{title:"Fatigue (how it's calculated)", html:`
+    <div class="gl-def"><b>Training residue that hasn't worn off yet — per muscle, right now.</b></div>
+    <p>Every ${term("hardset","hard set")} leaves fatigue behind, and that residue decays over time. Iron Log decays it on an exponential half-life set per muscle: side delts and calves clear in about 36 hours, quads and spinal erectors take 60.</p>
+    <p>Sets closer to failure leave more behind — an RPE 10 set costs roughly 2.4× what an RPE 6 set does.</p>
+    <p><b>Reading the number:</b> 100% means you've just dumped a full ${term("mrv","MRV")} week's worth onto that muscle. Under 20% is fresh. Fatigue is not the same as ${term("recovery","recovery")} — see that entry for why both exist.</p>`},
+
+  recovery:{title:"Recovery (how it's calculated)", html:`
+    <div class="gl-def"><b>How far through its own recovery window a muscle is since the last time you trained it.</b></div>
+    <p>Each muscle has a typical turnaround time — 36 hours for side delts, 60 for quads — and a heavier-than-usual session stretches that window proportionally.</p>
+    <p><b>Why this isn't just the inverse of ${term("fatigue","fatigue")}:</b> they answer different questions. A muscle you hammered six days ago is <em>fully recovered</em> and ready to train — but a week of hard work can still leave fatigue residue on the books. One tells you if you can train it today; the other tells you whether the week is catching up with you.</p>
+    <p>Your daily check-in feeds into this. Averaging under 6 hours of sleep drops every muscle's recovery, because sleep debt measurably slows tissue repair — that's not a per-muscle effect, so it shifts them all together.</p>`},
+
+  growth:{title:"Growth (how it's calculated)", html:`
+    <div class="gl-def"><b>Is this muscle actually progressing? Last 3 weeks against the 3 weeks before.</b></div>
+    <p>Two signals, blended:</p>
+    <table class="gl-table">
+      <tr><td>70%</td><td>Change in best ${term("e1rm","estimated 1RM")} — the strength signal, and the one that matters most</td></tr>
+      <tr><td>30%</td><td>Change in total volume — the stimulus signal</td></tr>
+    </table>
+    <p>50 means holding steady. Above 65 means strength is genuinely trending up. Below 45 means the last block went backwards.</p>
+    <p>A stall with <em>adequate</em> volume is a different problem from a stall with too little, which is why weak point detection treats them separately: one needs a change of stimulus, the other needs more sets. Piling on volume to fix a fatigue-driven stall makes it worse.</p>`},
+
+  injury:{title:"Injury risk (how it's calculated)", html:`
+    <div class="gl-def"><b>Five independent flags, each grounded in something measurable — not a diagnosis.</b></div>
+    <table class="gl-table">
+      <tr><td>Volume past ${term("mrv","MRV")}</td><td>More going in than the muscle can recover from</td></tr>
+      <tr><td>${term("acwr","Load spike")}</td><td>This week more than 1.5× your 4-week average</td></tr>
+      <tr><td>Fatigue vs recovery</td><td>High standing ${term("fatigue","fatigue")} with low ${term("recovery","recovery")} banked</td></tr>
+      <tr><td>Failure share</td><td>A large share of sets taken to true failure (${term("rpe","RPE")} 9.5+) — connective tissue pays for that</td></tr>
+      <tr><td>Short rests</td><td>Heavy sets started before the rest that load called for</td></tr>
+    </table>
+    <div class="gl-note">This is a training-load flag, not medical advice. It can't see your sleep quality, your joints, your technique or your history — and it can't predict an injury. Actual pain beats anything on this screen: if something hurts, treat that as the signal.</div>`},
+
+  volume:{title:"Volume", html:`
+    <div class="gl-def"><b>Two different things get called "volume". Iron Log uses both, in different places.</b></div>
+    <table class="gl-table">
+      <tr><td>Sets per week</td><td>The unit for ${term("mev","MEV")} / ${term("mav","MAV")} / ${term("mrv","MRV")} and everything on the Body tab. This is what the research on how much to train is expressed in.</td></tr>
+      <tr><td>Tonnage</td><td>weight × reps × sets, the "lb moved" figure in History and your cycle wrapped. Good for a sense of scale, poor for planning — it makes high-rep leg work look enormous next to heavy pressing.</td></tr>
+    </table>
+    <p>When you see a volume judgement in this app — under-stimulated, in range, over MRV — it's always counting ${term("hardset","hard sets")}, never tonnage.</p>`}
+};
+const GLOSSARY_ORDER = ["rpe","hardset","mev","mav","mrv","volume","fatigue","recovery","growth","injury","acwr","e1rm"];
+const GLOSSARY_SHORT = {rpe:"RPE", hardset:"Hard set", mev:"MEV", mav:"MAV", mrv:"MRV",
+  volume:"Volume", fatigue:"Fatigue", recovery:"Recovery", growth:"Growth",
+  injury:"Injury risk", acwr:"Acute:chronic", e1rm:"Est. 1RM"};
+
+/* The one canonical note every one-limb-at-a-time movement carries, so the
+   instruction reads identically on Tricep Kickback, Preacher Curl, Spider Curl,
+   the Alternating Lateral Raise and anything you add later. */
+const ALT_ARM_NOTE = "single arm — alternate L/R each set";
 
 function ex(name,sets,reps,rpe,weight,note){ return {name,sets,reps,rpe,weight,note}; }
+
+/* ---------- unilateral (one limb at a time) classification ----------
+   Every exercise in the default program is classified explicitly below, so the
+   start-side tip is right without relying on how a note happens to be worded.
+   UNI  = done one limb at a time → gets the RIGHT/LEFT starting-side tip
+   BI   = both limbs together (or a barbell/machine) → no tip
+   You can override any exercise with the "one limb at a time" toggle in the
+   program editor; that flag (e.uni) always wins over this table.
+
+   Declared up here rather than beside the views because migrate() runs at load time
+   and asks isSingleArm() which exercises need the alternating-arms note — a const
+   declared further down would still be in its temporal dead zone at that point.   */
+const UNILATERAL = {
+  // ARMS
+  "preacher curl": true,            // single arm, alternate L/R each set
+  "tricep kickback": true,          // one arm braced on the bench at a time
+  "spider curl": true,              // done one arm at a time over the bench
+  "incline dumbbell curl": false,   // both dumbbells together
+  "hammer curl": false,             // both dumbbells together
+  "tricep pushdown": false,         // two-handed on the bar/rope
+  "cable tricep extension": false,  // two-handed overhead
+  // SHOULDERS
+  "alternating cable lateral raise": true,   // one cable at a time, alternating
+  "cable reverse rear delt fly": false,      // both cables together
+  "smith machine shoulder press": false,
+  // CHEST
+  "dumbbell bench press": false,
+  "incline dumbbell bench press": false,
+  "mid cable fly (on bench)": false,
+  "cable chest press (on bench)": false,
+  "guillotine press": false,
+  "chest dips": false,
+  // BACK
+  "lat pulldown": false,
+  "mid row": false,
+  "dumbbell rdl": false,
+  "cable lat prayer": false,
+  // LEGS
+  "leg curl": false,
+  "leg extension": false,
+  "hip thrust": false,
+  "smith machine squat": false,
+  "standing calf raise (smith)": false,
+  // FINISHER
+  "cable ab crunch": false,
+  "leg raises": false
+};
+function isSingleArm(e){
+  if(!e) return false;
+  if(e.uni === true) return true;    // explicit toggle in the program editor
+  if(e.uni === false) return false;  // explicitly turned off
+  const key = String(e.name||"").trim().toLowerCase();
+  if(key in UNILATERAL) return UNILATERAL[key];
+  // Unknown exercise (custom / newly added) → fall back to reading name + note.
+  const s = (e.name||"") + " " + (e.note||"");
+  return /\b(single|one)[- ]?arm\b|\b(single|one)[- ]?leg\b|\bper (arm|leg|side)\b|\beach (arm|leg|side)\b|\bl\s*\/\s*r\b|\bunilateral\b|\balternating\b|alternat[a-z]*\s+(l\/r|arms?|legs?|left|right|side)/i.test(s);
+}
 
 function defaultProgram(){
   return {
@@ -630,15 +971,15 @@ function defaultProgram(){
     arms:[
       ex("Incline Dumbbell Curl",3,"8-10","7-8",25,"per dumbbell"),
       ex("Tricep Pushdown",3,"8-10","8-9",100,""),
-      ex("Preacher Curl",3,"8-10","9",25,"single arm — alternate L/R each set"),
-      ex("Tricep Kickback",3,"8-10","8-9",30,""),
-      ex("Spider Curl",3,"8-10","8-9",25,""),
+      ex("Preacher Curl",3,"8-10","9",25,ALT_ARM_NOTE),
+      ex("Tricep Kickback",3,"8-10","8-9",30,ALT_ARM_NOTE),
+      ex("Spider Curl",3,"8-10","8-9",25,ALT_ARM_NOTE),
       ex("Hammer Curl",3,"8-10","7-8",25,"per dumbbell"),
       ex("Cable Tricep Extension",3,"10-15","8-9",65,"")
     ],
     shoulders:[
       ex("Smith Machine Shoulder Press",3,"8-10","9",20,"10 lb plate each side"),
-      ex("Alternating Cable Lateral Raise",3,"8-10","8-9",15,""),
+      ex("Alternating Cable Lateral Raise",3,"8-10","8-9",15,ALT_ARM_NOTE),
       ex("Cable Reverse Rear Delt Fly",3,"8-10","8-10",30,"")
     ],
     legs:[
@@ -659,22 +1000,104 @@ function defaultFinisher(){
   ];
 }
 
+/* ================= PROFILES =================
+   Several people's logs live side by side in this one app: you, plus each client.
+   • The GitHub token is shared once, at the registry level — you never retype it.
+   • Each profile keeps its OWN gist, so nobody's data can bleed into anyone else's.
+   • Each profile's data blob is its own localStorage key, so switching is instant
+     and works offline. The first profile deliberately reuses the original
+     "ironlog.v1" key so existing data is picked up untouched.               */
+const PROF_KEY = "ironlog.profiles";
+const SELF_ID = "self";
+let PROF = null;
+function dataKeyFor(id){ return id === SELF_ID ? LS_KEY : LS_KEY + "." + id; }
+function dataKey(){ return dataKeyFor(PROF && PROF.activeId ? PROF.activeId : SELF_ID); }
+function saveProfiles(){ try{ localStorage.setItem(PROF_KEY, JSON.stringify(PROF)); }catch(e){} }
+function bootProfiles(){
+  try{
+    const raw = localStorage.getItem(PROF_KEY);
+    if(raw){
+      PROF = JSON.parse(raw);
+      if(PROF && Array.isArray(PROF.list) && PROF.list.length){
+        if(!PROF.list.some(p=>p.id===PROF.activeId)) PROF.activeId = PROF.list[0].id;
+        return;
+      }
+    }
+  }catch(e){}
+  // First run on this device — adopt whatever is already stored as "Me".
+  let token = "", gistId = "", repo = "", branch = "main";
+  try{
+    const old = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+    if(old && old.sync){
+      token = old.sync.token || "";
+      gistId = old.sync.gistId || "";
+      repo = old.sync.repo || "";
+      branch = old.sync.branch || "main";
+    }
+  }catch(e){}
+  PROF = {token, activeId: SELF_ID, list:[{id:SELF_ID, name:"Me", gistId, repo, branch}]};
+  saveProfiles();
+}
+bootProfiles();
+function activeProfile(){
+  return (PROF.list.find(p=>p.id===PROF.activeId)) || PROF.list[0];
+}
+function profileName(){ const p = activeProfile(); return p ? p.name : "Me"; }
+// Mirror the live sync settings back onto the profile record (and the shared token),
+// so the picker always shows the right gist and a new profile inherits the token.
+function syncProfileRecord(){
+  const p = activeProfile();
+  if(!p || !S || !S.sync) return;
+  p.gistId = S.sync.gistId || "";
+  p.repo = S.sync.repo || "";
+  p.branch = S.sync.branch || "main";
+  if(S.sync.token) PROF.token = S.sync.token;
+  saveProfiles();
+}
+
 let S = load();
 migrate();
 function load(){
   try{
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(dataKey());
     if(raw){ return JSON.parse(raw); }
   }catch(e){}
+  // Brand-new profile: start from the default program, inherit the shared token and
+  // whatever gist/repo was registered for this person.
+  const p = (PROF && PROF.list.find(x=>x.id===PROF.activeId)) || {};
   return {
     program: defaultProgram(),
     pointer: 0,
     override: null,
     sessions: [],
     active: null,
-    sync: {token:"", gistId:"", lastSync:null},
+    sync: {token:(PROF&&PROF.token)||"", gistId:p.gistId||"", repo:p.repo||"", branch:p.branch||"main", lastSync:null, lastRepo:null},
     savedAt: Date.now()
   };
+}
+function switchProfile(id){
+  if(S && S.active){ toast("Finish or discard the current workout first"); return false; }
+  if(!PROF.list.some(p=>p.id===id)) return false;
+  persist();                 // flush the person we're leaving
+  syncProfileRecord();
+  hideRestUI();
+  PROF.activeId = id;
+  saveProfiles();
+  S = load();
+  // a profile saved before the token existed still gets it
+  if(!S.sync.token && PROF.token){ S.sync.token = PROF.token; }
+  const p = activeProfile();
+  if(p && p.gistId && !S.sync.gistId) S.sync.gistId = p.gistId;
+  migrate();
+  saveQuiet();
+  TAB = "today";
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on", x.dataset.tab==="today"));
+  render();
+  window.scrollTo(0,0);
+  toast("Switched to "+profileName());
+  SYNC_ST = "off";
+  if(S.sync.token && S.sync.gistId){ setSyncStatus("pending"); syncNow(false); }
+  return true;
 }
 function migrate(){
   // add the alternating chest finisher if this device has an older program
@@ -698,6 +1121,25 @@ function migrate(){
       S.program.finisher = defaultFinisher();
       saveQuiet();
     }
+  }
+  // Every one-limb-at-a-time movement gets the alternating-arms note, not just the
+  // three that happened to be typed with it. Runs over each day AND the finisher,
+  // and over alternate (⇄) variants too.
+  if(S.program){
+    let noted = false;
+    const stamp = e=>{
+      if(!e || !e.name) return;
+      if(!isSingleArm(e)) return;
+      const n = String(e.note||"").trim();
+      if(/alternate\s+l\s*\/\s*r/i.test(n)) return;         // already says it
+      e.note = n ? n.replace(/\s*·\s*$/,"") + " · " + ALT_ARM_NOTE : ALT_ARM_NOTE;
+      noted = true;
+    };
+    Object.keys(S.program).forEach(k=>{
+      if(!Array.isArray(S.program[k])) return;
+      S.program[k].forEach(e=>{ stamp(e); if(e.alt) stamp(e.alt); });
+    });
+    if(noted) saveQuiet();
   }
   if(S.sync && S.sync.repo===undefined){ S.sync.repo=""; S.sync.branch="main"; S.sync.lastRepo=null; saveQuiet(); }
   if(!Array.isArray(S.cycleDone)) S.cycleDone = [];
@@ -739,7 +1181,7 @@ function inferCycleStart(){
   return d.getTime();
 }
 function persist(){
-  localStorage.setItem(LS_KEY, JSON.stringify(S));
+  localStorage.setItem(dataKey(), JSON.stringify(S));
 }
 function save(){
   // marks a real user-driven change: advance savedAt so this device wins the merge
@@ -771,8 +1213,9 @@ function durFmt(s){
 const PALETTE = Object.values(DAY_HEX);
 const pick = a => a[Math.floor(Math.random()*a.length)];
 function reducedMotion(){ return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
-function celebrate(kind, wid, volume){
-  if(reducedMotion()) return;
+function celebrate(kind, wid, volume, onDone){
+  // reduced motion → skip straight to whatever comes after the animation
+  if(reducedMotion()){ if(onDone) onDone(); return; }
   const old = document.getElementById("celebrate");
   if(old) old.remove();
   const el = document.createElement("div");
@@ -826,47 +1269,197 @@ function celebrate(kind, wid, volume){
     setTimeout(()=>raf(tick), 700);
   }
   // graceful exit: fade out, or tap anywhere to dismiss early
+  let fired = false;
   const dismiss = ()=>{
     if(!el.isConnected || el.classList.contains("out")) return;
     el.classList.add("out");
     setTimeout(()=>el.remove(), 480);
+    if(onDone && !fired){ fired = true; setTimeout(onDone, 420); }
   };
   el.onclick = dismiss;
   setTimeout(dismiss, isCycle ? 5200 : 4300);
 }
-function prFloat(anchor){
+function prFloat(anchor, label){
   if(reducedMotion()) return;
   const r = anchor.getBoundingClientRect();
   const p = document.createElement("div");
   p.className = "pr-float";
-  p.textContent = "PR! 🔥";
-  p.style.left = Math.max(8, r.left + r.width/2 - 34) + "px";
+  p.textContent = (label || "PR!") + " 🔥";
+  p.style.left = Math.max(8, Math.min(window.innerWidth-150, r.left + r.width/2 - 52)) + "px";
   p.style.top = (r.top - 6) + "px";
   document.body.appendChild(p);
-  setTimeout(()=>p.remove(), 1350);
+  setTimeout(()=>p.remove(), 1600);
+}
+/* ---------- PR detection ----------
+   The old check only compared a set against the SAME set number in the last session,
+   so a heavier set at a different position (or after a session with fewer sets) never
+   registered. This scans your entire history plus the sets already logged in this
+   session, and reports the first record actually broken.                          */
+function est1RM(w, reps){
+  // Epley — only meaningful in the low-rep range; clamp so 20-rep sets don't inflate
+  if(!(w>0) || !(reps>0)) return 0;
+  return w * (1 + Math.min(reps, 12)/30);
+}
+function bestEverFor(exName, upToEntry, upToSet){
+  let maxW = 0, repsAtMaxW = 0, max1RM = 0, maxRepsBw = 0, seen = false;
+  const key = nrm(exName);
+  const consider = st=>{
+    const w = parseFloat(st.weight)||0;
+    const reps = parseFloat(st.reps)||0;
+    if(!(reps>0) && !(w>0)) return;
+    seen = true;
+    if(w > maxW){ maxW = w; repsAtMaxW = reps; }
+    else if(w === maxW && reps > repsAtMaxW){ repsAtMaxW = reps; }
+    const e1 = est1RM(w, reps);
+    if(e1 > max1RM) max1RM = e1;
+    if(!(w>0) && reps > maxRepsBw) maxRepsBw = reps;   // bodyweight rep record
+  };
+  // all finished history — name-normalised, so trailing spaces or a change of
+  // capitalisation can't hide your own history from the comparison
+  S.sessions.forEach(s=> s.entries.forEach(en=>{ if(nrm(en.name)===key) en.sets.forEach(consider); }));
+  // plus sets already logged earlier in the live session, so a PR fires once (on the
+  // set that breaks the record) rather than on every heavier set that follows
+  if(S.active && upToEntry!=null){
+    S.active.entries.forEach((en,i)=>{
+      if(nrm(en.name) !== key) return;
+      en.sets.forEach((st,j)=>{
+        // only sets you've actually LOGGED count as a record to beat — a half-typed
+        // row shouldn't quietly cancel the PR on the set that follows it
+        const prior = i < upToEntry || (i === upToEntry && j < upToSet);
+        if(prior && st.done) consider(st);
+      });
+    });
+  }
+  return {maxW, repsAtMaxW, max1RM, maxRepsBw, seen};
+}
+function detectPR(exName, st, ei, si){
+  const w = parseFloat(st.weight)||0;
+  const reps = parseFloat(st.reps)||0;
+  if(!(reps>0) && !(w>0)) return null;
+  const b = bestEverFor(exName, ei, si);
+  if(!b.seen) return null;                 // nothing to beat yet — first time doing it
+  if(w > 0){
+    if(w > b.maxW) return "WEIGHT PR";                          // heavier than ever
+    if(w === b.maxW && reps > b.repsAtMaxW) return "REP PR";     // same top weight, more reps
+    if(est1RM(w, reps) > b.max1RM * 1.005) return "STRENGTH PR"; // better weight×reps combo
+    return null;
+  }
+  // bodyweight movement — reps are the record
+  if(reps > b.maxRepsBw) return "REP PR";
+  return null;
+}
+/* ---------- why PRs used to get missed ----------
+   The check only ran inside the ✓ tap handler, which meant it never fired when:
+     • you tapped ✓ on an empty row to copy last time's numbers, then typed a
+       HEAVIER weight over the top — the new weight was never re-checked;
+     • you typed numbers into later rows and markPriorDone() silently ticked the
+       earlier ones for you — those sets became "done" without ever being examined;
+     • the ✓ was unticked and re-ticked, or the reps were corrected upward after.
+
+   Now every path that can change a done set's numbers runs through checkPR(), the
+   result is STORED on the set (st.pr) and drawn as a badge on the row. So even if the
+   floating "PR! 🔥" animation is missed — scrolled past, reduced-motion on, phone
+   locked — the PR is still visibly recorded, and it lands in the session summary too. */
+function checkPR(ei, si, anchorEl){
+  if(!S.active) return null;
+  const entry = S.active.entries[ei];
+  if(!entry) return null;
+  const st = entry.sets[si];
+  if(!st || !st.done){ if(st) delete st.pr; return null; }
+  const pr = detectPR(entry.name, st, ei, si);
+  const had = st.pr || null;
+  if(pr) st.pr = pr; else delete st.pr;
+  // only animate when it's newly earned, so re-renders don't spam the float
+  if(pr && pr !== had && anchorEl) prFloat(anchorEl, pr);
+  return pr;
+}
+// Re-evaluate every done set of an exercise. Editing set 1 upward can promote or
+// demote the PR flag on the sets that follow it, so the whole column is re-checked.
+function refreshPRs(ei){
+  if(!S.active || !S.active.entries[ei]) return;
+  S.active.entries[ei].sets.forEach((st,j)=>{
+    if(!st.done){ delete st.pr; return; }
+    const pr = detectPR(S.active.entries[ei].name, st, ei, j);
+    if(pr) st.pr = pr; else delete st.pr;
+  });
+}
+function prBadgeHTML(st){
+  return (st && st.pr) ? `<span class="pr-badge">🔥 ${esc(st.pr)}</span>` : "";
+}
+// always emitted (empty when there's no PR) so the node exists to fill in-place
+function prBadgeRow(st, ei, si){
+  return `<div class="pr-row" data-prrow="${ei}-${si}">${prBadgeHTML(st)}</div>`;
+}
+function drawPRBadges(ei){
+  if(!S.active || !S.active.entries[ei]) return;
+  S.active.entries[ei].sets.forEach((st,j)=>{
+    const row = document.querySelector(`[data-prrow="${ei}-${j}"]`);
+    if(row) row.innerHTML = prBadgeHTML(st);
+    const chk = document.querySelector(`.set .chk[data-e="${ei}"][data-s="${j}"]`);
+    if(chk && chk.parentElement) chk.parentElement.classList.toggle("is-pr", !!st.pr);
+  });
+}
+// Every PR earned in a session, for the summary card.
+function sessionPRs(sess){
+  const out = [];
+  (sess.entries||[]).forEach(e=> e.sets.forEach((st,i)=>{
+    if(st.pr) out.push({name:e.name, set:i+1, kind:st.pr, weight:st.weight, reps:st.reps});
+  }));
+  return out;
 }
 
 /* ---------- rest stopwatch ---------- */
 function markPriorDone(ei, si){
   if(!S.active) return;
   let changed = false;
+  const touched = new Set();
   S.active.entries.forEach((en,i)=>{
     en.sets.forEach((st,j)=>{
       const prior = i < ei || (i === ei && j < si);
       if(prior && !st.done && (String(st.weight||"").trim() || String(st.reps||"").trim() || String(st.rpe||"").trim())){
         st.done = true;
         changed = true;
+        touched.add(i);
         const btn = document.querySelector(`.set .chk[data-e="${i}"][data-s="${j}"]`);
         if(btn) btn.classList.add("on");
       }
     });
   });
-  if(changed) save();
+  // sets auto-ticked here used to skip PR detection entirely — check them now
+  if(changed){ touched.forEach(i=>refreshPRs(i)); save(); }
 }
 let restTick = null;
 function fmtClock(sec){ const m=Math.floor(sec/60), s=sec%60; return m+":"+String(s).padStart(2,"0"); }
 function restElapsed(){
   return (S.active && S.active.restTimer) ? Math.max(0, Math.floor((Date.now()-S.active.restTimer.start)/1000)) : 0;
+}
+/* ---------- how long that set actually needed ----------
+   Rest requirements scale with how taxing the set was, not with a single flat number.
+   Heavy, low-rep, near-failure work drains the phosphagen system and the CNS and needs
+   2–5 minutes; classic 8–12 hypertrophy work sits around 1.5–3 min; high-rep metabolic
+   finishers recover in well under a minute. The `warn` line is where we stop and ask
+   "are you truly done resting?", the `ideal` window is what the quality score grades. */
+function repsGuess(entry, st){
+  const r = parseFloat(st && st.reps);
+  if(r > 0) return r;
+  const m = String((entry && entry.reps) || "").match(/(\d+)\s*[-–]\s*(\d+)/);
+  if(m) return (parseInt(m[1],10)+parseInt(m[2],10))/2;
+  const one = String((entry && entry.reps) || "").match(/(\d+)/);
+  return one ? parseInt(one[1],10) : 10;
+}
+function restTargetFor(entry, st){
+  const reps = repsGuess(entry, st);
+  const rpe = parseFloat(st && st.rpe) || 0;
+  if(reps <= 6 || rpe >= 9.5){
+    return {band:"heavy", warn:120, ideal:[180,300], hard:420,
+      why:"heavy, low-rep or near-max work, and the strength systems need 3–5 minutes to reload"};
+  }
+  if(reps <= 12){
+    return {band:"hypertrophy", warn:60, ideal:[90,180], hard:270,
+      why:"classic 8–12 rep hypertrophy work, which performs best on 1.5–3 minutes"};
+  }
+  return {band:"metabolic", warn:30, ideal:[45,120], hard:180,
+    why:"high-rep metabolic work, which recovers fast — 45 to 120 seconds is plenty"};
 }
 function recordRestIfRunning(){
   const rt = S.active && S.active.restTimer;
@@ -883,8 +1476,39 @@ function startRest(e, s){
   save();
   showRestUI(true);
 }
-function stopRest(){
+// The set the running timer belongs to, so the question can name the real target.
+function restingSetInfo(){
+  const rt = S.active && S.active.restTimer;
+  if(!rt) return null;
+  const entry = S.active.entries[rt.e];
+  const st = entry && entry.sets[rt.s];
+  if(!entry || !st) return null;
+  return {entry, st, target: restTargetFor(entry, st)};
+}
+/* Ask again when the rest is clearly too short for what the set demanded — including
+   a rest of literally zero, which is what happens when ■ gets fat-fingered or the ✓
+   for the next set is tapped seconds after the last one. Returns true to proceed. */
+async function confirmShortRest(sec, verb){
+  const info = restingSetInfo();
+  const t = info ? info.target : {warn:60, ideal:[90,180], band:"hypertrophy", why:"hypertrophy work wants 1.5–3 min"};
+  if(sec >= t.warn) return true;
+  const zero = sec <= 5;
+  const idealTxt = fmtClock(t.ideal[0])+"–"+fmtClock(t.ideal[1]);
+  return askConfirm({
+    title: zero ? "That's essentially no rest" : "That's a very short rest",
+    body: (zero
+        ? `The clock has only been running <b>${fmtClock(sec)}</b>.`
+        : `You've rested <b>${fmtClock(sec)}</b> so far.`)
+      + (info ? ` That last set of <b>${esc(info.entry.name)}</b> was ${t.why} — target <b>${idealTxt}</b>.` : "")
+      + `<br><br>Are you <b>truly</b> done resting${verb ? " and ready to "+verb : ""}?`,
+    meta: `${t.band} set · suggested rest ${idealTxt}`,
+    yes: "Yes, I'm done resting",
+    no: "No — keep resting"
+  });
+}
+async function stopRest(){
   const sec = restElapsed();
+  if(!(await confirmShortRest(sec, "start your next set"))) return;   // keep the timer running
   recordRestIfRunning();
   hideRestUI();
   toast("Rest: "+fmtClock(sec));
@@ -976,12 +1600,7 @@ function todaysWorkoutId(){
 function altIndex(wid){
   return S.sessions.filter(s=>s.workoutId===wid).length % 2;
 }
-// A movement done one arm at a time (curls, kickbacks, single-arm rows…). Auto-detected
-// from the note/name so it also covers any single-arm exercise you add later, on any day.
-function isSingleArm(e){
-  const s = (e.name||"") + " " + (e.note||"");
-  return /\b(single|one)[- ]?arm\b|\bper arm\b|\beach arm\b|\bl\s*\/\s*r\b|alternat[a-z]*\s+(l\/r|arms?|left|right|side)/i.test(s);
-}
+// (UNILATERAL + isSingleArm live near the top of the file — migrate() needs them.)
 // Which arm to START with this session. Flips every session of that day:
 // session 0,2,4 → Right first; 1,3,5 → Left first.
 function startSideFor(wid){ return altIndex(wid) === 0 ? "R" : "L"; }
@@ -999,47 +1618,83 @@ function resolvedProgram(wid){
   const fin = (S.program.finisher||[]).map(e=>({chosen:e, other:null, isFinisher:true}));
   return main.concat(fin);
 }
-function lastEntryFor(workoutId, exName){
-  // same-day sessions first (best comparison), then any session (covers the everyday finisher)
-  for(let pass=0; pass<2; pass++){
+/* ---------- "last time" lookup ----------
+   Two things used to go wrong here:
+
+   1. The finisher runs at the END OF EVERY WORKOUT, but the lookup preferred a
+      session with the SAME rotation day. So on a chest day, the ab crunch showed the
+      weight from the last *chest* day — not from yesterday's back day, which is
+      actually the last time you did that movement. Anything flagged as a finisher now
+      searches every session in date order (anyDay), so "last" means literally last.
+
+   2. The finisher has THREE entries and two of them are the same movement
+      (crunch → leg raise → crunch). `entries.find(byName)` always returned the FIRST
+      crunch, so the closing crunch showed the opening crunch's numbers. Lookups are
+      now occurrence-aware: the 2nd crunch matches the 2nd crunch.                  */
+function nrm(n){ return String(n==null?"":n).trim().toLowerCase().replace(/\s+/g," "); }
+function occurrencesIn(session, exName){
+  const k = nrm(exName);
+  return (session.entries||[]).filter(en=>nrm(en.name)===k);
+}
+// How many entries BEFORE index i share this entry's name → its occurrence number.
+function occIndex(list, i){
+  const k = nrm(list[i] && (list[i].name || (list[i].chosen && list[i].chosen.name)));
+  let n = 0;
+  for(let j=0;j<i;j++){
+    const nm = nrm(list[j] && (list[j].name || (list[j].chosen && list[j].chosen.name)));
+    if(nm===k) n++;
+  }
+  return n;
+}
+function lastEntryFor(workoutId, exName, anyDay, occ){
+  occ = occ || 0;
+  const passes = anyDay ? [1] : [0,1];
+  for(const pass of passes){
     for(let i=S.sessions.length-1;i>=0;i--){
       const s = S.sessions[i];
       if(pass===0 && s.workoutId!==workoutId) continue;
-      const e = s.entries.find(en=>en.name===exName);
-      if(e) return {sets:e.sets, date:s.date};
+      const hits = occurrencesIn(s, exName);
+      if(!hits.length) continue;
+      const e = hits[Math.min(occ, hits.length-1)];
+      return {sets:e.sets, date:s.date, workoutId:s.workoutId, sameDay:s.workoutId===workoutId};
     }
   }
   return null;
 }
-function lastSetsFor(workoutId, exName){
-  const l = lastEntryFor(workoutId, exName);
+function lastSetsFor(workoutId, exName, anyDay, occ){
+  const l = lastEntryFor(workoutId, exName, anyDay, occ);
   return l ? l.sets : null;
 }
-function lastBox(workoutId, exName){
-  const l = lastEntryFor(workoutId, exName);
+function lastBox(workoutId, exName, anyDay, occ){
+  const l = lastEntryFor(workoutId, exName, anyDay, occ);
   if(!l) return null;
   const sets = l.sets.filter(st=>st.reps||st.weight);
   if(!sets.length) return null;
   const d = new Date(l.date+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"});
   const color = META[workoutId] ? META[workoutId].color : "var(--dim)";
+  // for the every-workout finisher, say which day it was so it's never ambiguous
+  const tag = (anyDay && l.workoutId && META[l.workoutId] && l.workoutId!==workoutId)
+    ? "Last<br>"+esc(d)+" <span style='opacity:.7'>("+esc(META[l.workoutId].short)+")</span>"
+    : "Last<br>"+esc(d);
   return `<div class="ex-last" style="border-left-color:${color}">
-    <span class="ll-tag">Last<br>${esc(d)}</span>
+    <span class="ll-tag">${tag}</span>
     ${sets.map(st=>`<span class="ll-set">${esc(fmtSetShort(st))}</span>`).join("")}
   </div>`;
 }
-function exHistory(name, n){
+function exHistory(name, n, occ){
+  occ = occ || 0;
   const out = [];
   for(let i=S.sessions.length-1; i>=0 && out.length<n; i--){
-    const e = S.sessions[i].entries.find(en=>en.name===name);
-    if(e){
-      const sets = e.sets.filter(st=>st.reps||st.weight);
-      if(sets.length) out.push({date:S.sessions[i].date, sets});
-    }
+    const hits = occurrencesIn(S.sessions[i], name);
+    if(!hits.length) continue;
+    const e = hits[Math.min(occ, hits.length-1)];
+    const sets = e.sets.filter(st=>st.reps||st.weight);
+    if(sets.length) out.push({date:S.sessions[i].date, sets});
   }
   return out; // newest first
 }
-function insight(exName){
-  const h = exHistory(exName, 3);
+function insight(exName, occ){
+  const h = exHistory(exName, 3, occ);
   if(h.length < 2) return null;
   const top = sess => sess.sets.reduce((b,st)=>{
     const w = parseFloat(st.weight)||0, r = parseFloat(st.reps)||0;
@@ -1081,6 +1736,447 @@ function fmtSet(st){
   return out;
 }
 
+/* =====================================================================
+   MUSCLE MODEL — the data behind the Body tab
+
+   Volume landmarks follow the widely used MEV / MAV / MRV framework
+   (Israetel et al.): MEV is roughly the least weekly volume that still grows a
+   muscle, MAV the productive middle, MRV the most it can recover from. Numbers are
+   HARD SETS PER MUSCLE PER WEEK, which is the unit the research is expressed in.
+   `recov` is the hours a normal hard session for that muscle needs before it's back —
+   small muscles turn around fast, spinal erectors and quads are the slowest.
+   ===================================================================== */
+const MUSCLES = {
+  chest:       {name:"Chest",        lc:"chest",       pl:0, mev:10, mav:20, mrv:24, recov:48},
+  delts_front: {name:"Front Delts",  lc:"front delt",  pl:1, mev:6,  mav:14, mrv:20, recov:40},
+  delts_side:  {name:"Side Delts",   lc:"side delt",   pl:1, mev:8,  mav:20, mrv:26, recov:36},
+  delts_rear:  {name:"Rear Delts",   lc:"rear delt",   pl:1, mev:6,  mav:18, mrv:24, recov:36},
+  triceps:     {name:"Triceps",      lc:"tricep",      pl:1, mev:6,  mav:16, mrv:22, recov:40},
+  biceps:      {name:"Biceps",       lc:"bicep",       pl:1, mev:8,  mav:18, mrv:24, recov:40},
+  forearms:    {name:"Forearms",     lc:"forearm",     pl:1, mev:4,  mav:12, mrv:18, recov:32},
+  lats:        {name:"Lats",         lc:"lat",         pl:1, mev:10, mav:20, mrv:24, recov:48},
+  traps:       {name:"Upper Back",   lc:"upper back",  pl:0, mev:6,  mav:18, mrv:24, recov:48},
+  lower_back:  {name:"Lower Back",   lc:"lower back",  pl:0, mev:4,  mav:10, mrv:14, recov:60},
+  abs:         {name:"Abs",          lc:"ab",          pl:1, mev:6,  mav:16, mrv:22, recov:36},
+  obliques:    {name:"Obliques",     lc:"oblique",     pl:1, mev:4,  mav:12, mrv:16, recov:36},
+  glutes:      {name:"Glutes",       lc:"glute",       pl:1, mev:4,  mav:12, mrv:18, recov:48},
+  quads:       {name:"Quads",        lc:"quad",        pl:1, mev:8,  mav:18, mrv:22, recov:60},
+  hams:        {name:"Hamstrings",   lc:"hamstring",   pl:1, mev:6,  mav:16, mrv:20, recov:60},
+  calves:      {name:"Calves",       lc:"calf",        pl:1, mev:8,  mav:16, mrv:22, recov:36}
+};
+const MKEYS = Object.keys(MUSCLES);
+// "Lats ARE under-stimulated" / "Chest IS under-stimulated"
+function mIs(m){ return MUSCLES[m].pl ? "are" : "is"; }
+function mIts(m){ return MUSCLES[m].pl ? "their" : "its"; }
+function mMovement(m){ return MUSCLES[m].lc + " movement"; }
+
+/* Which muscles a set actually pays into. 1 = the target, fractions = meaningful
+   secondary work. Counting secondaries at a fraction is why a chest day still shows
+   up on your triceps and front delts — because it does. */
+const EX_MUSCLES = {
+  // chest
+  "dumbbell bench press":          {chest:1, delts_front:.5, triceps:.5},
+  "incline dumbbell bench press":  {chest:1, delts_front:.6, triceps:.4},
+  "mid cable fly (on bench)":      {chest:1, delts_front:.3},
+  "cable chest press (on bench)":  {chest:1, delts_front:.4, triceps:.4},
+  "guillotine press":              {chest:1, delts_front:.4, triceps:.4},
+  "chest dips":                    {chest:1, triceps:.6, delts_front:.4},
+  // back
+  "lat pulldown":                  {lats:1, biceps:.5, traps:.3, forearms:.3},
+  "mid row":                       {traps:1, lats:.8, biceps:.5, delts_rear:.4, forearms:.3},
+  "dumbbell rdl":                  {hams:1, glutes:.8, lower_back:.6, traps:.3, forearms:.4},
+  "cable lat prayer":              {lats:1, abs:.3},
+  // arms
+  "incline dumbbell curl":         {biceps:1, forearms:.4},
+  "tricep pushdown":               {triceps:1},
+  "preacher curl":                 {biceps:1, forearms:.3},
+  "tricep kickback":               {triceps:1, delts_rear:.2},
+  "spider curl":                   {biceps:1, forearms:.3},
+  "hammer curl":                   {biceps:1, forearms:.6},
+  "cable tricep extension":        {triceps:1},
+  // shoulders
+  "smith machine shoulder press":  {delts_front:1, delts_side:.6, triceps:.5, traps:.3},
+  "alternating cable lateral raise":{delts_side:1, traps:.3},
+  "cable reverse rear delt fly":   {delts_rear:1, traps:.5},
+  // legs
+  "leg curl":                      {hams:1, calves:.2},
+  "leg extension":                 {quads:1},
+  "hip thrust":                    {glutes:1, hams:.5},
+  "smith machine squat":           {quads:1, glutes:.8, hams:.4, lower_back:.3},
+  "standing calf raise (smith)":   {calves:1},
+  // finisher
+  "cable ab crunch":               {abs:1, obliques:.3},
+  "leg raises":                    {abs:1, obliques:.4}
+};
+// Anything you add later still lands somewhere sensible via its name.
+const MUSCLE_KEYWORDS = [
+  [/bench|pec |pec$|\bfly\b|flye|chest press|\bdip|push[- ]?up|guillotine/, {chest:1, delts_front:.4, triceps:.4}],
+  [/pulldown|pull[- ]?up|chin[- ]?up|pullover|lat prayer|straight[- ]?arm/,  {lats:1, biceps:.4, traps:.3}],
+  [/\brow\b|row$|shrug|face pull|rear delt|reverse fly/,                    {traps:1, lats:.6, delts_rear:.6, biceps:.4}],
+  [/lateral raise|side raise|upright row/,                                  {delts_side:1, traps:.3}],
+  [/(shoulder|overhead|military|arnold).*(press)|press.*(overhead)/,        {delts_front:1, delts_side:.5, triceps:.5}],
+  [/curl/,                                                                 {biceps:1, forearms:.4}],
+  [/tricep|skull|pushdown|kickback|overhead extension|close[- ]?grip/,      {triceps:1}],
+  [/wrist|grip|farmer/,                                                    {forearms:1}],
+  [/squat|leg press|lunge|split squat|hack/,                               {quads:1, glutes:.7, hams:.3}],
+  [/leg extension|sissy/,                                                  {quads:1}],
+  [/(leg|lying|seated|nordic).*(curl)|rdl|romanian|good ?morning|stiff[- ]?leg/, {hams:1, glutes:.6, lower_back:.4}],
+  [/hip thrust|glute bridge|kickback.*glute|abduction/,                    {glutes:1, hams:.4}],
+  [/calf|calve|soleus/,                                                    {calves:1}],
+  [/deadlift|back extension|hyperextension|erector/,                       {lower_back:1, glutes:.7, hams:.7, traps:.4}],
+  [/crunch|sit[- ]?up|leg raise|ab wheel|hollow|plank|\babs?\b/,           {abs:1, obliques:.3}],
+  [/oblique|russian twist|side bend|woodchop/,                             {obliques:1, abs:.4}]
+];
+function musclesFor(name){
+  const k = nrm(name);
+  if(EX_MUSCLES[k]) return EX_MUSCLES[k];
+  for(const [re, m] of MUSCLE_KEYWORDS){ if(re.test(k)) return m; }
+  return null;
+}
+// No RPE logged? Assume a normal hard working set rather than throwing the set away.
+function effRpe(st){ const r = parseFloat(st && st.rpe); return r > 0 ? r : 8; }
+function isWorkingSet(st){ return (parseFloat(st && st.reps)||0) > 0; }
+
+const DAY_MS = 86400000;
+function blankMuscleMap(v){ const o = {}; MKEYS.forEach(k=> o[k] = (typeof v==="function" ? v(k) : v)); return o; }
+
+/* Walk every logged set in a time window and attribute it to muscles. */
+function windowStats(from, to){
+  const out = blankMuscleMap(()=>({sets:0, vol:0, best:0, lastMs:0, lastSets:0, hardSets:0,
+                                   nearFail:0, restN:0, restShort:0, exs:{}}));
+  S.sessions.forEach(s=>{
+    if(s.startedAt < from || s.startedAt >= to) return;
+    s.entries.forEach(e=>{
+      const mm = musclesFor(e.name);
+      if(!mm) return;
+      e.sets.forEach(st=>{
+        if(!isWorkingSet(st)) return;
+        const reps = parseFloat(st.reps)||0;
+        const w = parseFloat(st.weight)||0;
+        const rpe = effRpe(st);
+        const e1 = w > 0 ? est1RM(w, reps) : reps;   // bodyweight → reps stand in for load
+        const tgt = restTargetFor(e, st);
+        Object.keys(mm).forEach(m=>{
+          const o = out[m];
+          if(!o) return;
+          const c = mm[m];
+          o.sets += c;
+          o.vol  += w * reps * c;
+          o.exs[e.name] = (o.exs[e.name]||0) + c;
+          if(rpe >= 7) o.hardSets += c;
+          if(rpe >= 9.5) o.nearFail += c;
+          if(mm[m] >= 1 && e1 > o.best) o.best = e1;
+          if(st.rest != null){ o.restN += 1; if(st.rest < tgt.warn) o.restShort += 1; }
+          if(s.startedAt > o.lastMs){ o.lastMs = s.startedAt; o.lastSets = 0; }
+          if(s.startedAt === o.lastMs) o.lastSets += c;
+        });
+      });
+    });
+  });
+  return out;
+}
+
+/* Fatigue — every hard set leaves a residue that decays exponentially with the
+   muscle's own recovery half-life, scaled by how close to failure it was. 100 means
+   "you've just dumped a full MRV week onto this muscle". */
+function fatigueByMuscle(now){
+  const raw = blankMuscleMap(0);
+  S.sessions.forEach(s=>{
+    const hrs = (now - s.startedAt)/3600e3;
+    if(hrs < 0 || hrs > 14*24) return;
+    s.entries.forEach(e=>{
+      const mm = musclesFor(e.name);
+      if(!mm) return;
+      e.sets.forEach(st=>{
+        if(!isWorkingSet(st)) return;
+        const rpe = effRpe(st);
+        // RPE 6 → 0.55×, RPE 10 → 1.30× — proximity to failure drives fatigue cost
+        const intensity = 0.55 + Math.max(0, Math.min(1, (rpe - 6)/4)) * 0.75;
+        Object.keys(mm).forEach(m=>{
+          if(raw[m] === undefined) return;
+          raw[m] += mm[m] * intensity * Math.pow(0.5, hrs / MUSCLES[m].recov);
+        });
+      });
+    });
+  });
+  return blankMuscleMap(m => Math.max(0, Math.min(100, Math.round(raw[m] / MUSCLES[m].mrv * 100))));
+}
+
+/* Sleep and energy don't change per-muscle, but they absolutely change how fast any
+   of it comes back — so they shift every muscle's recovery clock together. */
+function recoveryModifier(){
+  const days = [];
+  for(let i=0;i<3;i++){
+    const d = new Date(Date.now() - i*DAY_MS).toLocaleDateString("en-CA");
+    const ci = (S.checkins||{})[d];
+    if(ci) days.push(ci);
+  }
+  if(!days.length) return {mod:0, why:[]};
+  let mod = 0; const why = [];
+  const sl = days.map(c=>parseFloat(c.sleep)).filter(x=>x>0);
+  if(sl.length){
+    const avg = sl.reduce((a,b)=>a+b,0)/sl.length;
+    if(avg < 6){ mod -= 18; why.push("averaging "+avg.toFixed(1)+" h sleep — under 6 h measurably blunts recovery"); }
+    else if(avg < 7){ mod -= 8; why.push("averaging "+avg.toFixed(1)+" h sleep — a little short of the 7–9 h window"); }
+    else if(avg >= 8){ mod += 6; why.push("averaging "+avg.toFixed(1)+" h sleep — recovery is well supported"); }
+  }
+  const en = days.map(c=>parseFloat(c.energy)).filter(x=>x>0);
+  if(en.length){
+    const avg = en.reduce((a,b)=>a+b,0)/en.length;
+    if(avg <= 4){ mod -= 10; why.push("self-rated energy is low ("+avg.toFixed(1)+"/10)"); }
+    else if(avg >= 8){ mod += 4; why.push("self-rated energy is high ("+avg.toFixed(1)+"/10)"); }
+  }
+  return {mod: Math.max(-25, Math.min(10, mod)), why};
+}
+
+/* Recovery — how far through its own recovery window each muscle is. Distinct from
+   fatigue: a muscle hammered 6 days ago is fully recovered even if the week's fatigue
+   residue is still on the books. Heavier days stretch the window proportionally. */
+function recoveryByMuscle(now, wk, modInfo){
+  const mod = modInfo.mod;
+  return blankMuscleMap(m=>{
+    const o = wk[m];
+    if(!o || !o.lastMs) return 100;                  // nothing to recover from
+    const hrs = (now - o.lastMs)/3600e3;
+    const typical = Math.max(2, MUSCLES[m].mav/3);    // a "normal" session's set count
+    const load = Math.min(2, Math.max(0.55, (o.lastSets || 1) / typical));
+    const need = MUSCLES[m].recov * load;
+    return Math.max(0, Math.min(100, Math.round(hrs/need*100 + mod)));
+  });
+}
+
+/* Growth — is the muscle actually progressing? Compares the last 3 weeks against the
+   3 before it on estimated 1RM (the strength signal, weighted 70%) and total volume
+   (the stimulus signal, 30%). 50 = holding steady, 100 = ~+12% and climbing fast. */
+function growthByMuscle(now){
+  const W = 21*DAY_MS;
+  const a = windowStats(now - W, now + 1);
+  const b = windowStats(now - 2*W, now - W);
+  const out = {};
+  MKEYS.forEach(m=>{
+    if(!a[m].sets){ out[m] = {score:null, note:"not trained in the last 3 weeks"}; return; }
+    if(!b[m].sets){ out[m] = {score:55, note:"first block on record — nothing to compare against yet", isNew:true}; return; }
+    const strP = b[m].best > 0 ? (a[m].best - b[m].best)/b[m].best : 0;
+    const volP = b[m].vol  > 0 ? (a[m].vol  - b[m].vol )/b[m].vol  : 0;
+    const raw = strP*0.7 + volP*0.3;
+    out[m] = {score: Math.max(0, Math.min(100, Math.round(50 + raw*400))), strP, volP,
+              bestNow:a[m].best, bestPrev:b[m].best};
+  });
+  return out;
+}
+
+/* Injury risk — five independent flags, each grounded in something measurable:
+     • weekly volume past MRV (the muscle can't recover from what's going in)
+     • an acute:chronic workload ratio above ~1.5, the classic spike marker from
+       sports-science injury literature
+     • high standing fatigue combined with low recovery
+     • a large share of sets taken to true failure (RPE 9.5+)
+     • heavy sets cut short on rest, so load is being handled pre-recovered            */
+function injuryByMuscle(now, wk, fat, rec){
+  const chronic = windowStats(now - 28*DAY_MS, now + 1);
+  const out = {};
+  MKEYS.forEach(m=>{
+    const M = MUSCLES[m];
+    const sets = wk[m].sets;
+    const flags = [];
+    let risk = 0;
+
+    if(sets > M.mrv){
+      const over = Math.min(1, (sets - M.mrv)/M.mrv);
+      risk += 28*over + 8;
+      flags.push({w:Math.round(28*over+8), t:"weekly volume is past what this muscle recovers from ("+r1(sets)+" vs MRV "+M.mrv+")"});
+    }
+    const chronicWk = chronic[m].sets/4;
+    if(chronicWk >= 2){
+      const acwr = sets/chronicWk;
+      if(acwr > 1.5){
+        const x = Math.min(1, (acwr - 1.5)/1.0);
+        risk += 24*x + 6;
+        flags.push({w:Math.round(24*x+6), t:"this week is "+acwr.toFixed(1)+"× your 4-week average — spikes above 1.5× are the classic injury marker"});
+      }
+    }
+    if(fat[m] >= 55 && rec[m] <= 55){
+      const x = Math.min(1, (fat[m]-55)/45) * Math.min(1, (55-rec[m])/55 + .35);
+      risk += 22*x;
+      if(22*x >= 4) flags.push({w:Math.round(22*x), t:"carrying "+fat[m]+"% fatigue with only "+rec[m]+"% recovery banked"});
+    }
+    if(wk[m].hardSets > 0){
+      const share = wk[m].nearFail/wk[m].hardSets;
+      if(share > 0.4){
+        const x = Math.min(1, (share-0.4)/0.6);
+        risk += 14*x;
+        if(14*x >= 3) flags.push({w:Math.round(14*x), t:Math.round(share*100)+"% of sets taken to true failure (RPE 9.5+) — connective tissue pays for that"});
+      }
+    }
+    if(wk[m].restN >= 3){
+      const share = wk[m].restShort/wk[m].restN;
+      if(share > 0.3){
+        const x = Math.min(1, (share-0.3)/0.7);
+        risk += 12*x;
+        if(12*x >= 3) flags.push({w:Math.round(12*x), t:Math.round(share*100)+"% of sets started before the rest that load called for"});
+      }
+    }
+    out[m] = {score: Math.max(0, Math.min(100, Math.round(risk))), flags:flags.sort((a,b)=>b.w-a.w)};
+  });
+  return out;
+}
+function r1(n){ return Math.round(n*10)/10; }
+
+function volState(m, sets){
+  const M = MUSCLES[m];
+  if(sets <= 0)      return {k:"none",    label:"untrained", txt:"no sets logged this week"};
+  if(sets < M.mev)   return {k:"under",   label:"under MEV", txt:r1(sets)+" of the ~"+M.mev+" weekly sets it takes to grow"};
+  if(sets <= M.mav)  return {k:"optimal", label:"in range",  txt:r1(sets)+" sets — inside the productive "+M.mev+"–"+M.mav+" window"};
+  if(sets <= M.mrv)  return {k:"high",    label:"high",      txt:r1(sets)+" sets — above MAV "+M.mav+", still recoverable"};
+  return               {k:"over",    label:"over MRV",  txt:r1(sets)+" sets — past MRV "+M.mrv+", more than it can recover from"};
+}
+
+/* One call, everything the Body tab needs. */
+function bodyAnalysis(){
+  const now = Date.now();
+  const wk     = windowStats(now - 7*DAY_MS,  now + 1);
+  const prevWk = windowStats(now - 14*DAY_MS, now - 7*DAY_MS);
+  const fat    = fatigueByMuscle(now);
+  const modInfo= recoveryModifier();
+  const rec    = recoveryByMuscle(now, wk, modInfo);
+  const grow   = growthByMuscle(now);
+  const inj    = injuryByMuscle(now, wk, fat, rec);
+  const vol    = blankMuscleMap(m => wk[m].sets);
+  const state  = blankMuscleMap(m => volState(m, wk[m].sets));
+
+  /* Whole-body load. Deliberately NOT the sum of the per-muscle numbers: a bench press
+     set pays into chest, front delts and triceps, so summing those columns would report
+     three times the sets you actually did. This counts real working sets performed. */
+  const rawSets = (from, to)=>{
+    let n = 0;
+    S.sessions.forEach(s=>{
+      if(s.startedAt < from || s.startedAt >= to) return;
+      s.entries.forEach(e=> e.sets.forEach(st=>{ if(isWorkingSet(st)) n++; }));
+    });
+    return n;
+  };
+  const totals = {
+    setsWk: rawSets(now - 7*DAY_MS, now + 1),
+    setsPrev: rawSets(now - 14*DAY_MS, now - 7*DAY_MS),
+    fat: Math.round(MKEYS.reduce((t,m)=>t+fat[m],0)/MKEYS.length),
+    rec: Math.round(MKEYS.reduce((t,m)=>t+rec[m],0)/MKEYS.length),
+    inj: Math.round(Math.max(...MKEYS.map(m=>inj[m].score)))
+  };
+  const chronicWkAll = rawSets(now - 28*DAY_MS, now + 1)/4;
+  totals.acwr = chronicWkAll >= 4 ? (totals.setsWk/chronicWkAll) : null;
+
+  return {now, wk, prevWk, fat, rec, grow, inj, vol, state, totals, modInfo,
+          weak: weakPoints({wk, prevWk, fat, rec, grow, inj, state})};
+}
+
+/* =============== WEAK POINT DETECTION ===============
+   Five separate lenses, because "weak point" means different things: a muscle can be
+   under-stimulated, stalled, structurally out of balance with its opposite, neglected
+   outright, or being driven past what it recovers from.                            */
+function weakPoints(A){
+  const out = [];
+  // `score` is 0–100 confidence-weighted urgency; the displayed severity band is
+  // derived from it, so a 5%-short muscle never shouts as loud as a missing one.
+  const push = (score, muscle, title, why, fix)=> out.push({
+    score, sev: score>=68 ? 3 : score>=38 ? 2 : 1, muscle, title, why, fix
+  });
+
+  // 1 — under-stimulated relative to minimum effective volume
+  MKEYS.forEach(m=>{
+    const M = MUSCLES[m], s = A.wk[m].sets, p = A.prevWk[m].sets;
+    if(s <= 0 && p <= 0) return;                     // rule 2 owns the "not trained at all" case
+    if(s >= M.mev) return;
+    const shortfall = (M.mev - s)/M.mev;             // 0 → at MEV, 1 → nothing at all
+    const chronic = p < M.mev;
+    const score = Math.min(100, Math.round(shortfall*80*(chronic?1.25:0.8)));
+    if(score < 18) return;                           // a rounding-error shortfall isn't a weak point
+    push(score, m, M.name+" "+mIs(m)+" under-stimulated",
+      r1(s)+" hard sets in the last 7 days against a minimum effective volume of about "+M.mev+
+      (chronic ? ". It was short the week before too, so this isn't a one-off light week." : ", though last week was in range."),
+      "Add about "+Math.max(2, Math.ceil(M.mev - s))+" hard sets a week — one more "+mMovement(m)+
+      " of 3 sets, or a set onto each "+mMovement(m)+" you already run.");
+  });
+
+  // 2 — nothing in the program trains it
+  MKEYS.forEach(m=>{
+    if(A.wk[m].sets > 0 || A.prevWk[m].sets > 0) return;
+    if(A.grow[m].score !== null) return;             // trained inside 3 weeks, just not lately
+    push(92, m, "Nothing in your program trains "+MUSCLES[m].name.toLowerCase(),
+      "No logged sets in the last 3 weeks. With no direct work, "+MUSCLES[m].lc+"s can only fall behind everything around them.",
+      "Add one direct movement. Even "+MUSCLES[m].mev+" sets a week is the difference between holding ground and losing it.");
+  });
+
+  // 3 — stalled despite adequate volume
+  MKEYS.forEach(m=>{
+    const g = A.grow[m];
+    if(!g || g.score === null || g.isNew) return;
+    if(A.wk[m].sets < MUSCLES[m].mev) return;        // rule 1 already owns this case
+    if(g.score >= 45) return;
+    const dropped = g.strP < -0.02;
+    const score = dropped ? Math.min(95, 55 + Math.abs(g.strP)*300) : 42;
+    push(Math.round(score), m, MUSCLES[m].name+" "+(MUSCLES[m].pl?"have":"has")+" stalled",
+      "Volume is adequate but estimated strength is "+(dropped ? "down "+Math.abs(Math.round(g.strP*100))+"%" : "flat")+
+      " versus the previous 3 weeks"+(g.bestPrev ? " ("+Math.round(g.bestPrev)+" → "+Math.round(g.bestNow)+" lb estimated 1RM)" : "")+
+      ". More sets is the wrong lever when the sets you already do aren't converting.",
+      dropped
+        ? "Take a lighter week — about half the sets at the same loads — then rebuild. A stall with falling strength is usually accumulated fatigue, not too little work."
+        : "Change the stimulus rather than the amount: swap the main movement, slow the eccentric to 3 seconds, or take the top set one RPE closer to failure.");
+  });
+
+  // 4 — structural balance between opposing / paired muscles
+  const ratios = [
+    {a:["chest","delts_front","triceps"], b:["lats","traps","biceps"],
+     an:"pushing", bn:"pulling", lo:0.75, hi:1.35,
+     fixLow:"Add pressing volume — your back work is outpacing your chest and front delts.",
+     fixHigh:"Add rowing and pulldown volume. Push dominance rounds the shoulders forward and is the most common source of front-shoulder pain."},
+    {a:["quads"], b:["hams"], an:"quad", bn:"hamstring", lo:0.8, hi:2.0,
+     fixLow:"Add quad work — leg extensions or squats. Your hamstrings are ahead.",
+     fixHigh:"Add hamstring work: RDLs and leg curls. Quad dominance well past 2:1 tracks with hamstring strains and knee complaints."},
+    {a:["delts_front"], b:["delts_rear"], an:"front delt", bn:"rear delt", lo:0.6, hi:1.6,
+     fixLow:"Front delts are behind — they're mostly fed by pressing, so check your press volume.",
+     fixHigh:"Add rear delt work. Front delts get paid by every press you do; rear delts only grow from what you give them directly."}
+  ];
+  ratios.forEach(R=>{
+    const sa = R.a.reduce((t,m)=>t+A.wk[m].sets,0);
+    const sb = R.b.reduce((t,m)=>t+A.wk[m].sets,0);
+    if(sa + sb < 6) return;                          // too little data to call it
+    if(sb < 1){
+      push(88, R.b[0], "No "+R.bn+" volume at all against "+r1(sa)+" sets of "+R.an+" work",
+        "Your "+R.an+" work has nothing balancing it this week.", R.fixHigh);
+      return;
+    }
+    const ratio = sa/sb;
+    if(ratio > R.hi){
+      push(Math.min(95, Math.round(40 + (ratio/R.hi - 1)*90)), R.b[0],
+        R.bn.replace(/^./,c=>c.toUpperCase())+"s lag behind "+R.an+"s",
+        r1(sa)+" sets of "+R.an+" work against "+r1(sb)+" of "+R.bn+" — a "+ratio.toFixed(1)+":1 ratio, where roughly 1:1 keeps the joint balanced.",
+        R.fixHigh);
+    } else if(ratio < R.lo){
+      push(Math.min(95, Math.round(40 + (R.lo/ratio - 1)*90)), R.a[0],
+        R.an.replace(/^./,c=>c.toUpperCase())+"s lag behind "+R.bn+"s",
+        r1(sa)+" sets of "+R.an+" work against "+r1(sb)+" of "+R.bn+" ("+ratio.toFixed(2)+":1).",
+        R.fixLow);
+    }
+  });
+
+  // 5 — driven past what it recovers from
+  MKEYS.forEach(m=>{
+    const i = A.inj[m];
+    if(!i || i.score < 55) return;
+    push(i.score, m, MUSCLES[m].name+" "+mIs(m)+" being pushed past recovery",
+      i.flags.slice(0,2).map(f=>f.t).join("; ")+".",
+      "Pull it back for a week: cut the sets by about a third and keep the loads where they are. Volume you can't recover from is volume you don't grow from.");
+  });
+
+  // Most urgent first. One entry per muscle keeps the list readable — the highest
+  // scoring finding for a muscle is the one worth acting on first anyway.
+  const seen = new Set();
+  return out.sort((a,b)=>b.score-a.score).filter(w=>{
+    if(seen.has(w.muscle)) return false;
+    seen.add(w.muscle); return true;
+  }).slice(0, 7);
+}
+
 /* ================= RENDER ================= */
 let TAB = "today";
 document.querySelectorAll("nav button").forEach(b=>{
@@ -1091,6 +2187,7 @@ function render(){
   const app = $("#app");
   if(TAB==="today") app.innerHTML = viewToday();
   else if(TAB==="history") app.innerHTML = viewHistory();
+  else if(TAB==="body") app.innerHTML = viewBody();
   else if(TAB==="program") app.innerHTML = viewProgram();
   else app.innerHTML = viewSync();
   bind();
@@ -1113,6 +2210,166 @@ function plateStrip(){
   return html + "</div>";
 }
 
+/* ---------- profile switcher ---------- */
+function profInitials(name){
+  const parts = String(name||"?").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "?";
+  return (parts.length===1 ? parts[0].slice(0,2) : parts[0][0]+parts[1][0]).toUpperCase();
+}
+function profColor(id){
+  // stable colour per profile so each person is visually distinct at a glance
+  const pal = ["#e05248","#4a82e0","#e8b62c","#46a85c","#b46ce0","#e07f2c","#2cc7c7","#e0629a"];
+  let hs = 0;
+  String(id).split("").forEach(c=>{ hs = (hs*31 + c.charCodeAt(0)) >>> 0; });
+  return pal[hs % pal.length];
+}
+function profileBar(){
+  const p = activeProfile();
+  const n = PROF.list.length;
+  return `<button class="prof-bar" id="profBar">
+    <span class="prof-av" style="background:${profColor(p.id)}">${esc(profInitials(p.name))}</span>
+    <span class="prof-txt"><b>${esc(p.name)}</b><small>${n>1?"tap to switch · "+n+" profiles":"tap to add a client profile"}</small></span>
+    <span class="prof-chev">⌄</span>
+  </button>`;
+}
+/* The same switcher, shrunk into every tab's header — so changing who you're logging
+   for is one tap from wherever you are, not just from Today. */
+function profMini(){
+  const p = activeProfile();
+  return `<button class="prof-mini" id="profMini" aria-label="Switch profile — currently ${esc(p.name)}">
+    <span class="prof-av xs" style="background:${profColor(p.id)}">${esc(profInitials(p.name))}</span>
+    <span class="prof-chev">⌄</span>
+  </button>`;
+}
+function hdrRight(extra){
+  return `<span class="hdr-right">${extra||""}${profMini()}</span>`;
+}
+function openProfilePicker(){
+  const cur = PROF.activeId;
+  const blocked = !!(S && S.active);
+  let h = `<h3>Who's training?</h3>
+  <div class="sub" style="margin:-4px 0 12px">Tap a name to switch. Everyone keeps their own workouts, program and history — the GitHub token is shared once, so there's nothing to paste when you swap.</div>`;
+  if(blocked){
+    h += `<div class="rest-note" style="text-align:left;margin-bottom:12px">You have a workout in progress. Finish or discard it first — that keeps the sets from landing on the wrong person's log.</div>`;
+  }
+  h += `<div class="prof-list">`;
+  PROF.list.forEach(p=>{
+    const nSess = p.id===PROF.activeId
+      ? S.sessions.length
+      : (()=>{ try{ const d = JSON.parse(localStorage.getItem(dataKeyFor(p.id))||"null"); return d && Array.isArray(d.sessions) ? d.sessions.length : null; }catch(e){ return null; } })();
+    const bits = [];
+    if(nSess!=null) bits.push(nSess+" session"+(nSess===1?"":"s"));
+    bits.push(p.gistId?"synced":"local only");
+    if(p.id===cur) bits.push("active");
+    h += `<button class="prof-item${p.id===cur?" on":""}" data-prof="${esc(p.id)}"${blocked&&p.id!==cur?" disabled style=opacity:.45":""}>
+      <span class="prof-av" style="background:${profColor(p.id)}">${esc(profInitials(p.name))}</span>
+      <span class="prof-txt"><b>${esc(p.name)}</b><small>${esc(bits.join(" · "))}</small></span>
+      ${p.id===cur?'<span class="prof-tick">✓</span>':""}
+    </button>`;
+  });
+  h += `</div>
+  <div class="btn-row"><button class="btn small" id="profAdd">+ New person</button>
+  <button class="btn ghost small" id="profManage">Manage</button></div>
+  <button class="btn ghost" style="margin-top:10px" id="closeModal">Close</button>`;
+  showModal(h);
+  document.querySelectorAll("[data-prof]").forEach(b=> b.onclick=()=>{
+    const id = b.dataset.prof;
+    if(id===PROF.activeId){ hideModal(); return; }
+    hideModal();
+    switchProfile(id);
+  });
+  $("#profAdd").onclick = ()=> openProfileEditor(null);
+  $("#profManage").onclick = openProfileManage;
+}
+function openProfileManage(){
+  let h = `<h3>Manage profiles</h3>
+  <div class="sub" style="margin:-4px 0 12px">Rename, re-point to a different gist, or remove a profile.</div>`;
+  PROF.list.forEach(p=>{
+    h += `<div class="prog-ex">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <span class="prof-av sm" style="background:${profColor(p.id)}">${esc(profInitials(p.name))}</span>
+        <div style="min-width:0"><b>${esc(p.name)}</b><div class="meta" style="overflow:hidden;text-overflow:ellipsis">${p.gistId?esc(p.gistId.slice(0,14))+"…":"no gist"}${p.id===PROF.activeId?" · active":""}</div></div>
+      </div>
+      <div class="icon-btns">
+        <button data-pedit="${esc(p.id)}" aria-label="Edit">✎</button>
+        ${PROF.list.length>1?`<button data-pdel="${esc(p.id)}" aria-label="Delete" style="color:var(--bad)">🗑</button>`:""}
+      </div>
+    </div>`;
+  });
+  h += `<div class="btn-row"><button class="btn small" id="profAdd2">+ Add profile</button>
+  <button class="btn ghost small" id="closeModal">Done</button></div>`;
+  showModal(h);
+  $("#profAdd2").onclick = ()=> openProfileEditor(null);
+  document.querySelectorAll("[data-pedit]").forEach(b=> b.onclick=()=> openProfileEditor(b.dataset.pedit));
+  document.querySelectorAll("[data-pdel]").forEach(b=> b.onclick=()=>{
+    const id = b.dataset.pdel;
+    const p = PROF.list.find(x=>x.id===id);
+    if(!p) return;
+    if(!confirm("Remove the profile \""+p.name+"\" from this device?\n\nTheir gist is NOT deleted — you can re-add them later with the same gist ID and everything comes back.")) return;
+    if(id===PROF.activeId){
+      // leaving the active profile → hop to another one first
+      const other = PROF.list.find(x=>x.id!==id);
+      PROF.activeId = other.id;
+    }
+    PROF.list = PROF.list.filter(x=>x.id!==id);
+    try{ localStorage.removeItem(dataKeyFor(id)); }catch(e){}
+    saveProfiles();
+    S = load(); migrate(); saveQuiet();
+    render();
+    openProfileManage();
+    toast("Profile removed");
+  });
+}
+function openProfileEditor(id){
+  const isNew = !id;
+  const p = isNew ? {id:"", name:"", gistId:"", repo:"", branch:"main"} : PROF.list.find(x=>x.id===id);
+  if(!p) return;
+  const haveToken = !!(PROF.token || (S.sync && S.sync.token));
+  const h = `<h3>${isNew?"New person":"Edit profile"}</h3>
+  <div class="field"><label>Name</label><input id="pf_name" value="${esc(p.name)}" placeholder="e.g. Jordan M." autocomplete="off"></div>
+  <div class="sub" style="margin:-6px 0 12px">${isNew
+    ? (haveToken
+        ? "That's all you need. Their own private gist is created automatically the moment you save — no IDs to copy anywhere."
+        : "That's all you need to start logging. Connect a GitHub token in Setup whenever you want their log backed up to the cloud.")
+    : "Rename them, or re-point them at a different gist."}</div>
+  <details style="margin-bottom:12px">
+    <summary style="color:var(--faint);font:12px var(--mono);cursor:pointer;letter-spacing:.05em">${isNew?"RESTORING SOMEONE FROM ANOTHER DEVICE?":"ADVANCED — GIST & REPO"}</summary>
+    <div style="margin-top:12px">
+      <div class="field"><label>Gist ID ${isNew?"(leave blank — it's made for you)":""}</label><input id="pf_gist" value="${esc(p.gistId||"")}" placeholder="only needed to pull an existing log in"></div>
+      <div class="field"><label>Repo backup (optional, owner/repo)</label><input id="pf_repo" value="${esc(p.repo||"")}" placeholder="leave blank for none"></div>
+      <div class="sub">Paste an existing gist ID only when you're bringing someone's history onto a new device.</div>
+    </div>
+  </details>
+  <div class="btn-row">
+    <button class="btn small" id="pf_save">${isNew?"Create & switch":"Save"}</button>
+    <button class="btn ghost small" id="closeModal">Cancel</button>
+  </div>`;
+  showModal(h);
+  $("#pf_save").onclick = ()=>{
+    const name = $("#pf_name").value.trim();
+    if(!name){ toast("Give them a name first"); return; }
+    const gistId = $("#pf_gist").value.trim();
+    const repo = $("#pf_repo").value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\/+$/,"");
+    if(isNew){
+      const nid = "p"+uid();
+      PROF.list.push({id:nid, name, gistId, repo, branch:"main"});
+      saveProfiles();
+      hideModal();
+      if(switchProfile(nid) && !gistId) ensureGist();   // spin them up a gist silently
+      return;
+    }
+    p.name = name; p.gistId = gistId; p.repo = repo;
+    if(p.id===PROF.activeId){
+      // keep the live state in step with the edited record
+      S.sync.gistId = gistId; S.sync.repo = repo;
+      save();
+    }
+    saveProfiles();
+    hideModal(); render();
+    toast("Profile saved");
+  };
+}
+
 function checkinCard(){
   const ci = S.checkins[todayStr()] || {};
   const logged = ci.weight || ci.sleep || ci.energy;
@@ -1131,6 +2388,7 @@ function viewToday(){
   const wid = todaysWorkoutId();
   const m = META[wid];
   let h = `<div class="hdr"><h1>Iron Log${syncDot()}</h1><span class="date num">${fmtDate(todayStr())}</span></div>`;
+  h += profileBar();
 
   // fresh install / new home-screen app: data lives safely in the gist, guide them to restore it
   if(!S.active && S.sessions.length===0 && !S.sync.gistId){
@@ -1173,10 +2431,12 @@ function viewToday(){
 
   h += `<div class="card">`;
   let finLabeled = false;
-  resolvedProgram(wid).forEach(({chosen:e, other, isFinisher})=>{
+  const rp = resolvedProgram(wid);
+  rp.forEach(({chosen:e, other, isFinisher}, rpi)=>{
     if(isFinisher && !finLabeled){ h += `<div class="fin-label">Finisher — every workout</div>`; finLabeled = true; }
-    const ll = lastBox(wid, e.name);
-    const ins = insight(e.name);
+    const occ = occIndex(rp, rpi);
+    const ll = lastBox(wid, e.name, isFinisher, occ);
+    const ins = insight(e.name, occ);
     h += `<div class="ex-head"><b>${esc(e.name)}${other?'<span class="alt-badge">⇄</span>':''}</b><span class="ex-target">${e.sets}×${esc(e.reps)}${e.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(e.rpe))+'</span>':""}</span></div>`;
     if(ll) h += ll;
     if(ins) h += `<div class="ex-insight"><span class="ins-tag">${esc(ins.tag)}</span><span>${esc(ins.msg)}</span></div>`;
@@ -1219,8 +2479,9 @@ function viewActiveSession(){
   let finLab = false;
   a.entries.forEach((en,ei)=>{
     if(en.fin && !finLab){ h += `<div class="fin-label">Finisher</div>`; finLab = true; }
-    const last = lastSetsFor(a.workoutId, en.name);
-    const ll = lastBox(a.workoutId, en.name);
+    const occ = occIndex(a.entries, ei);
+    const last = lastSetsFor(a.workoutId, en.name, en.fin, occ);
+    const ll = lastBox(a.workoutId, en.name, en.fin, occ);
     h += `<div class="card ex${en.superset?' ss-card':''}">
       <div class="ex-head"><b>${esc(en.name)}${en.superset?' <span class="ss-badge">superset</span>':''}</b>
         <span style="display:flex;align-items:center;gap:8px">
@@ -1237,13 +2498,13 @@ function viewActiveSession(){
     if(en.startSide) h += `<div class="arm-hint">Start with <b>${sideWord(en.startSide)}</b> arm · alternate each set</div>`;
     h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
     en.sets.forEach((st,si)=>{
-      h += `<div class="set">
+      h += `<div class="set${st.pr?" is-pr":""}">
         <span class="idx">${si+1}</span>
         <input inputmode="decimal" data-e="${ei}" data-s="${si}" data-f="weight" value="${st.weight??""}" placeholder="${last&&last[si]&&last[si].weight!=null&&last[si].weight!==""?last[si].weight:"lbs"}">
         <input inputmode="numeric" data-e="${ei}" data-s="${si}" data-f="reps" value="${st.reps??""}" placeholder="${last&&last[si]&&last[si].reps?last[si].reps:"reps"}">
         <select data-e="${ei}" data-s="${si}" data-f="rpe">${rpeOptions(st.rpe)}</select>
         <button class="chk ${st.done?"on":""}" data-e="${ei}" data-s="${si}" data-f="done">✓</button>
-      </div>`;
+      </div>${prBadgeRow(st, ei, si)}`;
     });
     h += `<div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn ghost small" data-addset="${ei}">+ set</button>
@@ -1321,8 +2582,9 @@ function viewFocusSession(){
     h += `<div class="empty">Nothing left in this session.</div>`;
     return h + focusFooter(a, true);
   }
-  const last = lastSetsFor(a.workoutId, en.name);
-  const ll = lastBox(a.workoutId, en.name);
+  const occ = occIndex(a.entries, ei);
+  const last = lastSetsFor(a.workoutId, en.name, en.fin, occ);
+  const ll = lastBox(a.workoutId, en.name, en.fin, occ);
   h += `<div class="card ex focus">
     <div class="ex-head"><b class="focus-name">${esc(en.name)}${en.fin?' <span class="alt-badge">finisher</span>':''}</b>
       <span class="icon-btns ex-ctl"><button data-exskip="${ei}" aria-label="Skip today">✕</button></span>
@@ -1333,13 +2595,13 @@ function viewFocusSession(){
   if(en.startSide) h += `<div class="arm-hint">Start with <b>${sideWord(en.startSide)}</b> arm · alternate each set</div>`;
   h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
   en.sets.forEach((st,si)=>{
-    h += `<div class="set">
+    h += `<div class="set${st.pr?" is-pr":""}">
       <span class="idx">${si+1}</span>
       <input inputmode="decimal" data-e="${ei}" data-s="${si}" data-f="weight" value="${st.weight??""}" placeholder="${last&&last[si]&&last[si].weight!=null&&last[si].weight!==""?last[si].weight:"lbs"}">
       <input inputmode="numeric" data-e="${ei}" data-s="${si}" data-f="reps" value="${st.reps??""}" placeholder="${last&&last[si]&&last[si].reps?last[si].reps:"reps"}">
       <select data-e="${ei}" data-s="${si}" data-f="rpe">${rpeOptions(st.rpe)}</select>
       <button class="chk ${st.done?"on":""}" data-e="${ei}" data-s="${si}" data-f="done">✓</button>
-    </div>`;
+    </div>${prBadgeRow(st, ei, si)}`;
   });
   h += `<div style="display:flex;gap:8px;margin-top:4px">
     <button class="btn ghost small" data-addset="${ei}">+ set</button>
@@ -1364,9 +2626,298 @@ function focusFooter(a, atEnd){
   <div class="btn-row"><button class="btn ghost" id="discardBtn">Discard</button></div>`;
 }
 
+/* =====================================================================
+   BODY TAB — training stress map
+   ===================================================================== */
+const C_NONE="#2a2a31", C_LOW="#3f5f8c", C_OK="#46a85c", C_WARN="#e8b62c", C_BAD="#e05248", C_FLAT="#6d6d75";
+function hex2rgb(h){ h=h.replace("#",""); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function lerpHex(a,b,t){
+  t = Math.max(0,Math.min(1,t));
+  const A=hex2rgb(a), B=hex2rgb(b);
+  return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("");
+}
+function ramp(stops, t){
+  // stops: [[pos,hex],...] ascending
+  t = Math.max(0,Math.min(1,t));
+  for(let i=1;i<stops.length;i++){
+    if(t <= stops[i][0]){
+      const [p0,c0]=stops[i-1], [p1,c1]=stops[i];
+      return lerpHex(c0,c1,(t-p0)/((p1-p0)||1));
+    }
+  }
+  return stops[stops.length-1][1];
+}
+const METRICS = [
+  {id:"fatigue",  label:"Fatigue"},
+  {id:"volume",   label:"Weekly Volume"},
+  {id:"recovery", label:"Recovery"},
+  {id:"growth",   label:"Growth"},
+  {id:"injury",   label:"Injury Risk"}
+];
+// value (0..100 or null), colour, glow strength (0..1) and a plain-English read
+function muscleMetric(A, m, metric){
+  if(metric==="fatigue"){
+    const v = A.fat[m];
+    return {v, txt:v+"%", color:ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], v/100), glow:v/100,
+      note: v>=70?"heavily fatigued":v>=45?"carrying real fatigue":v>=20?"lightly fatigued":"fresh"};
+  }
+  if(metric==="volume"){
+    const st = A.state[m], sets = A.vol[m], M = MUSCLES[m];
+    const color = st.k==="none"?C_NONE : st.k==="under"?C_LOW : st.k==="optimal"?C_OK : st.k==="high"?C_WARN : C_BAD;
+    const glow = st.k==="none"?0 : st.k==="under"?.35 : st.k==="optimal"?.75 : st.k==="high"?.85 : 1;
+    return {v:Math.round(Math.min(100, sets/M.mrv*100)), txt:r1(sets)+" sets", color, glow, note:st.txt};
+  }
+  if(metric==="recovery"){
+    const v = A.rec[m];
+    return {v, txt:v+"%", color:ramp([[0,C_BAD],[.5,C_WARN],[1,C_OK]], v/100), glow:1-v/100,
+      note: v>=95?"fully recovered":v>=70?"mostly recovered":v>=40?"still recovering":"not recovered yet"};
+  }
+  if(metric==="growth"){
+    const g = A.grow[m];
+    if(g.score==null) return {v:null, txt:"—", color:C_NONE, glow:0, note:g.note};
+    const color = ramp([[0,C_BAD],[.45,C_FLAT],[.55,C_FLAT],[1,C_OK]], g.score/100);
+    const note = g.isNew ? g.note
+      : g.score>=65 ? "growing — strength trending up"
+      : g.score>=45 ? "holding steady"
+      : "losing ground vs the last block";
+    return {v:g.score, txt:(g.isNew?"new":(g.strP>=0?"+":"")+Math.round((g.strP||0)*100)+"%"), color, glow:Math.abs(g.score-50)/50, note};
+  }
+  const v = A.inj[m].score;
+  return {v, txt:v+"%", color:ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], v/100), glow:v/100,
+    note: v>=75?"high risk — back off":v>=55?"elevated risk":v>=30?"some risk flags":"low risk"};
+}
+function metricLegend(metric){
+  const sw = (c,t)=>`<span class="bm-lg"><span class="bm-sw" style="background:${c}"></span>${t}</span>`;
+  if(metric==="volume"){
+    return sw(C_NONE,"none")+sw(C_LOW,"below MEV")+sw(C_OK,"MEV–MAV")+sw(C_WARN,"above MAV")+sw(C_BAD,"over MRV");
+  }
+  if(metric==="growth"){
+    return sw(C_BAD,"losing ground")+sw(C_FLAT,"steady")+sw(C_OK,"growing")+sw(C_NONE,"no data");
+  }
+  if(metric==="recovery"){
+    return sw(C_BAD,"not recovered")+sw(C_WARN,"partway")+sw(C_OK,"ready");
+  }
+  return sw(C_OK,"low")+sw(C_WARN,"moderate")+sw(C_BAD,"high");
+}
+const METRIC_BLURB = {
+  fatigue:"Every hard set leaves fatigue that decays on that muscle's own recovery clock — faster for delts and calves, slowest for quads and spinal erectors. Brighter and redder means more residue still sitting there right now.",
+  volume:"Hard sets landing on each muscle over the last 7 days, against the MEV / MAV / MRV landmarks: the least volume that grows it, the productive middle, and the most it can recover from. Blue is too little, green is the sweet spot, red is more than it can absorb.",
+  recovery:"How far each muscle is through its own recovery window since the last time you trained it — stretched for heavier sessions, and shifted by the sleep and energy you log in your daily check-in.",
+  growth:"Estimated 1RM and total volume over the last 3 weeks against the 3 weeks before. Green means strength is genuinely trending up; grey means holding; red means the last block went backwards.",
+  injury:"Five flags combined: volume past MRV, a week that spikes more than 1.5× your 4-week average, high fatigue with low recovery, a heavy share of true-failure sets, and heavy sets started before their rest was up."
+};
+
+/* ---------- the figure ----------
+   Two stylised views so every muscle in the model has somewhere to live: chest, front
+   delts, biceps, abs, obliques and quads read from the front; lats, traps, rear delts,
+   triceps, erectors, glutes and hamstrings from the back. Each region is a tappable
+   group whose fill and glow come straight from the selected metric. */
+function bmGroup(key, shapes, A, metric){
+  const mm = muscleMetric(A, key, metric);
+  const glowPx = 2 + mm.glow*11;
+  const style = mm.glow > 0.04
+    ? `filter:drop-shadow(0 0 ${glowPx.toFixed(1)}px ${mm.color})`
+    : "";
+  return `<g class="bm-m" data-m="${key}" fill="${mm.color}" style="${style}"><title>${esc(MUSCLES[key].name)} — ${esc(mm.txt)}</title>${shapes}</g>`;
+}
+function bodyFrontSVG(A, metric){
+  const G = (k,s)=>bmGroup(k,s,A,metric);
+  return `<svg viewBox="0 0 190 388" role="img" aria-label="Front of body">
+    <ellipse class="bm-inert" cx="95" cy="30" rx="19" ry="22"/>
+    <path class="bm-inert" d="M85 47 h20 v20 h-20 z"/>
+    ${G("traps",   `<path d="M95 58 C85 58 76 62 64 76 L84 80 C87 71 90 68 95 68 C100 68 103 71 106 80 L126 76 C114 62 105 58 95 58 Z"/>`)}
+    ${G("chest",   `<path d="M93 74 C81 73 69 80 64 93 C61 104 71 115 85 115 C91 115 93 109 93 101 Z"/>
+                    <path d="M97 74 C109 73 121 80 126 93 C129 104 119 115 105 115 C99 115 97 109 97 101 Z"/>`)}
+    ${G("obliques",`<path d="M80 120 C72 128 70 148 75 164 L81 169 L81 120 Z"/>
+                    <path d="M110 120 C118 128 120 148 115 164 L109 169 L109 120 Z"/>`)}
+    ${G("abs",     `<path d="M82 117 L108 117 L108 170 Q95 186 82 170 Z"/>`)}
+    ${G("delts_front",`<ellipse cx="63" cy="90" rx="13" ry="16"/><ellipse cx="127" cy="90" rx="13" ry="16"/>`)}
+    ${G("delts_side", `<ellipse cx="51" cy="94" rx="9" ry="14"/><ellipse cx="139" cy="94" rx="9" ry="14"/>`)}
+    ${G("biceps",  `<ellipse cx="52" cy="125" rx="10" ry="20"/><ellipse cx="138" cy="125" rx="10" ry="20"/>`)}
+    ${G("forearms",`<ellipse cx="46" cy="171" rx="9" ry="24"/><ellipse cx="144" cy="171" rx="9" ry="24"/>`)}
+    <ellipse class="bm-inert" cx="43" cy="201" rx="7" ry="9"/>
+    <ellipse class="bm-inert" cx="147" cy="201" rx="7" ry="9"/>
+    <path class="bm-inert" d="M79 172 L111 172 L115 202 L75 202 Z"/>
+    ${G("quads",   `<path d="M77 198 C68 210 68 250 74 292 L92 292 C94 250 92 212 90 198 Z"/>
+                    <path d="M113 198 C122 210 122 250 116 292 L98 292 C96 250 98 212 100 198 Z"/>`)}
+    <ellipse class="bm-inert" cx="83" cy="298" rx="10" ry="8"/>
+    <ellipse class="bm-inert" cx="107" cy="298" rx="10" ry="8"/>
+    ${G("calves",  `<ellipse cx="83" cy="329" rx="9" ry="27"/><ellipse cx="107" cy="329" rx="9" ry="27"/>`)}
+    <ellipse class="bm-inert" cx="83" cy="364" rx="10" ry="7"/>
+    <ellipse class="bm-inert" cx="107" cy="364" rx="10" ry="7"/>
+  </svg>`;
+}
+function bodyBackSVG(A, metric){
+  const G = (k,s)=>bmGroup(k,s,A,metric);
+  return `<svg viewBox="0 0 190 388" role="img" aria-label="Back of body">
+    <ellipse class="bm-inert" cx="95" cy="30" rx="19" ry="22"/>
+    ${G("traps",   `<path d="M95 53 C82 53 72 60 63 76 L86 93 C89 79 92 75 95 75 C98 75 101 79 104 93 L127 76 C118 60 108 53 95 53 Z"/>`)}
+    ${G("lats",    `<path d="M86 94 C73 98 65 111 67 129 C69 143 79 152 89 154 L93 151 L93 96 Z"/>
+                    <path d="M104 94 C117 98 125 111 123 129 C121 143 111 152 101 154 L97 151 L97 96 Z"/>`)}
+    ${G("lower_back",`<path d="M84 150 C81 162 80 172 81 184 L109 184 C110 172 109 162 106 150 Z"/>`)}
+    ${G("delts_rear",`<ellipse cx="62" cy="92" rx="13" ry="16"/><ellipse cx="128" cy="92" rx="13" ry="16"/>`)}
+    ${G("delts_side",`<ellipse cx="50" cy="96" rx="9" ry="14"/><ellipse cx="140" cy="96" rx="9" ry="14"/>`)}
+    ${G("triceps", `<ellipse cx="51" cy="127" rx="10" ry="21"/><ellipse cx="139" cy="127" rx="10" ry="21"/>`)}
+    ${G("forearms",`<ellipse cx="45" cy="173" rx="9" ry="24"/><ellipse cx="145" cy="173" rx="9" ry="24"/>`)}
+    <ellipse class="bm-inert" cx="42" cy="203" rx="7" ry="9"/>
+    <ellipse class="bm-inert" cx="148" cy="203" rx="7" ry="9"/>
+    ${G("glutes",  `<path d="M79 186 C68 190 65 208 73 219 C82 228 93 223 94 210 L94 188 Z"/>
+                    <path d="M111 186 C122 190 125 208 117 219 C108 228 97 223 96 210 L96 188 Z"/>`)}
+    ${G("hams",    `<path d="M77 222 C70 236 70 264 76 292 L92 292 C94 262 92 236 90 222 Z"/>
+                    <path d="M113 222 C120 236 120 264 114 292 L98 292 C96 262 98 236 100 222 Z"/>`)}
+    <ellipse class="bm-inert" cx="83" cy="299" rx="10" ry="8"/>
+    <ellipse class="bm-inert" cx="107" cy="299" rx="10" ry="8"/>
+    ${G("calves",  `<ellipse cx="83" cy="329" rx="11" ry="29"/><ellipse cx="107" cy="329" rx="11" ry="29"/>`)}
+    <ellipse class="bm-inert" cx="83" cy="365" rx="10" ry="7"/>
+    <ellipse class="bm-inert" cx="107" cy="365" rx="10" ry="7"/>
+  </svg>`;
+}
+
+let BODY_METRIC = "fatigue";
+function viewBody(){
+  const metric = BODY_METRIC;
+  let h = `<div class="hdr"><h1>Body</h1>${hdrRight()}</div>`;
+  if(!S.sessions.length){
+    return h + `<div class="empty">Log a workout or two and this map fills in — fatigue, weekly volume per muscle, recovery, growth and injury risk, all read straight from your sets.</div>`;
+  }
+  const A = bodyAnalysis();
+
+  // metric picker
+  h += `<div class="metric-scroll"><div class="metric-seg">${
+    METRICS.map(m=>`<button data-metric="${m.id}" class="${m.id===metric?"on":""}">${m.label}</button>`).join("")
+  }</div></div>`;
+
+  // the figure
+  h += `<div class="card bm-card">
+    <div class="bm-figs">
+      <div class="bm-fig">${bodyFrontSVG(A, metric)}<div class="bm-fig-label">front</div></div>
+      <div class="bm-fig">${bodyBackSVG(A, metric)}<div class="bm-fig-label">back</div></div>
+    </div>
+    <div class="bm-legend">${metricLegend(metric)}</div>
+    <div class="bm-explain">${METRIC_BLURB[metric]}</div>
+    <div class="bm-explain" style="color:var(--faint);font-size:12.5px">Tap any muscle — on the figure or in the list — for its full breakdown.</div>
+  </div>`;
+
+  // systemic tiles
+  const t = A.totals;
+  const acwrNote = t.acwr==null ? "needs 4 weeks of history"
+    : t.acwr > 1.5 ? "spiking — above the 1.5× injury marker"
+    : t.acwr < 0.8 ? "backing off — this week is well under your norm"
+    : "inside the safe 0.8–1.5 band";
+  h += `<div class="card">
+    <h3 style="font-size:17px">Whole-body load</h3>
+    <div class="sys-grid">
+      <div class="sys-tile"><div class="sys-k">Working sets · 7 days</div>
+        <div class="sys-v">${t.setsWk}</div>
+        <div class="sys-s">${t.setsPrev>0?(t.setsWk>=t.setsPrev?"+":"")+Math.round((t.setsWk-t.setsPrev)/t.setsPrev*100)+"% vs the week before":"first week on record"}</div></div>
+      <div class="sys-tile"><div class="sys-k">Acute : chronic</div>
+        <div class="sys-v" style="color:${t.acwr==null?"var(--dim)":(t.acwr>1.5||t.acwr<0.8)?"var(--arms)":"var(--ok)"}">${t.acwr==null?"—":t.acwr.toFixed(2)+"×"}</div>
+        <div class="sys-s">${acwrNote}</div></div>
+      <div class="sys-tile"><div class="sys-k">Mean fatigue</div>
+        <div class="sys-v" style="color:${ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], t.fat/100)}">${t.fat}%</div>
+        <div class="sys-s">${t.fat>=60?"systemically fatigued — a lighter week would pay off":t.fat>=35?"normal mid-block fatigue":"fresh across the board"}</div></div>
+      <div class="sys-tile"><div class="sys-k">Peak injury flag</div>
+        <div class="sys-v" style="color:${ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], t.inj/100)}">${t.inj}%</div>
+        <div class="sys-s">${t.inj>=55?"at least one muscle is being pushed past recovery":"nothing flagged above moderate"}</div></div>
+    </div>
+    ${A.modInfo.why.length?`<div class="bm-explain">Recovery adjusted for your check-ins: ${esc(A.modInfo.why.join("; "))}.</div>`:
+      `<div class="bm-explain" style="color:var(--faint)">Log weight, sleep and energy in your daily check-in and recovery gets adjusted for them.</div>`}
+  </div>`;
+
+  // ranked list for the current metric
+  const rows = MKEYS.map(m=>({m, mm:muscleMetric(A, m, metric)}));
+  const dir = (metric==="recovery"||metric==="growth") ? 1 : -1;   // worst-first either way
+  rows.sort((a,b)=>{
+    const av = a.mm.v==null?-1:a.mm.v, bv = b.mm.v==null?-1:b.mm.v;
+    return dir===1 ? av-bv : bv-av;
+  });
+  h += `<div class="card">
+    <h3 style="font-size:17px">${METRICS.find(x=>x.id===metric).label} by muscle</h3>
+    <div class="sub" style="margin:2px 0 8px">${dir===1?"Lowest first":"Highest first"} — the ones asking for attention are at the top.</div>
+    <div class="bm-rank">`;
+  rows.forEach(({m, mm})=>{
+    const pct = mm.v==null ? 0 : mm.v;
+    h += `<div class="bm-row" data-mrow="${m}">
+      <span class="bm-name">${esc(MUSCLES[m].name)}</span>
+      <span class="bm-bar"><i style="width:${Math.max(2,pct)}%;background:${mm.color}"></i></span>
+      <span class="bm-val">${esc(mm.txt)}</span>
+    </div>`;
+  });
+  h += `</div></div>`;
+
+  // weak points
+  /* Weak points need a real week behind them. With two sessions logged, almost every
+     muscle looks "untrained" and the list would be a wall of alarming noise about a
+     program that's simply mid-rotation — so it waits until there's enough to judge. */
+  const spanDays = (Date.now() - S.sessions[0].startedAt)/DAY_MS;
+  const enough = S.sessions.length >= 4 && spanDays >= 6;
+  h += `<div class="card">
+    <h3 style="font-size:17px">Weak point detection</h3>
+    <div class="sub" style="margin:2px 0 12px">Muscles that are under-stimulated, stalled, out of balance with their opposite, missing from your program, or being driven past recovery.</div>`;
+  if(!enough){
+    h += `<div class="sub" style="padding:6px 0 2px">Still gathering data — this needs at least 4 sessions across a full week before it can tell a genuine weak point from a rotation that simply hasn't come around yet. You're at ${S.sessions.length} session${S.sessions.length===1?"":"s"} over ${Math.max(1,Math.round(spanDays))} day${Math.round(spanDays)===1?"":"s"}.</div>`;
+  } else if(!A.weak.length){
+    h += `<div class="sub" style="padding:6px 0 2px">Nothing flagged. Every muscle in the model is inside its productive volume range, balanced against its opposite, and progressing or holding. Keep going.</div>`;
+  } else {
+    A.weak.forEach(w=>{
+      const sevTxt = w.sev>=3?"high priority":w.sev===2?"worth fixing":"minor";
+      h += `<div class="wp sev${w.sev}">
+        <div class="wp-head"><b>${esc(w.title)}</b><span class="wp-sev">${sevTxt}</span></div>
+        <div class="wp-why">${esc(w.why)}</div>
+        <div class="wp-fix"><b>Do this</b> — ${esc(w.fix)}</div>
+      </div>`;
+    });
+  }
+  h += `</div>`;
+  return h;
+}
+function openMuscleDetail(m){
+  const A = bodyAnalysis();
+  const M = MUSCLES[m], wk = A.wk[m], st = A.state[m], g = A.grow[m], inj = A.inj[m];
+  const lastTxt = wk.lastMs
+    ? (()=>{ const hrs = Math.round((Date.now()-wk.lastMs)/3600e3);
+             return hrs < 48 ? hrs+" h ago" : Math.round(hrs/24)+" days ago"; })()
+    : "not in the last 7 days";
+  const line = (k, v, c)=>`<div class="rev-line"><b>${k}</b><span class="num"${c?` style="color:${c}"`:""}>${v}</span></div>`;
+  const fatC = ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], A.fat[m]/100);
+  const recC = ramp([[0,C_BAD],[.5,C_WARN],[1,C_OK]], A.rec[m]/100);
+  const injC = ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], inj.score/100);
+  let h = `<h3>${esc(M.name)}</h3>
+  <div class="sub" style="margin:-4px 0 10px">Last trained ${esc(lastTxt)} · MEV ${M.mev} / MAV ${M.mav} / MRV ${M.mrv} sets per week · recovery window ≈ ${M.recov} h</div>
+  <div class="rev-head">This week</div>
+  ${line("Hard sets", r1(wk.sets)+" / "+M.mrv, muscleMetric(A,m,"volume").color)}
+  ${line("Volume", Math.round(wk.vol).toLocaleString()+" lb")}
+  ${line("Sets to failure (RPE 9.5+)", r1(wk.nearFail))}
+  <div class="rev-head">Right now</div>
+  ${line("Fatigue", A.fat[m]+"%", fatC)}
+  ${line("Recovery", A.rec[m]+"%", recC)}
+  ${line("Injury risk", inj.score+"%", injC)}
+  ${line("Growth", g.score==null?"no recent data":(g.isNew?"first block":(g.strP>=0?"+":"")+Math.round(g.strP*100)+"% est. 1RM"), g.score==null?null:ramp([[0,C_BAD],[.5,C_FLAT],[1,C_OK]], g.score/100))}
+  <div class="bm-explain">${esc(st.txt.charAt(0).toUpperCase()+st.txt.slice(1))}. ${esc(muscleMetric(A,m,"fatigue").note.replace(/^./,c=>c.toUpperCase()))}, ${esc(muscleMetric(A,m,"recovery").note)}.</div>`;
+  if(inj.flags.length){
+    h += `<div class="rev-head">Risk flags</div><div class="sc-why"><ul>${inj.flags.map(f=>`<li>${esc(f.t)}</li>`).join("")}</ul></div>`;
+  }
+  const exs = Object.keys(wk.exs).sort((a,b)=>wk.exs[b]-wk.exs[a]);
+  if(exs.length){
+    h += `<div class="rev-head">What's feeding it</div>`;
+    exs.forEach(n=> h += `<div class="rev-line"><b>${esc(n)}</b><span class="num">${r1(wk.exs[n])} sets</span></div>`);
+  } else {
+    h += `<div class="rev-head">What's feeding it</div><div class="sub">Nothing in the last 7 days.</div>`;
+  }
+  const spanDays = S.sessions.length ? (Date.now() - S.sessions[0].startedAt)/DAY_MS : 0;
+  const mine = (S.sessions.length >= 4 && spanDays >= 6) ? A.weak.filter(w=>w.muscle===m) : [];
+  if(mine.length){
+    h += `<div class="rev-head">Flagged</div>`;
+    mine.forEach(w=> h += `<div class="wp sev${w.sev}"><div class="wp-head"><b>${esc(w.title)}</b></div><div class="wp-why">${esc(w.why)}</div><div class="wp-fix"><b>Do this</b> — ${esc(w.fix)}</div></div>`);
+  }
+  h += `<button class="btn" style="margin-top:16px" id="closeModal">Done</button>`;
+  showModal(h);
+  MODAL_REOPEN = ()=> openMuscleDetail(m);   // so a term tapped in here can come back
+}
+
 /* ---------- HISTORY ---------- */
 function viewHistory(){
-  let h = `<div class="hdr"><h1>History</h1><span class="date num">${S.sessions.length} sessions</span></div>`;
+  let h = `<div class="hdr"><h1>History</h1>${hdrRight(`<span class="date num">${S.sessions.length} sessions</span>`)}</div>`;
   if(!S.sessions.length) return h + `<div class="empty">Nothing logged yet. Your finished workouts will show up here.</div>`;
   h += `<div class="btn-row" style="margin-bottom:14px">
     <button class="btn ghost small" id="reportBtn">Print / PDF report</button>
@@ -1381,21 +2932,35 @@ function viewHistory(){
   [...S.sessions].reverse().forEach(s=>{
     const m = META[s.workoutId];
     const vol = s.entries.reduce((t,e)=>t+e.sets.reduce((u,st)=>u+((parseFloat(st.weight)||0)*(parseFloat(st.reps)||0)),0),0);
+    const q = s.quality;
+    const nPr = sessionPRs(s).length;
+    const qc = q ? gradeColor(q.pct) : null;
     h += `<div class="card sess" data-sess="${s.id}">
       <div class="row1">
         <div style="display:flex;align-items:center;gap:9px">
           <span class="dot" style="background:${m.color}"></span><b>${m.name}</b>
         </div>
-        <span class="sub num">${fmtDate(s.date)}</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          ${q?`<span class="sc-badge" style="color:${qc};background:${qc}22">${q.grade} · ${q.total}</span>`:""}
+          <span class="sub num">${fmtDate(s.date)}</span>
+        </span>
       </div>
-      <div class="sub num" style="margin-top:2px">${s.entries.length} exercises · ${Math.round(vol).toLocaleString()} lb total${s.feel?' · '+FEELS[s.feel-1]:''}</div>
+      <div class="sub num" style="margin-top:2px">${s.entries.length} exercises · ${Math.round(vol).toLocaleString()} lb total${s.feel?' · '+FEELS[s.feel-1]:''}${nPr?' · 🔥 '+nPr+' PR'+(nPr>1?"s":""):''}</div>
       ${s.note?`<div class="sub" style="margin-top:4px;font-style:italic">"${esc(s.note)}"</div>`:""}
-      <div class="detail">${s.entries.map(e=>
-        `<div class="exline"><b>${esc(e.name)}</b><br><span class="num">${e.sets.filter(st=>st.reps).map(fmtSet).map(esc).join("  ·  ")||"—"}</span></div>`
+      <div class="detail">${s.entries.map((e,i)=>
+        `<div class="exline"><b>${esc(e.name)}</b>
+          <span class="icon-btns ex-ctl" style="float:right;margin-top:-4px">
+            <button data-hup="${s.id}:${i}" aria-label="Move earlier">↑</button>
+            <button data-hdown="${s.id}:${i}" aria-label="Move later">↓</button>
+          </span>
+          <br><span class="num">${e.sets.filter(st=>st.reps).map(fmtSet).map(esc).join("  ·  ")||"—"}</span></div>`
       ).join("")}
       <div class="btn-row" style="margin-top:8px">
-        ${s.date===todayStr()?`<button class="btn ghost small" data-resumesess="${s.id}">Resume</button>`:""}
+        <button class="btn ghost small" data-scoresess="${s.id}">${q?"Quality "+q.grade:"Grade it"}</button>
         <button class="btn ghost small" data-editsess="${s.id}">Edit session</button>
+      </div>
+      <div class="btn-row">
+        ${s.date===todayStr()?`<button class="btn ghost small" data-resumesess="${s.id}">Resume</button>`:""}
         <button class="btn ghost small danger" data-delsess="${s.id}">Delete session</button>
       </div></div>
     </div>`;
@@ -1405,7 +2970,7 @@ function viewHistory(){
 
 /* ---------- PROGRAM ---------- */
 function viewProgram(){
-  let h = `<div class="hdr"><h1>Program</h1></div>
+  let h = `<div class="hdr"><h1>Program</h1>${hdrRight()}</div>
   <div class="sub" style="margin:-8px 2px 16px">Your rotation: Chest → Back → Arms → Shoulders → Chest → Arms → Legs. Exercises marked ⇄ alternate automatically every other session of that day. Targets show <span class="rpe-help">RPE</span> — tap to see what it means.</div>`;
   Object.keys(META).forEach(wid=>{
     const m = META[wid];
@@ -1415,7 +2980,7 @@ function viewProgram(){
       </div>`;
     S.program[wid].forEach((e,i)=>{
       const nextUp = e.alt ? (activeVariant(wid,e)===e ? e.name : e.alt.name) : null;
-      let title = esc(e.name) + (e.alt ? ' <span class="alt-badge">⇄ '+esc(e.alt.name)+'</span>' : '');
+      let title = esc(e.name) + (isSingleArm(e) ? ' <span class="uni-badge">1 limb</span>' : '') + (e.alt ? ' <span class="alt-badge">⇄ '+esc(e.alt.name)+'</span>' : '');
       let meta = `${e.sets}×${esc(e.reps)}${e.rpe?" · "+esc(rpeTxt(e.rpe)):""}${e.weight!=null?" · "+e.weight+" lb":""}${e.note?" · "+esc(e.note):""}`;
       if(e.alt) meta += `<br>next ${m.name.toLowerCase()} day: ${esc(nextUp)}`;
       h += `<div class="prog-ex">
@@ -1453,7 +3018,16 @@ function viewProgram(){
 function viewSync(){
   const c = S.sync;
   const restLog = (S.restLog||[]).slice().sort();
-  let h = `<div class="hdr"><h1>Settings</h1><span class="date num">v${APP_VERSION}</span></div>
+  let h = `<div class="hdr"><h1>Setup</h1>${hdrRight(`<span class="date num">v${APP_VERSION}</span>`)}</div>
+  <div class="card">
+    <h3>Who you're logging for</h3>
+    <div class="sub" style="margin:4px 0 10px">Switch between yourself and your clients here or from the avatar in any header. Each person has a completely separate log; the GitHub token is shared, so adding someone takes only their name.</div>
+    ${profileBar()}
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn ghost small" id="profAddSetup">+ New person</button>
+      <button class="btn ghost small" id="profManageSetup">Manage people</button>
+    </div>
+  </div>
   <div class="card">
     <h3>Preferences</h3>
     <div class="sub" style="margin:4px 0 10px">Workout view — <b>Regular</b> shows the whole session at once; <b>Focus</b> shows one exercise at a time with bigger controls, built for the gym floor.</div>
@@ -1504,20 +3078,49 @@ function viewSync(){
   </div>
   <div class="card">
     <h3 class="danger">Danger zone</h3>
-    <button class="btn ghost small danger" id="resetBtn" style="margin-top:8px">Erase everything on this device</button>
+    <div class="sub" style="margin:4px 0 0">This erases <b>${esc(profileName())}</b>'s local data only — other people on this device, and every gist, are untouched.</div>
+    <button class="btn ghost small danger" id="resetBtn" style="margin-top:10px">Erase ${esc(profileName())}'s data on this device</button>
   </div>`;
   return h;
 }
 
 /* ================= EVENTS ================= */
-// RPE explainer — delegated once, survives re-renders
+/* Glossary — one delegated listener for the whole app, so every dotted-underlined term
+   keeps working through every re-render. Terms can appear inside other modals (the
+   muscle breakdown links to MEV, the injury entry links to ACWR), so the entry offers a
+   Back button that rebuilds whatever was showing rather than leaving a dead end. */
+function openGlossary(id){
+  const g = GLOSSARY[id];
+  if(!g) return;
+  const back = MODAL_REOPEN;                                  // capture before we replace
+  const pending = MODAL_DISMISS;                              // eg. the post-workout chain
+  const wasOpen = $("#modalBg").classList.contains("show");
+  const foot = (wasOpen && back)
+    ? `<div class="btn-row" style="margin-top:18px"><button class="btn small" id="glBack">‹ Back</button></div>
+       <div class="btn-row"><button class="btn ghost small" id="closeModal">Close</button></div>`
+    : `<button class="btn" style="margin-top:18px" id="closeModal">Got it</button>`;
+  showModal(`<h3>${g.title}</h3>${g.html}${foot}`);
+  MODAL_REOPEN = back;                                        // keep it for nested terms
+  const b = $("#glBack");
+  if(b) b.onclick = ()=>{ if(back) back(); };
+}
 document.addEventListener("click", e=>{
-  const t = e.target.closest(".rpe-help");
-  if(t){ showModal(`<h3>${RPE_INFO_TITLE}</h3>${RPE_INFO_HTML}<button class="btn" style="margin-top:14px" id="closeModal">Got it</button>`);
-    const c = $("#closeModal"); if(c) c.onclick = hideModal; }
+  const t = e.target.closest("[data-term]");
+  if(t){ e.stopPropagation(); openGlossary(t.dataset.term); return; }
+  if(e.target.closest(".rpe-help")) openGlossary("rpe");
+});
+// keyboard access for the inline terms
+document.addEventListener("keydown", e=>{
+  if(e.key !== "Enter" && e.key !== " ") return;
+  const t = e.target.closest && e.target.closest("[data-term]");
+  if(t){ e.preventDefault(); openGlossary(t.dataset.term); }
 });
 
 function bind(){
+  const pb = $("#profBar");
+  if(pb) pb.onclick = openProfilePicker;
+  const pm = $("#profMini");
+  if(pm) pm.onclick = openProfilePicker;
   document.querySelectorAll(".plate").forEach(p=>{
     p.onclick = ()=>{
       if(S.active){ toast("Finish or discard the current workout first"); return; }
@@ -1604,20 +3207,43 @@ function bind(){
   });
 
   document.querySelectorAll(".set input, .set select").forEach(el=>{
+    if(el.dataset.e==null) return;      // skip the session-editor's own rows
     el.onchange = ()=>{
       const ei = parseInt(el.dataset.e,10), si = parseInt(el.dataset.s,10), f = el.dataset.f;
       const st = S.active.entries[ei].sets[si];
+      const before = st.pr || null;
       st[f] = el.value;
       if(String(el.value).trim() !== "") markPriorDone(ei, si);
+      // Typing a heavier weight (or more reps) onto an already-ticked set is a PR path
+      // the old code never looked at. Re-check the whole exercise, then surface it.
+      if(st.done && (f==="weight" || f==="reps")){
+        refreshPRs(ei);
+        if(st.pr && st.pr !== before){
+          const chk = document.querySelector(`.set .chk[data-e="${ei}"][data-s="${si}"]`);
+          if(chk) prFloat(chk, st.pr);
+          drawPRBadges(ei);
+        } else if(!st.pr && before){
+          drawPRBadges(ei);
+        }
+      }
       save();
     };
   });
   document.querySelectorAll(".set .chk").forEach(el=>{
-    el.onclick = ()=>{
-      const {e,s} = el.dataset;
-      const entry = S.active.entries[e];
+    el.onclick = async ()=>{
+      const ei = parseInt(el.dataset.e,10), si = parseInt(el.dataset.s,10);
+      const entry = S.active.entries[ei];
       const wasComplete = entry.sets.length && entry.sets.every(x=>x.done);
-      const st = entry.sets[s];
+      const st = entry.sets[si];
+      // About to log a set while a rest timer for a DIFFERENT set is barely started?
+      // That means the last rest was ~nothing — ask before it gets recorded, using the
+      // rest target for the set that's actually resting.
+      if(!st.done && !entry.superset){
+        const rt = S.active.restTimer;
+        if(rt && !(rt.e===ei && rt.s===si)){
+          if(!(await confirmShortRest(restElapsed(), "log this next set"))) return;
+        }
+      }
       st.done = !st.done;
       if(st.done){
         const row = el.parentElement;
@@ -1625,20 +3251,21 @@ function bind(){
         const rIn = row.querySelector('[data-f="reps"]');
         if(!st.weight && wIn.placeholder && wIn.placeholder!=="lbs"){ st.weight=wIn.placeholder; wIn.value=wIn.placeholder; }
         if(!st.reps && rIn.placeholder && rIn.placeholder!=="reps"){ st.reps=rIn.placeholder; rIn.value=rIn.placeholder; }
-        // PR spark: heavier than the same set last time?
-        const lastArr = lastSetsFor(S.active.workoutId, entry.name);
-        const lastW = lastArr && lastArr[s] ? parseFloat(lastArr[s].weight) : NaN;
-        const curW = parseFloat(st.weight);
-        if(!isNaN(curW) && !isNaN(lastW) && curW > lastW) prFloat(el);
+        // PR spark — compared against your ALL-TIME best for this exercise, and now
+        // recorded on the set so it also shows as a badge and in the session summary.
+        checkPR(ei, si, el);
         // the ✓ is the stopwatch trigger — but never inside a superset (no rest between/after)
-        if(!entry.superset) startRest(parseInt(e,10), parseInt(s,10));
+        if(!entry.superset) startRest(ei, si);
       } else {
         // unchecking: cancel its running timer and clear its recorded rest
         const rt = S.active.restTimer;
-        if(rt && rt.e===parseInt(e,10) && rt.s===parseInt(s,10)){ S.active.restTimer=null; hideRestUI(); }
+        if(rt && rt.e===ei && rt.s===si){ S.active.restTimer=null; hideRestUI(); }
         delete st.rest;
+        delete st.pr;
       }
       el.classList.toggle("on", st.done);
+      refreshPRs(ei);
+      drawPRBadges(ei);
       save();
       const isComplete = entry.sets.length && entry.sets.every(x=>x.done);
       if(S.viewMode==="focus" && wasComplete !== isComplete){
@@ -1757,11 +3384,23 @@ function bind(){
 
   document.querySelectorAll(".sess").forEach(c=>{
     c.onclick = e=>{
-      if(e.target.dataset.delsess || e.target.dataset.editsess || e.target.dataset.resumesess) return;
+      const d = e.target.dataset || {};
+      // any control inside the expanded detail handles its own click
+      if(d.delsess || d.editsess || d.resumesess || d.scoresess || d.hup || d.hdown) return;
       c.classList.toggle("open");
     };
   });
   document.querySelectorAll("[data-editsess]").forEach(b=> b.onclick=()=> openSessionEditor(b.dataset.editsess));
+  document.querySelectorAll("[data-scoresess]").forEach(b=> b.onclick=()=>{
+    const s = S.sessions.find(x=>x.id===b.dataset.scoresess);
+    if(!s) return;
+    // grade older sessions on demand and keep the result
+    if(!s.quality){ s.quality = scoreWorkout(s); s.edited = Date.now(); save(); queueSync(); }
+    openScoreCard(s, ()=>render());
+  });
+  // reorder exercises inside a finished session, straight from History
+  document.querySelectorAll("[data-hup]").forEach(b=> b.onclick=()=> moveSessEx(...b.dataset.hup.split(":"), -1));
+  document.querySelectorAll("[data-hdown]").forEach(b=> b.onclick=()=> moveSessEx(...b.dataset.hdown.split(":"), 1));
   document.querySelectorAll("[data-resumesess]").forEach(b=> b.onclick=()=> resumeSession(b.dataset.resumesess));
   document.querySelectorAll("[data-delsess]").forEach(b=> b.onclick=()=>{
     if(confirm("Delete this session permanently?")){
@@ -1772,6 +3411,14 @@ function bind(){
       save(); queueSync(); render();
     }
   });
+
+  // body / training stress map
+  document.querySelectorAll("[data-metric]").forEach(b=> b.onclick=()=>{
+    BODY_METRIC = b.dataset.metric;
+    render();
+  });
+  document.querySelectorAll("#app .bm-m").forEach(g=> g.onclick=()=> openMuscleDetail(g.dataset.m));
+  document.querySelectorAll("[data-mrow]").forEach(r=> r.onclick=()=> openMuscleDetail(r.dataset.mrow));
 
   document.querySelectorAll("[data-edit]").forEach(b=> b.onclick=()=> openExEditor(...b.dataset.edit.split(":")));
   document.querySelectorAll("[data-addex]").forEach(b=> b.onclick=()=> openExEditor(b.dataset.addex, -1));
@@ -1800,10 +3447,17 @@ function bind(){
   if(impF) impF.onchange = importJSON;
   const rst = $("#resetBtn");
   if(rst) rst.onclick = ()=>{
-    if(confirm("Erase ALL local data? (Your gist is untouched.)")){
-      localStorage.removeItem(LS_KEY); S = load(); render(); toast("Local data erased");
+    // was hardcoded to LS_KEY, which wiped YOUR log no matter whose profile was open
+    if(confirm("Erase "+profileName()+"'s local data on this device? (Their gist is untouched, so a sync brings it back.)")){
+      localStorage.removeItem(dataKey());
+      S = load(); migrate(); saveQuiet(); render();
+      toast(profileName()+"'s local data erased");
     }
   };
+  const pas = $("#profAddSetup");
+  if(pas) pas.onclick = ()=> openProfileEditor(null);
+  const pms = $("#profManageSetup");
+  if(pms) pms.onclick = openProfileManage;
 }
 
 /* ---------- workout flow ---------- */
@@ -1878,11 +3532,18 @@ function finishWorkout(){
   S.sessions.push(sessObj);
   S.sessions.sort((x,y)=>x.startedAt-y.startedAt);
   S.active = null;
+  // graded once, at the moment it's finished, and stored on the session so History
+  // shows the same number later even as the surrounding history grows
+  sessObj.quality = scoreWorkout(sessObj);
   const cycleFinished = recomputeCycle(true);
   S.override = null;
   save(); render();
-  celebrate(cycleFinished ? "cycle" : "workout", wid, Math.round(vol));
-  if(cycleFinished && S.lastReview) setTimeout(()=>openCycleReview(S.lastReview), 1100);
+  // celebration → quality score → cycle wrapped, each waiting for the last
+  const afterScore = ()=>{
+    if(cycleFinished && S.lastReview) setTimeout(()=>openCycleReview(S.lastReview), 250);
+  };
+  celebrate(cycleFinished ? "cycle" : "workout", wid, Math.round(vol),
+            ()=> setTimeout(()=>openScoreCard(sessObj, afterScore), 260));
   toast("Workout saved 💪");
   if(S.sync.gistId) syncNow(false);
   if(S.sync.repo) repoBackup(false);
@@ -1952,6 +3613,7 @@ function openExEditor(wid, idx){
     <input id="f_weight" inputmode="decimal" value="${e.weight??""}" placeholder="optional">
   </div></div>
   <div class="field"><label>Note</label><input id="f_note" value="${esc(e.note)}" placeholder="per dumbbell, tempo, etc."></div>
+  <div class="togglerow"><input type="checkbox" id="f_uni" ${isSingleArm(e)?"checked":""}><label for="f_uni" style="margin:0;font:inherit;color:var(--text);text-transform:none;letter-spacing:0">One limb at a time — show a RIGHT/LEFT start-side tip that flips each session</label></div>
   <div class="togglerow"><input type="checkbox" id="f_hasAlt" ${e.alt?"checked":""}><label for="f_hasAlt" style="margin:0;font:inherit;color:var(--text);text-transform:none;letter-spacing:0">Alternates with a second exercise every other ${dayLabel}</label></div>
   <div id="altFields" style="display:${e.alt?"block":"none"};border-top:1px solid var(--line);padding-top:12px">
     <div class="field"><label>Alternate name</label><input id="g_name" value="${esc(alt.name)}"></div>
@@ -1982,6 +3644,10 @@ function openExEditor(wid, idx){
       note: $("#f_note").value.trim()
     };
     if(!ne.name){ toast("Name it first"); return; }
+    // store uni only when it disagrees with the built-in table, so the table can
+    // keep improving for exercises the user never touched
+    const uniWanted = $("#f_uni").checked;
+    if(uniWanted !== isSingleArm({name:ne.name, note:ne.note})) ne.uni = uniWanted;
     if($("#f_hasAlt").checked){
       const na = {
         name: $("#g_name").value.trim(),
@@ -2012,6 +3678,27 @@ function moveEx(wid, idx, dir){
   save(); queueSync(); render();
 }
 
+/* Move an exercise up or down inside a finished session. Order matters for reading a
+   session back — and for the quality score's fatigue-management read — so it's editable
+   after the fact, both from the History card and inside the session editor. */
+function moveSessEx(sessId, idx, dir, silent){
+  const s = S.sessions.find(x=>x.id===sessId);
+  if(!s) return false;
+  idx = parseInt(idx,10);
+  const j = idx + dir;
+  if(j < 0 || j >= s.entries.length) return false;
+  [s.entries[idx], s.entries[j]] = [s.entries[j], s.entries[idx]];
+  s.edited = Date.now();
+  save(); queueSync();
+  if(!silent){
+    // keep this card open across the re-render so you can keep nudging
+    render();
+    const card = document.querySelector(`.sess[data-sess="${sessId}"]`);
+    if(card) card.classList.add("open");
+  }
+  return true;
+}
+
 /* ---------- session editor (edit history) ---------- */
 function allExerciseNames(){
   const set = new Set();
@@ -2035,9 +3722,14 @@ function renderSessEditor(s){
     <div class="feel-row" style="margin-top:2px">${FEELS.map((f,i)=>`<button class="feel-btn ${s.feel===i+1?"on":""}" data-feele="${i+1}">${f}</button>`).join("")}</div>
   </div>`;
   if(s.entries.length){
+    h += `<div class="sub" style="margin:2px 0 6px">Use ↑ ↓ to put the exercises back in the order you actually did them.</div>`;
     h += s.entries.map((e,i)=>`<div class="prog-ex">
-      <div><b>${esc(e.name)}</b><div class="meta">${e.sets.map(fmtSetShort).map(esc).join("  |  ")||"no sets"}</div></div>
-      <div class="icon-btns"><button data-rmex="${i}" aria-label="Remove">✕</button></div>
+      <div style="min-width:0"><b>${esc(e.name)}</b><div class="meta">${e.sets.map(fmtSetShort).map(esc).join("  |  ")||"no sets"}</div></div>
+      <div class="icon-btns">
+        <button data-seup="${i}" aria-label="Move up" ${i===0?"disabled style=opacity:.35":""}>↑</button>
+        <button data-sedown="${i}" aria-label="Move down" ${i===s.entries.length-1?"disabled style=opacity:.35":""}>↓</button>
+        <button data-rmex="${i}" aria-label="Remove">✕</button>
+      </div>
     </div>`).join("");
   } else {
     h += `<div class="empty">No exercises in this session.</div>`;
@@ -2098,6 +3790,12 @@ function renderSessEditor(s){
       renderSessEditor(s);
     }
   });
+  document.querySelectorAll("[data-seup]").forEach(b=> b.onclick=()=>{
+    if(moveSessEx(s.id, b.dataset.seup, -1, true)) renderSessEditor(s);
+  });
+  document.querySelectorAll("[data-sedown]").forEach(b=> b.onclick=()=>{
+    if(moveSessEx(s.id, b.dataset.sedown, 1, true)) renderSessEditor(s);
+  });
   $("#addToSess").onclick = ()=>{
     harvest();
     let name = $("#addExSel").value;
@@ -2115,6 +3813,391 @@ function renderSessEditor(s){
     hideModal(); render();
     if(S.sync.repo) repoBackup(false);
   };
+}
+
+/* =====================================================================
+   WORKOUT QUALITY SCORE
+
+   Eight sections, 100 points, each one grading something with an actual evidence base
+   behind it rather than a vibe. Every section reports its own grade and the reasoning,
+   so the number is auditable — you can always see which points you left on the table.
+
+     1. Completion .............. 15   did the planned work get done
+     2. Progressive overload .... 15   did it beat the last time
+     3. Effective intensity ..... 14   were sets close enough to failure to count
+     4. Rest discipline ......... 14   rest matched to what each set demanded
+     5. Rep-range adherence ..... 10   sets landing in their prescribed range
+     6. Fatigue management ...... 10   performance held across sets
+     7. Session efficiency ...... 12   duration and density
+     8. Log quality ............. 10   RPE, feel, note, check-in, timer use
+   ===================================================================== */
+function gradeFor(pct){
+  if(pct >= .97) return "A+";
+  if(pct >= .93) return "A";
+  if(pct >= .90) return "A−";
+  if(pct >= .87) return "B+";
+  if(pct >= .83) return "B";
+  if(pct >= .80) return "B−";
+  if(pct >= .77) return "C+";
+  if(pct >= .73) return "C";
+  if(pct >= .70) return "C−";
+  if(pct >= .60) return "D";
+  return "F";
+}
+function gradeColor(pct){
+  return ramp([[0,C_BAD],[.6,C_BAD],[.75,C_WARN],[.9,C_OK],[1,C_OK]], pct);
+}
+function repRange(str){
+  const m = String(str||"").match(/(\d+)\s*[-–]\s*(\d+)/);
+  if(m) return [parseInt(m[1],10), parseInt(m[2],10)];
+  const one = String(str||"").match(/(\d+)/);
+  return one ? [parseInt(one[1],10), parseInt(one[1],10)] : null;
+}
+// The previous session of the same rotation day — what "did I progress?" measures against.
+function priorSessionFor(sess){
+  let best = null;
+  S.sessions.forEach(s=>{
+    if(s.id === sess.id) return;
+    if(s.workoutId !== sess.workoutId) return;
+    if(s.startedAt >= sess.startedAt) return;
+    if(!best || s.startedAt > best.startedAt) best = s;
+  });
+  return best;
+}
+function scoreWorkout(sess){
+  const secs = [];
+  const add = (key, label, max, earned, why, tip)=>{
+    const pts = Math.max(0, Math.min(max, earned));
+    secs.push({key, label, max, pts:Math.round(pts*10)/10, pct:pts/max,
+               grade:gradeFor(pts/max), why:why.filter(Boolean), tip});
+  };
+  const entries = sess.entries || [];
+  const allSets = [];
+  entries.forEach(e=> e.sets.forEach(st=>{ if(isWorkingSet(st)) allSets.push({e, st}); }));
+  const nSets = allSets.length;
+
+  /* 1 — COMPLETION ------------------------------------------------------------- */
+  (()=>{
+    const planned = resolvedProgram(sess.workoutId)
+      .reduce((t,{chosen:e})=>t + (parseInt(e.sets,10)||0), 0);
+    const why = [];
+    if(!planned){
+      add("completion","Completion",15,15,["No prescribed set count to compare against — credited in full."]);
+      return;
+    }
+    const ratio = nSets/planned;
+    // Overshooting the plan isn't extra credit; hitting it is.
+    const earned = 15 * Math.min(1, ratio);
+    why.push(nSets+" working sets logged against "+planned+" planned ("+Math.round(ratio*100)+"%).");
+    const skipped = resolvedProgram(sess.workoutId).length - entries.length;
+    if(skipped > 0) why.push(skipped+" exercise"+(skipped>1?"s":"")+" from the plan didn't get logged.");
+    if(ratio >= 1) why.push("Everything on the card got done.");
+    add("completion","Completion",15,earned,why,
+      ratio < 1 ? "Unfinished sets are the cheapest points on this card. If time is the constraint, superset the accessories rather than dropping them."
+                : null);
+  })();
+
+  /* 2 — PROGRESSIVE OVERLOAD --------------------------------------------------- */
+  (()=>{
+    const prev = priorSessionFor(sess);
+    const why = [];
+    if(!prev){
+      add("overload","Progressive overload",15,15*0.8,
+        ["No previous "+widName(sess.workoutId).toLowerCase()+" session to compare against — this one becomes the baseline."],
+        "From your next "+widName(sess.workoutId).toLowerCase()+" day on, this section grades you against today's numbers.");
+      return;
+    }
+    let beat = 0, held = 0, lost = 0;
+    const gains = [], drops = [];
+    entries.forEach((e,i)=>{
+      const occ = occIndex(entries, i);
+      const hits = occurrencesIn(prev, e.name);
+      if(!hits.length) return;
+      const pe = hits[Math.min(occ, hits.length-1)];
+      const top = sets => sets.reduce((b,st)=>{
+        if(!isWorkingSet(st)) return b;
+        const v = est1RM(parseFloat(st.weight)||0, parseFloat(st.reps)||0) || (parseFloat(st.reps)||0);
+        return v > b ? v : b;
+      }, 0);
+      const a = top(e.sets), b = top(pe.sets);
+      if(!a || !b) return;
+      if(a > b*1.004){ beat++; gains.push(e.name); }
+      else if(a >= b*0.985) held++;
+      else { lost++; drops.push(e.name); }
+    });
+    const compared = beat + held + lost;
+    if(!compared){
+      add("overload","Progressive overload",15,15*0.8,
+        ["None of today's exercises appear in the previous "+widName(sess.workoutId).toLowerCase()+" session, so there's nothing to compare."],
+        "Keeping the same core movements week to week is what makes overload measurable.");
+      return;
+    }
+    // Beating a lift is worth full credit, holding is worth most of it, going
+    // backwards earns nothing — matching how overload actually drives adaptation.
+    const earned = 15 * ((beat*1 + held*0.62) / compared);
+    why.push(beat+" of "+compared+" compared lifts went up, "+held+" held, "+lost+" went down.");
+    if(gains.length) why.push("Up: "+gains.slice(0,4).join(", ")+(gains.length>4?" +"+(gains.length-4)+" more":"")+".");
+    if(drops.length) why.push("Down: "+drops.slice(0,4).join(", ")+(drops.length>4?" +"+(drops.length-4)+" more":"")+".");
+    add("overload","Progressive overload",15,earned,why,
+      beat === 0 && lost > 0
+        ? "Nothing moved up and some lifts regressed — that's usually fatigue rather than effort. A lighter week often unlocks the next jump."
+        : beat === 0
+          ? "Holding is not failing, but pick one lift next session and add either 2.5–5 lb or a single rep. Overload only needs one variable to move."
+          : null);
+  })();
+
+  /* 3 — EFFECTIVE INTENSITY ---------------------------------------------------- */
+  (()=>{
+    const rpes = allSets.map(x=>parseFloat(x.st.rpe)).filter(v=>v>0);
+    const why = [];
+    if(!rpes.length){
+      add("intensity","Effective intensity",14,14*0.5,
+        ["No RPE logged, so proximity to failure can't be assessed — scored at half credit."],
+        "RPE is the single most informative number you can log. Even a rough 8 or 9 on the last set of each exercise makes this section real.");
+      return;
+    }
+    const avg = rpes.reduce((a,b)=>a+b,0)/rpes.length;
+    const inRange = rpes.filter(v=>v>=7 && v<=10).length;
+    const junk = rpes.filter(v=>v<7).length;
+    const maxedOut = rpes.filter(v=>v>=9.5).length;
+    // Hypertrophy accrues from sets taken within ~4 reps of failure; below RPE 7 the
+    // stimulus drops off sharply. Ideal average sits around 8.5.
+    const rangeScore = inRange/rpes.length;                    // share of usable sets
+    const avgScore = 1 - Math.min(1, Math.abs(avg - 8.5)/2.5); // how close the average is to 8.5
+    let earned = 14 * (rangeScore*0.6 + avgScore*0.4);
+    why.push("Average RPE "+r1(avg)+" across "+rpes.length+" scored sets"+(rpes.length<nSets?" ("+(nSets-rpes.length)+" unscored)":"")+".");
+    why.push(inRange+" of "+rpes.length+" sets landed in the productive RPE 7–10 band.");
+    if(junk) why.push(junk+" set"+(junk>1?"s":"")+" below RPE 7 — too far from failure to drive much growth.");
+    if(maxedOut/rpes.length > 0.5){
+      earned *= 0.9;
+      why.push("Over half your sets went to RPE 9.5+; training that close to failure everywhere costs more recovery than it buys.");
+    }
+    add("intensity","Effective intensity",14,earned,why,
+      avg < 7.5 ? "Most sets stopped short of where growth happens. Take the last set of each exercise to within 1–2 reps of failure."
+      : maxedOut/rpes.length > 0.5 ? "Save true failure for the last set of an exercise. Earlier sets at RPE 8 give nearly the same stimulus for far less fatigue."
+      : null);
+  })();
+
+  /* 4 — REST DISCIPLINE -------------------------------------------------------- */
+  (()=>{
+    const timed = allSets.filter(x=> x.st.rest != null && !x.e.superset);
+    const why = [];
+    if(!timed.length){
+      add("rest","Rest discipline",14,14*0.5,
+        ["No rest times recorded, so rest can't be graded — scored at half credit."],
+        "The stopwatch starts on its own when you tap ✓. Leave it running and this section grades itself.");
+      return;
+    }
+    let sum = 0, short = 0, long = 0, good = 0;
+    timed.forEach(({e, st})=>{
+      const t = restTargetFor(e, st);
+      const r = st.rest;
+      let s;
+      if(r >= t.ideal[0] && r <= t.ideal[1]){ s = 1; good++; }
+      else if(r < t.ideal[0]){
+        // credit falls off toward zero as rest approaches nothing
+        s = Math.max(0, r / t.ideal[0]) * 0.85;
+        if(r < t.warn) short++;
+      } else {
+        // long rests cost far less than short ones — mostly a time problem
+        s = Math.max(0.55, 1 - (r - t.ideal[1])/(t.ideal[1]*2));
+        if(r > t.hard) long++;
+      }
+      sum += s;
+    });
+    const earned = 14 * (sum/timed.length);
+    why.push(good+" of "+timed.length+" timed rests sat inside the window that set's load called for.");
+    if(short) why.push(short+" rest"+(short>1?"s were":" was")+" cut short for the intensity — heavy and near-failure sets want 3–5 min, 8–12 rep work 1.5–3 min.");
+    if(long) why.push(long+" rest"+(long>1?"s ran":" ran")+" well past the window, which stretches the session without adding stimulus.");
+    const bands = {};
+    timed.forEach(({e,st})=>{ const b = restTargetFor(e,st).band; bands[b] = (bands[b]||0)+1; });
+    why.push("Set mix: "+Object.keys(bands).map(b=>bands[b]+" "+b).join(", ")+".");
+    add("rest","Rest discipline",14,earned,why,
+      short > timed.length*0.3
+        ? "Short rests on heavy work quietly cap your loads — you're fighting the last set instead of the weight. Give the compounds a full 3 minutes."
+        : long > timed.length*0.3 ? "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing."
+        : null);
+  })();
+
+  /* 5 — REP-RANGE ADHERENCE ---------------------------------------------------- */
+  (()=>{
+    let inR = 0, under = 0, over = 0, checked = 0;
+    allSets.forEach(({e, st})=>{
+      const range = repRange(e.reps);
+      if(!range) return;
+      checked++;
+      const r = parseFloat(st.reps)||0;
+      if(r < range[0]) under++;
+      else if(r > range[1]) over++;
+      else inR++;
+    });
+    const why = [];
+    if(!checked){
+      add("reprange","Rep-range adherence",10,10,["No prescribed rep ranges on today's exercises — credited in full."]);
+      return;
+    }
+    // one rep outside a range is a near miss, not a failure
+    const earned = 10 * ((inR + (under+over)*0.45)/checked);
+    why.push(inR+" of "+checked+" sets finished inside their prescribed rep range.");
+    if(under) why.push(under+" set"+(under>1?"s":"")+" fell short — the load is likely too heavy for that range.");
+    if(over) why.push(over+" set"+(over>1?"s":"")+" went over the top of the range — that load has become too light.");
+    add("reprange","Rep-range adherence",10,earned,why,
+      over > under && over > 1 ? "Sets finishing above the range are your cue to add weight. Move those up 5 lb next session."
+      : under > 1 ? "Dropping below the range means the load is winning. Come down slightly and earn the reps back."
+      : null);
+  })();
+
+  /* 6 — FATIGUE MANAGEMENT ----------------------------------------------------- */
+  (()=>{
+    const drops = [];
+    entries.forEach(e=>{
+      const ws = e.sets.filter(isWorkingSet);
+      if(ws.length < 2) return;
+      const first = parseFloat(ws[0].reps)||0;
+      const last = parseFloat(ws[ws.length-1].reps)||0;
+      if(!first) return;
+      // compare like for like — a rep drop only counts at the same or heavier load
+      const w0 = parseFloat(ws[0].weight)||0, wN = parseFloat(ws[ws.length-1].weight)||0;
+      if(wN < w0*0.95) return;
+      drops.push({name:e.name, drop:(first-last)/first, first, last});
+    });
+    const why = [];
+    if(!drops.length){
+      add("fatigue","Fatigue management",10,10*0.8,
+        ["Not enough multi-set exercises at a steady load to measure drop-off."],
+        null);
+      return;
+    }
+    const avgDrop = drops.reduce((t,d)=>t+d.drop,0)/drops.length;
+    const bad = drops.filter(d=>d.drop > 0.35);
+    // A drop-off up to ~25% across sets is normal and expected; past ~35% the later
+    // sets are being run on empty and contribute mostly fatigue rather than stimulus.
+    const earned = 10 * Math.max(0, Math.min(1, 1 - Math.max(0, avgDrop - 0.25)/0.35));
+    why.push("Reps fell "+Math.round(avgDrop*100)+"% on average from first set to last at the same load — up to about 25% is normal.");
+    if(bad.length) why.push("Steep drop-off on "+bad.slice(0,3).map(d=>d.name+" ("+d.first+"→"+d.last+")").join(", ")+".");
+    else why.push("Performance held well across sets — rest and load were matched to the work.");
+    add("fatigue","Fatigue management",10,earned,why,
+      bad.length ? "A collapse like that is nearly always too little rest or too heavy an opening set. Rest longer, or start 5 lb lighter and keep the reps."
+      : null);
+  })();
+
+  /* 7 — SESSION EFFICIENCY ----------------------------------------------------- */
+  (()=>{
+    const why = [];
+    if(!sess.startedAt || !sess.finishedAt || sess.finishedAt <= sess.startedAt){
+      add("efficiency","Session efficiency",12,12*0.7,["No usable start/finish time for this session."],null);
+      return;
+    }
+    const mins = (sess.finishedAt - sess.startedAt)/60000;
+    // 40–80 min is the practical sweet spot: long enough for real volume, short enough
+    // that quality and focus haven't decayed.
+    let durScore;
+    if(mins >= 40 && mins <= 80) durScore = 1;
+    else if(mins < 40) durScore = Math.max(0.35, mins/40);
+    else durScore = Math.max(0.4, 1 - (mins-80)/90);
+    const density = nSets / Math.max(1, mins/60);      // working sets per hour
+    const denScore = Math.max(0.35, Math.min(1, density/18));
+    const earned = 12 * (durScore*0.6 + denScore*0.4);
+    why.push(Math.round(mins)+" minutes for "+nSets+" working sets — "+r1(density)+" sets per hour.");
+    why.push(mins < 40 ? "Short session; there's room for more volume before quality suffers."
+           : mins > 80 ? "Long session — past about 80 minutes focus and set quality tend to fall off."
+           : "Duration sits in the productive 40–80 minute window.");
+    add("efficiency","Session efficiency",12,earned,why,
+      density < 12 ? "Around "+r1(density)+" sets an hour means a lot of standing around. Supersetting unrelated accessories is free time."
+      : mins > 95 ? "Split this into two shorter sessions if you can — two 50-minute workouts beat one 100-minute one."
+      : null);
+  })();
+
+  /* 8 — LOG QUALITY ------------------------------------------------------------ */
+  (()=>{
+    const rpeN = allSets.filter(x=>parseFloat(x.st.rpe)>0).length;
+    const restN = allSets.filter(x=>x.st.rest!=null).length;
+    const ci = (S.checkins||{})[sess.date] || {};
+    const bits = [
+      {ok: nSets>0 && rpeN/nSets >= 0.8, w:3.5, yes:"RPE logged on "+Math.round(rpeN/Math.max(1,nSets)*100)+"% of sets", no:"RPE missing on "+(nSets-rpeN)+" of "+nSets+" sets"},
+      {ok: nSets>0 && restN/nSets >= 0.6, w:2.5, yes:"rest timed on most sets",      no:"rest times recorded on only "+restN+" of "+nSets+" sets"},
+      {ok: !!sess.feel,                   w:1.5, yes:"session feel rated",           no:"no feel rating"},
+      {ok: !!(sess.note||"").trim(),      w:1.0, yes:"session note written",         no:"no session note"},
+      {ok: !!(ci.sleep || ci.energy || ci.weight), w:1.5, yes:"daily check-in filled in", no:"no daily check-in for this date"}
+    ];
+    const earned = bits.reduce((t,b)=>t + (b.ok?b.w:0), 0);
+    const good = bits.filter(b=>b.ok).map(b=>b.yes);
+    const missing = bits.filter(b=>!b.ok).map(b=>b.no);
+    const why = [];
+    if(good.length) why.push("Captured: "+good.join(", ")+".");
+    if(missing.length) why.push("Missing: "+missing.join(", ")+".");
+    why.push("This is what makes every other section — and your Body map — accurate rather than guesswork.");
+    add("logquality","Log quality",10,earned,why,
+      missing.length ? "Each missing field is a place the analysis has to guess. RPE and rest are the two that matter most."
+      : null);
+  })();
+
+  const total = secs.reduce((t,s)=>t+s.pts, 0);
+  const maxTotal = secs.reduce((t,s)=>t+s.max, 0);
+  const pct = maxTotal ? total/maxTotal : 0;
+  return {
+    total: Math.round(total),
+    max: maxTotal,
+    pct,
+    grade: gradeFor(pct),
+    sections: secs,
+    prs: sessionPRs(sess),
+    when: Date.now(),
+    v: 1
+  };
+}
+function scoreBlurb(q){
+  const p = q.pct;
+  const weakest = q.sections.slice().sort((a,b)=>a.pct-b.pct)[0];
+  const lead = p >= .93 ? "Just about a model session."
+    : p >= .85 ? "A strong session."
+    : p >= .75 ? "A solid session with clear room to tighten up."
+    : p >= .6  ? "The work got done, but a lot of value leaked out."
+    : "This one was rough — worth understanding why before the next.";
+  return lead + " Your weakest section was <b>" + esc(weakest.label) + "</b> at " +
+    weakest.pts + "/" + weakest.max + ".";
+}
+function scoreCardHTML(q, sess){
+  const ringPct = Math.round(q.pct*100);
+  const col = gradeColor(q.pct);
+  let h = `<h3>Workout quality</h3>
+  <div class="sc-hero">
+    <div class="sc-ring" style="--scp:${ringPct}%;--scc:${col}">
+      <div class="sc-ring-in">
+        <div class="sc-grade" style="color:${col}">${q.grade}</div>
+        <div class="sc-total">${q.total}/${q.max}</div>
+      </div>
+    </div>
+    <div class="sc-blurb">${scoreBlurb(q)}</div>
+  </div>`;
+  if(q.prs && q.prs.length){
+    h += `<div class="rev-head">Personal records — ${q.prs.length}</div>`;
+    q.prs.forEach(p=> h += `<div class="rev-line"><b>🔥 ${esc(p.name)}</b><span class="num">${esc(p.kind)} · ${esc(p.weight||"bw")}×${esc(p.reps||"")}</span></div>`);
+  }
+  h += `<div class="rev-head">The eight sections</div>`;
+  q.sections.forEach(s=>{
+    const c = gradeColor(s.pct);
+    h += `<div class="sc-sec">
+      <div class="sc-sh">
+        <span class="sc-sg" style="color:${c};background:${c}22">${s.grade}</span>
+        <span class="sc-n">${esc(s.label)}</span>
+        <span class="sc-pts">${s.pts} / ${s.max}</span>
+      </div>
+      <div class="sc-track"><i style="width:${Math.max(2,Math.round(s.pct*100))}%;background:${c}"></i></div>
+      <div class="sc-why"><ul>${s.why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>
+      ${s.tip?`<div class="sc-tip"><b>Next time</b> — ${esc(s.tip)}</div>`:""}
+    </div>`;
+  });
+  return h;
+}
+function openScoreCard(sess, onDone){
+  const q = sess.quality || scoreWorkout(sess);
+  showModal(scoreCardHTML(q, sess) + `<button class="btn" style="margin-top:18px" id="scDone">Got it</button>`);
+  let fired = false;
+  MODAL_DISMISS = ()=>{ if(fired) return; fired = true; if(onDone) onDone(); };
+  MODAL_REOPEN = ()=> openScoreCard(sess, onDone);
+  const b = $("#scDone");
+  if(b) b.onclick = hideModal;      // hideModal fires MODAL_DISMISS exactly once
 }
 
 /* ---------- cycle review ---------- */
@@ -2385,14 +4468,54 @@ function openCycleWrapped(r){
 }
 
 /* ---------- modal ---------- */
+let MODAL_DISMISS = null;
+// How to rebuild the modal that's currently showing, so a glossary term opened from
+// inside it can offer a working "Back". Set by the modals that contain terms.
+let MODAL_REOPEN = null;
 function showModal(html){
+  MODAL_DISMISS = null;
+  MODAL_REOPEN = null;
   $("#modal").innerHTML = html;
+  $("#modal").scrollTop = 0;
   $("#modalBg").classList.add("show");
   const c = $("#closeModal");
   if(c) c.onclick = hideModal;
 }
-function hideModal(){ $("#modalBg").classList.remove("show"); }
+function hideModal(){
+  $("#modalBg").classList.remove("show");
+  const d = MODAL_DISMISS;
+  MODAL_DISMISS = null;
+  if(d) d();                // a pending askConfirm resolves false
+}
 $("#modalBg").addEventListener("click", e=>{ if(e.target.id==="modalBg") hideModal(); });
+
+/* A real in-app confirmation instead of the OS `confirm()` box — it can carry the
+   formatting and the "why" that a native dialog can't, and it doesn't get suppressed
+   by "prevent this page from creating more dialogs" after a few taps. */
+function askConfirm(opts){
+  return new Promise(resolve=>{
+    let settled = false;
+    const done = v=>{
+      if(settled) return;
+      settled = true;
+      MODAL_DISMISS = null;
+      $("#modalBg").classList.remove("show");
+      resolve(v);
+    };
+    $("#modal").innerHTML = `<h3>${esc(opts.title||"Are you sure?")}</h3>
+      <p style="color:var(--text);font-size:15px;line-height:1.5">${opts.body||""}</p>
+      ${opts.meta?`<div class="sub num" style="margin:10px 0 0;font-size:12px;color:var(--faint)">${opts.meta}</div>`:""}
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn small" id="askYes" style="flex:1">${esc(opts.yes||"Yes")}</button>
+      </div>
+      <div class="btn-row"><button class="btn ghost small" id="askNo" style="flex:1">${esc(opts.no||"Cancel")}</button></div>`;
+    $("#modal").scrollTop = 0;
+    $("#modalBg").classList.add("show");
+    $("#askYes").onclick = ()=>done(true);
+    $("#askNo").onclick = ()=>done(false);
+    MODAL_DISMISS = ()=>done(false);   // tapping the backdrop = "no"
+  });
+}
 
 /* ================= GIST SYNC ================= */
 async function gistFetch(path, opts={}){
@@ -2418,7 +4541,7 @@ async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
   S.sync.gistId = $("#gistIn").value.trim();
   if(!S.sync.token){ toast("Paste a token first"); return; }
-  save();
+  save(); syncProfileRecord();
   try{
     if(!S.sync.gistId){
       const g = await gistFetch("gists", {method:"POST", body: JSON.stringify({
@@ -2427,13 +4550,36 @@ async function connectGist(){
       })});
       S.sync.gistId = g.id;
       S.sync.lastSync = Date.now();
-      save(); render();
-      toast("Gist created — you're synced");
+      save(); syncProfileRecord(); render();
+      toast("Gist created for "+profileName()+" — synced");
     } else {
       save(); render();
       await syncNow(true);
     }
   }catch(err){ toast("GitHub error: "+err.message); }
+}
+/* Give the active profile its own private gist without anyone typing an ID. Called when
+   a new person is created and a token is already on the device, which is the whole
+   point of sharing the token at registry level. */
+async function ensureGist(){
+  if(!S.sync.token && PROF.token) S.sync.token = PROF.token;
+  if(!S.sync.token || S.sync.gistId) return;
+  setSyncStatus("pending");
+  try{
+    const g = await gistFetch("gists", {method:"POST", body: JSON.stringify({
+      description:"Iron Log — "+profileName(), public:false,
+      files:{[GIST_FILE]:{content:payload()}}
+    })});
+    S.sync.gistId = g.id;
+    S.sync.lastSync = Date.now();
+    save(); syncProfileRecord();
+    setSyncStatus("ok");
+    render();
+    toast("Private gist created for "+profileName()+" ✓");
+  }catch(err){
+    setSyncStatus("err");
+    toast("Couldn't create their gist: "+err.message);
+  }
 }
 function mergeSessions(localArr, remoteArr, tomb){
   const byId = new Map();
@@ -2568,6 +4714,7 @@ function buildReportInner(){
       if(ci.sleep) metaBits.push("Sleep: "+esc(ci.sleep)+" h");
       if(ci.energy) metaBits.push("Energy: "+esc(ci.energy)+"/10");
     }
+    if(s.quality) metaBits.push("Quality score: "+s.quality.total+"/"+s.quality.max+" ("+s.quality.grade.replace("−","-")+")");
     if(s.note) metaBits.push("Note: "+esc(s.note));
     body += `<h2>${longDate(s.date)} — ${m.name} Day</h2>
     ${metaBits.length?`<p class="meta">${metaBits.join(" · ")}</p>`:""}
