@@ -241,12 +241,13 @@
    }
   ]
  },
- "pointer": 3,
+ "pointer": 4,
  "cycleStart": 1784779200000,
  "cycleDone": [
   2,
   0,
-  1
+  1,
+  3
  ],
  "restDay": {
   "date": "2026-07-22"
@@ -2326,7 +2327,280 @@
    ],
    "note": "Got very fatigued by the end",
    "feel": 4
+  },
+  {
+   "id": "ms2jtlp1ekatt",
+   "workoutId": "shoulders",
+   "date": "2026-07-26",
+   "startedAt": 1785115741718,
+   "finishedAt": 1785119380685,
+   "entries": [
+    {
+     "name": "Smith Machine Shoulder Press",
+     "reps": "8-10",
+     "rpe": "9",
+     "note": "10 lb plate each side",
+     "sets": [
+      {
+       "weight": "20",
+       "reps": "14",
+       "rpe": "8",
+       "done": true,
+       "rest": 338
+      },
+      {
+       "weight": "20",
+       "reps": "15",
+       "rpe": "9",
+       "done": true,
+       "rest": 324
+      },
+      {
+       "weight": "20",
+       "reps": "16",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 342
+      }
+     ]
+    },
+    {
+     "name": "Alternating Cable Lateral Raise",
+     "reps": "8-10",
+     "rpe": "8-9",
+     "note": "single arm — alternate L/R each set",
+     "startSide": "L",
+     "sets": [
+      {
+       "weight": "20",
+       "reps": "15",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 159
+      },
+      {
+       "weight": "20",
+       "reps": "18",
+       "rpe": "10",
+       "done": true,
+       "rest": 343
+      },
+      {
+       "weight": "20",
+       "reps": "14",
+       "rpe": "10",
+       "done": true,
+       "rest": 170
+      }
+     ]
+    },
+    {
+     "name": "Cable Reverse Rear Delt Fly",
+     "reps": "8-10",
+     "rpe": "8-10",
+     "note": "",
+     "sets": [
+      {
+       "weight": "30",
+       "reps": "14",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 253
+      },
+      {
+       "weight": "30",
+       "reps": "12",
+       "rpe": "9",
+       "done": true,
+       "rest": 200
+      },
+      {
+       "weight": "30",
+       "reps": "11",
+       "rpe": "10",
+       "done": true,
+       "rest": 273
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "150",
+       "reps": "20",
+       "rpe": "7.5",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Leg Raises",
+     "reps": "8-10",
+     "rpe": "9-10",
+     "note": "bodyweight",
+     "fin": true,
+     "superset": "abs",
+     "sets": [
+      {
+       "weight": "",
+       "reps": "25",
+       "rpe": "9.5",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-12",
+     "rpe": "9-10",
+     "note": "",
+     "fin": true,
+     "superset": "abs",
+     "supersetEnd": true,
+     "sets": [
+      {
+       "weight": "150",
+       "reps": "12",
+       "rpe": "7.5",
+       "done": true
+      }
+     ]
+    }
+   ],
+   "note": "",
+   "feel": 4,
+   "quality": {
+    "total": 83,
+    "max": 100,
+    "pct": 0.825,
+    "grade": "B−",
+    "sections": [
+     {
+      "key": "completion",
+      "label": "Completion",
+      "max": 15,
+      "pts": 15,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "12 working sets logged against 12 planned (100%).",
+       "Everything on the card got done."
+      ],
+      "tip": null
+     },
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "max": 15,
+      "pts": 9.3,
+      "pct": 0.62,
+      "grade": "D",
+      "why": [
+       "0 of 6 compared lifts went up, 6 held, 0 went down."
+      ],
+      "tip": "Holding is not failing, but pick one lift next session and add either 2.5–5 lb or a single rep. Overload only needs one variable to move."
+     },
+     {
+      "key": "intensity",
+      "label": "Effective intensity",
+      "max": 14,
+      "pts": 12.9,
+      "pct": 0.92,
+      "grade": "A−",
+      "why": [
+       "Average RPE 9 across 12 scored sets.",
+       "12 of 12 sets landed in the productive RPE 7–10 band."
+      ],
+      "tip": null
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "max": 14,
+      "pts": 10.9,
+      "pct": 0.7784876543209877,
+      "grade": "C+",
+      "why": [
+       "1 of 9 timed rests sat inside the window that set's load called for.",
+       "3 rests ran well past the window, which stretches the session without adding stimulus.",
+       "Set mix: 3 metabolic, 5 heavy, 1 hypertrophy."
+      ],
+      "tip": "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing."
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "max": 10,
+      "pts": 5,
+      "pct": 0.4958333333333334,
+      "grade": "F",
+      "why": [
+       "1 of 12 sets finished inside their prescribed rep range.",
+       "11 sets went over the top of the range — that load has become too light."
+      ],
+      "tip": "Sets finishing above the range are your cue to add weight. Move those up 5 lb next session."
+     },
+     {
+      "key": "fatigue",
+      "label": "Fatigue management",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Reps fell 5% on average from first set to last at the same load — up to about 25% is normal.",
+       "Performance held well across sets — rest and load were matched to the work."
+      ],
+      "tip": null
+     },
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "max": 12,
+      "pts": 10.4,
+      "pct": 0.8638111310160274,
+      "grade": "B",
+      "why": [
+       "61 minutes for 12 working sets — 11.9 sets per hour.",
+       "Duration sits in the productive 40–80 minute window."
+      ],
+      "tip": "Around 11.9 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time."
+     },
+     {
+      "key": "logquality",
+      "label": "Log quality",
+      "max": 10,
+      "pts": 9,
+      "pct": 0.9,
+      "grade": "A−",
+      "why": [
+       "Captured: RPE logged on 100% of sets, rest timed on most sets, session feel rated, daily check-in filled in.",
+       "Missing: no session note.",
+       "This is what makes every other section — and your Body map — accurate rather than guesswork."
+      ],
+      "tip": "Each missing field is a place the analysis has to guess. RPE and rest are the two that matter most."
+     }
+    ],
+    "prs": [
+     {
+      "name": "Smith Machine Shoulder Press",
+      "set": 3,
+      "kind": "REP PR",
+      "weight": "20",
+      "reps": "16"
+     }
+    ],
+    "when": 1785119380690,
+    "v": 1
+   }
   }
  ],
- "savedAt": 1785116914643
+ "savedAt": 1785119380690
 }
