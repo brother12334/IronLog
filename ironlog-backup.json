@@ -115,7 +115,7 @@
     "reps": "8-10",
     "rpe": "8-9",
     "weight": 30,
-    "note": ""
+    "note": "single arm — alternate L/R each set"
    },
    {
     "name": "Spider Curl",
@@ -123,7 +123,7 @@
     "reps": "8-10",
     "rpe": "8-9",
     "weight": 25,
-    "note": ""
+    "note": "single arm — alternate L/R each set"
    },
    {
     "name": "Hammer Curl",
@@ -157,7 +157,7 @@
     "reps": "8-10",
     "rpe": "8-9",
     "weight": 15,
-    "note": ""
+    "note": "single arm — alternate L/R each set"
    },
    {
     "name": "Cable Reverse Rear Delt Fly",
@@ -2328,5 +2328,5 @@
    "feel": 4
   }
  ],
- "savedAt": 1785045716366
+ "savedAt": 1785116914643
 }
