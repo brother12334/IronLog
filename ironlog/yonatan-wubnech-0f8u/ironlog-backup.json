@@ -1,0 +1,457 @@
+{
+ "program": {
+  "chest": [
+   {
+    "name": "Incline Dumbbell Press",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per dumbbell",
+    "startWeight": 15
+   },
+   {
+    "name": "Flat Dumbbell Press",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per dumbbell",
+    "startWeight": 20
+   },
+   {
+    "name": "Low-to-High Cable Flyes",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "handles LOW, scoop up-and-in · hits upper chest",
+    "startWeight": null
+   },
+   {
+    "name": "Seated Cable Flyes",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light — focus on the squeeze, not heaving",
+    "startWeight": null
+   },
+   {
+    "name": "Guillotine Press",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "light bar to the collarbone · controlled",
+    "startWeight": null,
+    "alt": {
+     "name": "Chest Dips",
+     "sets": 3,
+     "reps": "6-10",
+     "rpe": "",
+     "weight": null,
+     "note": "lean forward for chest · add weight when easy",
+     "startWeight": null
+    }
+   }
+  ],
+  "back": [
+   {
+    "name": "Lat Pulldown",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "drive elbows down, don't lean way back",
+    "startWeight": 55
+   },
+   {
+    "name": "Chest-Supported Machine Row",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "chest stays on the pad the whole time",
+    "startWeight": null
+   },
+   {
+    "name": "Single-Arm Dumbbell Row",
+    "sets": 3,
+    "reps": "10-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per arm — pull to your hip, not your chest · single arm, alternate L/R each set",
+    "startWeight": 20
+   },
+   {
+    "name": "Cable Straight-Arm Pulldown",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light — feel it in your lats",
+    "startWeight": null
+   },
+   {
+    "name": "Dumbbell Shrug",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "go heavy · pause 1s at top · NO shoulder rolling",
+    "startWeight": 45
+   }
+  ],
+  "arms": [
+   {
+    "name": "Incline Dumbbell Curl",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per dumbbell — let arms hang fully each rep",
+    "startWeight": 10
+   },
+   {
+    "name": "Straight-Bar Tricep Pushdown",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "keep elbows pinned to your sides",
+    "startWeight": null
+   },
+   {
+    "name": "Concentration Curl",
+    "sets": 3,
+    "reps": "10-12",
+    "rpe": "",
+    "weight": null,
+    "note": "single arm — alternate L/R · elbow on inner thigh",
+    "startWeight": 10
+   },
+   {
+    "name": "Overhead Cable Tricep Extension",
+    "sets": 3,
+    "reps": "10-12",
+    "rpe": "",
+    "weight": null,
+    "note": "light — full stretch at the top",
+    "startWeight": null
+   },
+   {
+    "name": "Hammer Curl",
+    "sets": 3,
+    "reps": "10-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per dumbbell — thumbs up the whole rep",
+    "startWeight": 12
+   },
+   {
+    "name": "Cable Tricep Kickback",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light — squeeze at lockout",
+    "startWeight": null
+   }
+  ],
+  "shoulders": [
+   {
+    "name": "Dumbbell Shoulder Press",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "press slightly forward, don't arch your back",
+    "startWeight": 12
+   },
+   {
+    "name": "Dumbbell Lateral Raise",
+    "sets": 4,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light · lead with elbows · this one loves volume",
+    "startWeight": 8
+   },
+   {
+    "name": "Cable Rear Delt Fly",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light — for the back of your shoulders",
+    "startWeight": null
+   },
+   {
+    "name": "Dumbbell Front Raise",
+    "sets": 2,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "light — controlled, no swinging",
+    "startWeight": null
+   }
+  ],
+  "legs": [
+   {
+    "name": "Smith Machine Squat",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "feet slightly forward · go as deep as comfy",
+    "startWeight": null
+   },
+   {
+    "name": "Dumbbell Romanian Deadlift",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "",
+    "weight": null,
+    "note": "per dumbbell · push hips BACK · feel the hamstrings",
+    "startWeight": 20
+   },
+   {
+    "name": "Leg Extension",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "pause 1s at the top squeeze",
+    "startWeight": null
+   },
+   {
+    "name": "Leg Curl",
+    "sets": 3,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "control the way down",
+    "startWeight": null
+   },
+   {
+    "name": "Hip Thrust",
+    "sets": 3,
+    "reps": "10-12",
+    "rpe": "",
+    "weight": null,
+    "note": "light bar or dumbbell · squeeze glutes at top",
+    "startWeight": null
+   },
+   {
+    "name": "Standing Calf Raise",
+    "sets": 4,
+    "reps": "12-15",
+    "rpe": "",
+    "weight": null,
+    "note": "full stretch at bottom, pause at top",
+    "startWeight": null
+   }
+  ],
+  "finisher": [
+   {
+    "name": "Cable Ab Crunch",
+    "sets": 1,
+    "reps": "10-12",
+    "rpe": "9-10",
+    "weight": 150,
+    "note": "",
+    "superset": "abs"
+   },
+   {
+    "name": "Leg Raises",
+    "sets": 1,
+    "reps": "8-10",
+    "rpe": "9-10",
+    "weight": null,
+    "note": "bodyweight",
+    "superset": "abs"
+   },
+   {
+    "name": "Cable Ab Crunch",
+    "sets": 1,
+    "reps": "10-12",
+    "rpe": "9-10",
+    "weight": 150,
+    "note": "",
+    "superset": "abs",
+    "supersetEnd": true
+   }
+  ]
+ },
+ "pointer": 4,
+ "cycleStart": 1784606400000,
+ "cycleDone": [
+  3
+ ],
+ "restDay": null,
+ "restLog": [],
+ "lastCycle": null,
+ "lastReview": null,
+ "checkins": {},
+ "deleted": [],
+ "sessions": [
+  {
+   "id": "mrvfdedivzl79",
+   "workoutId": "shoulders",
+   "date": "2026-07-21",
+   "startedAt": 1784685004039,
+   "finishedAt": 1784691511533,
+   "entries": [
+    {
+     "name": "Dumbbell Shoulder Press",
+     "reps": "8-12",
+     "rpe": "",
+     "note": "press slightly forward, don't arch your back",
+     "startWeight": 12,
+     "sets": [
+      {
+       "weight": "5",
+       "reps": "5",
+       "rpe": "",
+       "done": true
+      },
+      {
+       "weight": "5",
+       "reps": "6",
+       "rpe": "",
+       "done": true
+      },
+      {
+       "weight": "5",
+       "reps": "7",
+       "rpe": "",
+       "done": true
+      }
+     ]
+    },
+    {
+     "name": "Dumbbell Lateral Raise",
+     "reps": "12-15",
+     "rpe": "",
+     "note": "light · lead with elbows · this one loves volume",
+     "startWeight": 8,
+     "sets": [
+      {
+       "weight": "10",
+       "reps": "8",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 271
+      },
+      {
+       "weight": "10",
+       "reps": "6",
+       "rpe": "6",
+       "done": true,
+       "rest": 121
+      },
+      {
+       "weight": "10",
+       "reps": "13",
+       "rpe": "9",
+       "done": true,
+       "rest": 541
+      }
+     ]
+    },
+    {
+     "name": "Cable Rear Delt Fly",
+     "reps": "12-15",
+     "rpe": "",
+     "note": "light — for the back of your shoulders",
+     "sets": [
+      {
+       "weight": "10",
+       "reps": "18",
+       "rpe": "8",
+       "done": true,
+       "rest": 257
+      },
+      {
+       "weight": "12.5",
+       "reps": "7",
+       "rpe": "6.5",
+       "done": true,
+       "rest": 130
+      },
+      {
+       "weight": "12.5",
+       "reps": "15",
+       "rpe": "7.5",
+       "done": true,
+       "rest": 317
+      }
+     ]
+    },
+    {
+     "name": "Dumbbell Front Raise",
+     "reps": "12-15",
+     "rpe": "",
+     "note": "light — controlled, no swinging",
+     "sets": [
+      {
+       "weight": "8",
+       "reps": "12",
+       "rpe": "9",
+       "done": true,
+       "rest": 65
+      },
+      {
+       "weight": "5",
+       "reps": "12",
+       "rpe": "7.5",
+       "done": true,
+       "rest": 54
+      },
+      {
+       "weight": "8",
+       "reps": "9",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 519
+      }
+     ]
+    },
+    {
+     "name": "Weighted Cable Crunch",
+     "reps": "10-12",
+     "rpe": "",
+     "note": "start light · add weight as reps get easy",
+     "fin": true,
+     "sets": [
+      {
+       "weight": "80",
+       "reps": "12",
+       "rpe": "6",
+       "done": true,
+       "rest": 17
+      },
+      {
+       "weight": "80",
+       "reps": "16",
+       "rpe": "9",
+       "done": true,
+       "rest": 346
+      },
+      {
+       "weight": "90",
+       "reps": "16",
+       "rpe": "10",
+       "done": true,
+       "rest": 144
+      }
+     ]
+    }
+   ],
+   "note": "Skipped hanging leg raises for flexibility (I believe) issues on client",
+   "feel": 3
+  }
+ ],
+ "savedAt": 1785254489050
+}
