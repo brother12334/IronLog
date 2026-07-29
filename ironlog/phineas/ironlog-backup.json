@@ -4309,8 +4309,8 @@
      ]
     }
    ],
-   "note": "",
-   "feel": null,
+   "note": "On standing calf raise messed up first set because my foot slipped",
+   "feel": 4,
    "quality": {
     "total": 81,
     "max": 100,
@@ -4485,8 +4485,9 @@
     ],
     "when": 1785292019024,
     "v": 1
-   }
+   },
+   "edited": 1785292149657
   }
  ],
- "savedAt": 1785292019025
+ "savedAt": 1785292149657
 }
