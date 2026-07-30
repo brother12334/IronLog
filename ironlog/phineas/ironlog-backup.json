@@ -242,73 +242,135 @@
   ]
  },
  "pointer": 4,
- "cycleStart": 1784779200000,
+ "cycleStart": 1785297600000,
  "cycleDone": [
-  2,
-  0,
-  1,
-  3,
-  5,
-  6
+  0
  ],
- "restDay": {
-  "date": "2026-07-22"
- },
+ "restDay": null,
  "restLog": [
   "2026-07-14",
   "2026-07-15"
  ],
  "lastCycle": {
-  "start": 1783899361472,
-  "end": 1784696380106
+  "start": 1784779200000,
+  "end": 1785382434328
  },
  "lastReview": {
   "cur": {
-   "vol": 88365,
+   "vol": 80888,
    "n": 7,
    "perDay": {
     "arms": 2,
-    "back": 1,
     "chest": 2,
+    "back": 1,
     "shoulders": 1,
     "legs": 1
    },
    "exTop": {
     "Incline Dumbbell Curl": 25,
-    "Tricep Pushdown": 100,
+    "Tricep Pushdown": 110,
     "Preacher Curl": 25,
     "Tricep Kickback": 30,
-    "Spider Curl": 25,
+    "Spider Curl": 20,
     "Hammer Curl": 25,
-    "Cable Tricep Extension": 80,
-    "Cable Ab Crunch": 150,
+    "Cable Tricep Extension": 90,
+    "Cable Ab Crunch": 160,
     "Leg Raises": 0,
+    "Dumbbell Bench Press": 45,
+    "Incline Dumbbell Bench Press": 40,
+    "Mid Cable Fly (on bench)": 45,
+    "Cable Chest Press (on bench)": 55,
+    "Guillotine Press": 30,
+    "Smith Machine Flat Bench Press": 45,
     "Lat Pulldown": 110,
     "Mid Row": 130,
     "Dumbbell RDL": 35,
     "Cable Lat Prayer": 70,
-    "Dumbbell Bench Press": 40,
-    "Incline Dumbbell Bench Press": 40,
-    "Mid Cable Fly (on bench)": 40,
-    "Cable Chest Press (on bench)": 50,
-    "Guillotine Press": 30,
     "Smith Machine Shoulder Press": 20,
     "Alternating Cable Lateral Raise": 20,
     "Cable Reverse Rear Delt Fly": 30,
     "Leg Curl": 135,
     "Leg Extension": 85,
-    "Hip Thrust": 70,
-    "Smith Machine Squat": 15,
-    "Standing Calf Raise (Smith)": 30,
+    "Hip Thrust": 100,
+    "Smith Machine Squat": 17.5,
+    "Standing Calf Raise (Smith)": 35,
     "Chest Dips": 0
    },
-   "avgDurMin": 107,
-   "avgFeel": 4.4
+   "avgDurMin": 92,
+   "avgFeel": 4,
+   "totalReps": 1466,
+   "totalSets": 120,
+   "heaviest": {
+    "name": "Cable Ab Crunch",
+    "w": 160,
+    "reps": 15
+   },
+   "topVolEx": {
+    "name": "Cable Ab Crunch",
+    "vol": 17320
+   },
+   "restCount": 0
   },
-  "prevVol": null,
-  "moved": [],
-  "stalled": [],
-  "when": 1784696380105
+  "prevVol": 88365,
+  "moved": [
+   {
+    "name": "Tricep Pushdown",
+    "from": 100,
+    "to": 110
+   },
+   {
+    "name": "Cable Tricep Extension",
+    "from": 80,
+    "to": 90
+   },
+   {
+    "name": "Cable Ab Crunch",
+    "from": 150,
+    "to": 160
+   },
+   {
+    "name": "Dumbbell Bench Press",
+    "from": 40,
+    "to": 45
+   },
+   {
+    "name": "Mid Cable Fly (on bench)",
+    "from": 40,
+    "to": 45
+   },
+   {
+    "name": "Cable Chest Press (on bench)",
+    "from": 50,
+    "to": 55
+   }
+  ],
+  "stalled": [
+   {
+    "name": "Incline Dumbbell Curl",
+    "w": 25
+   },
+   {
+    "name": "Preacher Curl",
+    "w": 25
+   },
+   {
+    "name": "Tricep Kickback",
+    "w": 30
+   },
+   {
+    "name": "Hammer Curl",
+    "w": 25
+   },
+   {
+    "name": "Incline Dumbbell Bench Press",
+    "w": 40
+   },
+   {
+    "name": "Guillotine Press",
+    "w": 30
+   }
+  ],
+  "when": 1785382434327
  },
  "checkins": {
   "2026-07-15": {
@@ -343,6 +405,10 @@
   "2026-07-28": {
    "sleep": "6",
    "energy": "7"
+  },
+  "2026-07-29": {
+   "sleep": "5.5",
+   "energy": "5"
   }
  },
  "deleted": [
@@ -4487,7 +4553,353 @@
     "v": 1
    },
    "edited": 1785292149657
+  },
+  {
+   "id": "ms6vt8z6h1nem",
+   "workoutId": "chest",
+   "date": "2026-07-29",
+   "startedAt": 1785377745331,
+   "finishedAt": 1785382434323,
+   "entries": [
+    {
+     "name": "Dumbbell Bench Press",
+     "reps": "8-10",
+     "rpe": "9",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "45",
+       "reps": "6",
+       "rpe": "10",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 170
+      },
+      {
+       "weight": "40",
+       "reps": "12",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 160
+      },
+      {
+       "weight": "40",
+       "reps": "9",
+       "rpe": "10",
+       "done": true,
+       "rest": 200
+      }
+     ]
+    },
+    {
+     "name": "Incline Dumbbell Bench Press",
+     "reps": "8-12",
+     "rpe": "8-9",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "35",
+       "reps": "11",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 234
+      },
+      {
+       "weight": "35",
+       "reps": "11",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 263
+      },
+      {
+       "weight": "35",
+       "reps": "11",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 389
+      }
+     ]
+    },
+    {
+     "name": "Mid Cable Fly (on bench)",
+     "reps": "10-12",
+     "rpe": "7-8",
+     "note": "",
+     "sets": [
+      {
+       "weight": "42.5",
+       "reps": "14",
+       "rpe": "8",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 192
+      },
+      {
+       "weight": "45",
+       "reps": "12",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 256
+      },
+      {
+       "weight": "45",
+       "reps": "16",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 383
+      }
+     ]
+    },
+    {
+     "name": "Cable Chest Press (on bench)",
+     "reps": "10-12",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "50",
+       "reps": "15",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 130
+      },
+      {
+       "weight": "52.5",
+       "reps": "16",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 224
+      },
+      {
+       "weight": "55",
+       "reps": "13",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 320
+      }
+     ]
+    },
+    {
+     "name": "Chest Dips",
+     "reps": "5-8",
+     "rpe": "",
+     "note": "bodyweight — log added lbs if weighted",
+     "sets": [
+      {
+       "weight": "",
+       "reps": "10",
+       "rpe": "9",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 175
+      },
+      {
+       "weight": "",
+       "reps": "9",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 143
+      },
+      {
+       "weight": "",
+       "reps": "11",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "REP PR"
+      }
+     ]
+    }
+   ],
+   "note": "Felt smooth, good energy",
+   "feel": 5,
+   "quality": {
+    "total": 84,
+    "max": 100,
+    "pct": 0.835,
+    "grade": "B",
+    "sections": [
+     {
+      "key": "completion",
+      "label": "Completion",
+      "max": 15,
+      "pts": 12.5,
+      "pct": 0.8333333333333334,
+      "grade": "B",
+      "why": [
+       "15 working sets logged against 18 planned (83%).",
+       "3 exercises from the plan didn't get logged."
+      ],
+      "tip": "Unfinished sets are the cheapest points on this card. If time is the constraint, superset the accessories rather than dropping them."
+     },
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "max": 15,
+      "pts": 9.8,
+      "pct": 0.655,
+      "grade": "D",
+      "why": [
+       "2 of 4 compared lifts went up, 1 held, 1 went down.",
+       "Up: Mid Cable Fly (on bench), Cable Chest Press (on bench).",
+       "Down: Incline Dumbbell Bench Press."
+      ],
+      "tip": null
+     },
+     {
+      "key": "intensity",
+      "label": "Effective intensity",
+      "max": 14,
+      "pts": 12.8,
+      "pct": 0.9146666666666666,
+      "grade": "A−",
+      "why": [
+       "Average RPE 9 across 15 scored sets.",
+       "15 of 15 sets landed in the productive RPE 7-10 band."
+      ],
+      "tip": null
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "max": 14,
+      "pts": 11.8,
+      "pct": 0.8422420634920635,
+      "grade": "B",
+      "why": [
+       "3 of 14 timed rests sat inside the window that set's load called for.",
+       "2 rests ran well past the window, which stretches the session without adding stimulus.",
+       "Set mix: 6 heavy, 5 hypertrophy, 3 metabolic."
+      ],
+      "tip": null
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "max": 10,
+      "pts": 6.3,
+      "pct": 0.6333333333333333,
+      "grade": "D",
+      "why": [
+       "5 of 15 sets finished inside their prescribed rep range.",
+       "1 set fell short, the load is likely too heavy for that range.",
+       "9 sets went over the top of the range, that load has become too light."
+      ],
+      "tip": "Sets finishing above the range are your cue to add weight. Move those up 5 lb next session."
+     },
+     {
+      "key": "fatigue",
+      "label": "Fatigue management",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Reps fell -3% on average from first set to last at the same load, up to about 25% is normal.",
+       "Performance held well across sets, rest and load were matched to the work."
+      ],
+      "tip": null
+     },
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "max": 12,
+      "pts": 10.3,
+      "pct": 0.8559185428339395,
+      "grade": "B",
+      "why": [
+       "78 minutes for 15 working sets, 11.5 sets per hour.",
+       "Duration sits in the productive 40-80 minute window."
+      ],
+      "tip": "Around 11.5 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time."
+     },
+     {
+      "key": "logquality",
+      "label": "Log quality",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Captured: RPE logged on 100% of sets, rest timed on most sets, session feel rated, session note written, daily check-in filled in.",
+       "This is what makes every other section, and your Body map, accurate rather than guesswork."
+      ],
+      "tip": null
+     }
+    ],
+    "prs": [
+     {
+      "name": "Dumbbell Bench Press",
+      "set": 1,
+      "kind": "WEIGHT PR",
+      "weight": "45",
+      "reps": "6"
+     },
+     {
+      "name": "Mid Cable Fly (on bench)",
+      "set": 1,
+      "kind": "WEIGHT PR",
+      "weight": "42.5",
+      "reps": "14"
+     },
+     {
+      "name": "Mid Cable Fly (on bench)",
+      "set": 2,
+      "kind": "WEIGHT PR",
+      "weight": "45",
+      "reps": "12"
+     },
+     {
+      "name": "Mid Cable Fly (on bench)",
+      "set": 3,
+      "kind": "REP PR",
+      "weight": "45",
+      "reps": "16"
+     },
+     {
+      "name": "Cable Chest Press (on bench)",
+      "set": 1,
+      "kind": "REP PR",
+      "weight": "50",
+      "reps": "15"
+     },
+     {
+      "name": "Cable Chest Press (on bench)",
+      "set": 2,
+      "kind": "WEIGHT PR",
+      "weight": "52.5",
+      "reps": "16"
+     },
+     {
+      "name": "Cable Chest Press (on bench)",
+      "set": 3,
+      "kind": "WEIGHT PR",
+      "weight": "55",
+      "reps": "13"
+     },
+     {
+      "name": "Chest Dips",
+      "set": 1,
+      "kind": "REP PR",
+      "weight": "",
+      "reps": "10"
+     },
+     {
+      "name": "Chest Dips",
+      "set": 3,
+      "kind": "REP PR",
+      "weight": "",
+      "reps": "11"
+     }
+    ],
+    "when": 1785382434327,
+    "v": 1
+   }
   }
  ],
- "savedAt": 1785292149657
+ "savedAt": 1785382434329
 }
