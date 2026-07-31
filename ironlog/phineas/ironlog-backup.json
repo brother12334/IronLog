@@ -4,8 +4,8 @@
    {
     "name": "Dumbbell Bench Press",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "9",
+    "reps": "6-10",
+    "rpe": "8-9",
     "weight": 40,
     "note": "per dumbbell"
    },
@@ -20,15 +20,15 @@
    {
     "name": "Mid Cable Fly (on bench)",
     "sets": 3,
-    "reps": "10-12",
-    "rpe": "7-8",
+    "reps": "12-15",
+    "rpe": "8-9",
     "weight": 45,
     "note": ""
    },
    {
     "name": "Cable Chest Press (on bench)",
     "sets": 3,
-    "reps": "10-12",
+    "reps": "10-15",
     "rpe": "8-9",
     "weight": 35,
     "note": ""
@@ -36,15 +36,15 @@
    {
     "name": "Guillotine Press",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "",
+    "reps": "8-12",
+    "rpe": "8-9",
     "weight": 30,
     "note": "",
     "alt": {
      "name": "Chest Dips",
      "sets": 3,
-     "reps": "5-8",
-     "rpe": "",
+     "reps": "6-10",
+     "rpe": "8-9",
      "weight": null,
      "note": "bodyweight — log added lbs if weighted"
     }
@@ -54,7 +54,7 @@
    {
     "name": "Lat Pulldown",
     "sets": 3,
-    "reps": "8-10",
+    "reps": "8-12",
     "rpe": "8-9",
     "weight": 130,
     "note": ""
@@ -70,33 +70,49 @@
    {
     "name": "Dumbbell RDL",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "9-10",
+    "reps": "8-12",
+    "rpe": "7-8",
     "weight": 35,
     "note": "per dumbbell"
    },
    {
     "name": "Cable Lat Prayer",
     "sets": 3,
-    "reps": "10-12",
+    "reps": "12-15",
     "rpe": "8-9",
     "weight": null,
     "note": ""
+   },
+   {
+    "name": "Cable Ab Crunch",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "9-10",
+    "weight": 150,
+    "note": ""
+   },
+   {
+    "name": "Leg Raises",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "9-10",
+    "weight": null,
+    "note": "bodyweight"
    }
   ],
   "arms": [
    {
     "name": "Incline Dumbbell Curl",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "7-8",
+    "reps": "8-12",
+    "rpe": "8-9",
     "weight": 25,
     "note": "per dumbbell"
    },
    {
     "name": "Tricep Pushdown",
     "sets": 3,
-    "reps": "8-10",
+    "reps": "10-15",
     "rpe": "8-9",
     "weight": 100,
     "note": ""
@@ -104,15 +120,15 @@
    {
     "name": "Preacher Curl",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "9",
+    "reps": "10-12",
+    "rpe": "8-9",
     "weight": 25,
     "note": "single arm — alternate L/R each set"
    },
    {
     "name": "Tricep Kickback",
     "sets": 3,
-    "reps": "8-10",
+    "reps": "12-15",
     "rpe": "8-9",
     "weight": 30,
     "note": "single arm — alternate L/R each set"
@@ -120,7 +136,7 @@
    {
     "name": "Spider Curl",
     "sets": 3,
-    "reps": "8-10",
+    "reps": "10-15",
     "rpe": "8-9",
     "weight": 25,
     "note": "single arm — alternate L/R each set"
@@ -128,8 +144,8 @@
    {
     "name": "Hammer Curl",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "7-8",
+    "reps": "10-15",
+    "rpe": "8-9",
     "weight": 25,
     "note": "per dumbbell"
    },
@@ -146,105 +162,92 @@
    {
     "name": "Smith Machine Shoulder Press",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "9",
+    "reps": "6-10",
+    "rpe": "8-9",
     "weight": 20,
     "note": "10 lb plate each side"
    },
    {
     "name": "Alternating Cable Lateral Raise",
     "sets": 3,
-    "reps": "8-10",
-    "rpe": "8-9",
+    "reps": "12-20",
+    "rpe": "8-10",
     "weight": 15,
     "note": "single arm — alternate L/R each set"
    },
    {
     "name": "Cable Reverse Rear Delt Fly",
     "sets": 3,
-    "reps": "8-10",
+    "reps": "12-20",
     "rpe": "8-10",
     "weight": 30,
     "note": "both arms, alternate which arm crosses on top each set"
+   },
+   {
+    "name": "Cable Ab Crunch",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "9-10",
+    "weight": 150,
+    "note": ""
+   },
+   {
+    "name": "Leg Raises",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "9-10",
+    "weight": null,
+    "note": "bodyweight"
    }
   ],
   "legs": [
    {
     "name": "Leg Curl",
-    "sets": 2,
-    "reps": "8-10",
-    "rpe": "7-8",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "8-9",
     "weight": 80,
     "note": ""
    },
    {
     "name": "Leg Extension",
-    "sets": 2,
-    "reps": "8-10",
-    "rpe": "7-8",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "8-9",
     "weight": 55,
     "note": ""
    },
    {
     "name": "Hip Thrust",
-    "sets": 2,
-    "reps": "8-10",
-    "rpe": "7-8",
+    "sets": 3,
+    "reps": "8-12",
+    "rpe": "8-9",
     "weight": 80,
     "note": ""
    },
    {
     "name": "Smith Machine Squat",
-    "sets": 2,
-    "reps": "5-8",
-    "rpe": "9-10",
+    "sets": 3,
+    "reps": "6-10",
+    "rpe": "8-9",
     "weight": 50,
     "note": "25 lb plate each side"
    },
    {
     "name": "Standing Calf Raise (Smith)",
-    "sets": 2,
-    "reps": "10-12",
-    "rpe": "8-9",
+    "sets": 3,
+    "reps": "10-15",
+    "rpe": "8-10",
     "weight": 30,
     "note": "15 lb each side"
    }
   ],
-  "finisher": [
-   {
-    "name": "Cable Ab Crunch",
-    "sets": 1,
-    "reps": "10-12",
-    "rpe": "9-10",
-    "weight": 150,
-    "note": "",
-    "superset": "abs"
-   },
-   {
-    "name": "Leg Raises",
-    "sets": 1,
-    "reps": "8-10",
-    "rpe": "9-10",
-    "weight": null,
-    "note": "bodyweight",
-    "superset": "abs"
-   },
-   {
-    "name": "Cable Ab Crunch",
-    "sets": 1,
-    "reps": "10-12",
-    "rpe": "9-10",
-    "weight": 150,
-    "note": "",
-    "superset": "abs",
-    "supersetEnd": true
-   }
-  ]
+  "finisher": []
  },
- "pointer": 4,
- "cycleStart": 1785297600000,
+ "pointer": 2,
+ "cycleStart": 1785384000000,
  "cycleDone": [
-  0
+  1
  ],
  "restDay": null,
  "restLog": [
@@ -409,8 +412,14 @@
   "2026-07-29": {
    "sleep": "5.5",
    "energy": "5"
+  },
+  "2026-07-30": {
+   "energy": "7",
+   "sleep": "6"
   }
  },
+ "exAliases": {},
+ "volWindow": "cycle",
  "deleted": [
   "mrmrnu1cdzbyx"
  ],
@@ -4899,7 +4908,390 @@
     "when": 1785382434327,
     "v": 1
    }
+  },
+  {
+   "id": "ms8by4k4ulgf6",
+   "workoutId": "back",
+   "date": "2026-07-30",
+   "startedAt": 1785465312916,
+   "finishedAt": 1785473101643,
+   "entries": [
+    {
+     "name": "Lat Pulldown",
+     "reps": "8-12",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "115",
+       "reps": "13",
+       "rpe": "8",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 370
+      },
+      {
+       "weight": "115",
+       "reps": "12",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 195
+      },
+      {
+       "weight": "115",
+       "reps": "9",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 434
+      }
+     ]
+    },
+    {
+     "name": "Chest Supported Row Machine",
+     "reps": "8-10",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "135",
+       "reps": "11",
+       "rpe": "9",
+       "done": true,
+       "rest": 124
+      },
+      {
+       "weight": "135",
+       "reps": "10",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 193
+      },
+      {
+       "weight": "130",
+       "reps": "12",
+       "rpe": "9",
+       "done": true,
+       "rest": 281
+      }
+     ]
+    },
+    {
+     "name": "Dumbbell RDL",
+     "reps": "8-12",
+     "rpe": "7-8",
+     "note": "per dumbbell",
+     "sets": [
+      {
+       "weight": "35",
+       "reps": "16",
+       "rpe": "8",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 284
+      },
+      {
+       "weight": "35",
+       "reps": "12",
+       "rpe": "8",
+       "done": true,
+       "rest": 146
+      },
+      {
+       "weight": "35",
+       "reps": "14",
+       "rpe": "9",
+       "done": true,
+       "rest": 430
+      }
+     ]
+    },
+    {
+     "name": "Cable Lat Prayer",
+     "reps": "12-15",
+     "rpe": "8-9",
+     "note": "",
+     "sets": [
+      {
+       "weight": "75",
+       "reps": "12",
+       "rpe": "8",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 289
+      },
+      {
+       "weight": "75",
+       "reps": "13",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 473
+      },
+      {
+       "weight": "75",
+       "reps": "13",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 1707
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-15",
+     "rpe": "9-10",
+     "note": "",
+     "sets": [
+      {
+       "weight": "150",
+       "reps": "14",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 175
+      },
+      {
+       "weight": "150",
+       "reps": "13",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 260
+      },
+      {
+       "weight": "150",
+       "reps": "15",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 205
+      }
+     ]
+    },
+    {
+     "name": "Leg Raises",
+     "reps": "10-15",
+     "rpe": "9-10",
+     "note": "bodyweight",
+     "sets": [
+      {
+       "weight": "10",
+       "reps": "6",
+       "rpe": "7",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 134
+      },
+      {
+       "weight": "20",
+       "reps": "4",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 286
+      },
+      {
+       "weight": "12",
+       "reps": "12",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 46
+      }
+     ]
+    }
+   ],
+   "note": "For the weighted an crunches I was getting the hang of it and still figuring it out that’s why the reps are so low",
+   "feel": 4,
+   "quality": {
+    "total": 86,
+    "max": 100,
+    "pct": 0.856,
+    "grade": "B",
+    "sections": [
+     {
+      "key": "completion",
+      "label": "Completion",
+      "max": 14,
+      "pts": 14,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "18 working sets logged against 18 planned (100%).",
+       "Everything on the card got done."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "max": 20,
+      "pts": 16,
+      "pct": 0.8,
+      "grade": "B−",
+      "why": [
+       "4 of 5 lifts went up, 0 held, 1 went down.",
+       "Personal records today: Lat Pulldown, Dumbbell RDL, Cable Lat Prayer, Leg Raises.",
+       "Up: Lat Pulldown (154→161 est. 1RM), Dumbbell RDL (49→49 est. 1RM), Cable Lat Prayer (98→105 est. 1RM), Leg Raises (15→23 est. 1RM).",
+       "Down: Cable Ab Crunch (213→210 est. 1RM)."
+      ],
+      "tip": "Most things moved, but Cable Ab Crunch went backwards. If that keeps happening, try moving Cable Ab Crunch earlier, while you're still fresh.",
+      "ex": "Cable Ab Crunch"
+     },
+     {
+      "key": "intensity",
+      "label": "Effective intensity",
+      "max": 16,
+      "pts": 15.6,
+      "pct": 0.9733333333333334,
+      "grade": "A+",
+      "why": [
+       "Average RPE 8.7 across 18 scored sets.",
+       "18 of 18 sets landed in the productive RPE 7-10 band."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "max": 12,
+      "pts": 8.5,
+      "pct": 0.7065740740740742,
+      "grade": "C−",
+      "why": [
+       "4 of 18 timed rests sat inside the window that set's load called for.",
+       "1 rest was cut short for the intensity: heavy and near-failure sets want 3-5 min, 8-12 rep work 1.5-3 min.",
+       "10 rests ran well past the window, which stretches the session without adding stimulus.",
+       "Set mix: 7 metabolic, 5 hypertrophy, 6 heavy."
+      ],
+      "tip": "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing.",
+      "ex": null
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "max": 10,
+      "pts": 7.9,
+      "pct": 0.7861111111111111,
+      "grade": "C+",
+      "why": [
+       "11 of 18 sets finished inside their prescribed rep range.",
+       "5 sets went over the top of the range (mostly Chest Supported Row Machine), so that load has become too light.",
+       "2 sets fell short (mostly Leg Raises), so the load is likely too heavy for that range."
+      ],
+      "tip": "Sets finishing above the range are your cue to add weight. Move those up about 5 lb next session.",
+      "ex": "Chest Supported Row Machine"
+     },
+     {
+      "key": "fatigue",
+      "label": "Fatigue management",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Reps fell -14% on average from first set to last at the same load. Up to about 25% is normal.",
+       "Performance held well across sets, so rest and load were matched to the work."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "max": 8,
+      "pts": 3.6,
+      "pct": 0.45280180958213356,
+      "grade": "F",
+      "why": [
+       "130 minutes for 18 working sets, 8.3 sets per hour.",
+       "Long session. Past about 80 minutes, focus and set quality tend to fall off."
+      ],
+      "tip": "Around 8.3 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time.",
+      "ex": null
+     },
+     {
+      "key": "logquality",
+      "label": "Log quality",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Captured: RPE logged on 100% of sets, rest timed on most sets, session feel rated, session note written, daily check-in filled in.",
+       "This is what makes every other section, and your Body map, accurate rather than guesswork."
+      ],
+      "tip": null,
+      "ex": null
+     }
+    ],
+    "skipped": [],
+    "prs": [
+     {
+      "name": "Lat Pulldown",
+      "set": 1,
+      "kind": "WEIGHT PR",
+      "weight": "115",
+      "reps": "13"
+     },
+     {
+      "name": "Dumbbell RDL",
+      "set": 1,
+      "kind": "REP PR",
+      "weight": "35",
+      "reps": "16"
+     },
+     {
+      "name": "Cable Lat Prayer",
+      "set": 2,
+      "kind": "REP PR",
+      "weight": "75",
+      "reps": "13"
+     },
+     {
+      "name": "Leg Raises",
+      "set": 2,
+      "kind": "WEIGHT PR",
+      "weight": "20",
+      "reps": "4"
+     }
+    ],
+    "advice": [
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "text": "Around 8.3 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time.",
+      "ex": null,
+      "lost": 4.4,
+      "na": false
+     },
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "text": "Most things moved, but Cable Ab Crunch went backwards. If that keeps happening, try moving Cable Ab Crunch earlier, while you're still fresh.",
+      "ex": "Cable Ab Crunch",
+      "lost": 4,
+      "na": false
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "text": "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing.",
+      "ex": null,
+      "lost": 3.5,
+      "na": false
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "text": "Sets finishing above the range are your cue to add weight. Move those up about 5 lb next session.",
+      "ex": "Chest Supported Row Machine",
+      "lost": 2.0999999999999996,
+      "na": false
+     }
+    ],
+    "when": 1785473101651,
+    "v": 2
+   }
   }
  ],
- "savedAt": 1785382434329
+ "savedAt": 1785473101652
 }
