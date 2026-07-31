@@ -212,8 +212,6 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 .set .chk.on{background:var(--ok);border-color:var(--ok);color:#0d1a10}
 .set-labels{display:grid;grid-template-columns:44px 1fr 1fr 86px 48px;gap:7px;color:var(--faint);font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
 .set-labels span{text-align:center}
-.rpe-help,.term{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
-.term{color:inherit;font:inherit}
 .last{color:var(--faint);font:12px var(--mono);grid-column:2/6;margin-top:-4px;margin-bottom:2px;padding-left:2px}
 
 /* workout picker */
@@ -261,19 +259,69 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 .togglerow{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:15px}
 .togglerow input{width:22px;height:22px;accent-color:var(--ok)}
 
-/* tabs */
+/* ================= TAB BAR =================
+   Fixed to the bottom and drawn on its own compositor layer. The old bar used
+   `backdrop-filter:blur()`, which forces Safari to re-rasterise the blur against the
+   page behind it on every scroll frame, which is exactly what "the nav gets stuck"
+   looked like: the bar lagging a few frames behind the content. A solid background
+   plus translateZ(0) keeps it on the GPU and pinned.
+
+   It also retracts on the way down and comes back the moment you scroll up, so a long
+   Body tab isn't read through a 78px letterbox. `--navY` is driven from JS. */
 nav{
-  position:fixed;bottom:0;left:0;right:0;background:rgba(19,19,21,.92);backdrop-filter:blur(12px);
+  position:fixed;bottom:0;left:0;right:0;background:#17171a;
   border-top:1px solid var(--line);display:flex;justify-content:space-around;
-  padding:9px 0 calc(9px + env(safe-area-inset-bottom));z-index:40;
+  padding:7px 0 calc(7px + env(safe-area-inset-bottom));z-index:40;
+  transform:translate3d(0,var(--navY,0),0);
+  transition:transform .26s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
 nav button{
   background:none;border:none;color:var(--faint);cursor:pointer;flex:1;min-width:0;
-  font-family:var(--disp);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
-  padding:10px 4px;border-radius:10px;white-space:nowrap;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:7px 2px 5px;border-radius:12px;
+  transition:color .15s, background .15s;
 }
-@media (min-width:420px){nav button{font-size:16px;letter-spacing:.07em;padding:10px 10px}}
+nav button svg{width:24px;height:24px;display:block;flex-shrink:0}
+/* Icon-only is the one change that reliably makes an app harder to learn, so each icon
+   keeps a micro-label. It still reads as an icon bar; it just doesn't need decoding. */
+nav .nav-lbl{
+  font-family:var(--disp);font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;line-height:1;white-space:nowrap;
+}
 nav button.on{color:var(--text);background:var(--card2)}
+nav button.on svg{filter:drop-shadow(0 0 7px rgba(236,234,228,.35))}
+nav button:active{transform:scale(.94)}
+
+/* ================= INLINE TERMS =================
+   Every piece of jargon is a dotted-underlined word: tap for the full entry, hover for
+   a one-line gloss. The hover card is CSS-only off `data-tip`, so it costs no JS and
+   works on any term the app renders, including ones inside modals. */
+.rpe-help,.term{cursor:help;text-decoration:underline dotted;text-underline-offset:3px;text-decoration-thickness:1px}
+.term{color:inherit;font:inherit;position:relative}
+.term:active{color:var(--arms)}
+.term[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
+  width:max-content;max-width:min(270px,72vw);
+  background:var(--card2);color:var(--text);border:1px solid var(--line);
+  border-radius:10px;padding:8px 11px;
+  font:400 12.5px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  text-transform:none;letter-spacing:0;text-align:left;text-decoration:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .16s, transform .16s;z-index:70;
+}
+.term[data-tip]::before{
+  content:"";position:absolute;left:50%;bottom:calc(100% + 3px);
+  border:5px solid transparent;border-top-color:var(--line);
+  transform:translateX(-50%);opacity:0;transition:opacity .16s;z-index:71;
+}
+@media (hover:hover){
+  .term[data-tip]:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
+  .term[data-tip]:hover::before{opacity:1}
+}
+.term[data-tip]:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+.term[data-tip]:focus-visible::before{opacity:1}
 
 /* toast */
 #toast{
@@ -754,17 +802,88 @@ body.shake{animation:shakeX .55s both}
 .sys-tile .sys-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;font-weight:600;line-height:1.15;margin-top:3px}
 .sys-tile .sys-s{font-size:12px;color:var(--dim);margin-top:2px;line-height:1.35}
 
-/* weak points */
-.wp{border-left:3px solid var(--faint);background:var(--card2);border-radius:11px;padding:11px 13px;margin-bottom:9px}
+/* ================= WHAT TO FIX =================
+   The old card led with a diagnosis ("Lats are under-stimulated") in small text, buried
+   the action three lines down, and ended there. It now leads with the ACTION in the
+   biggest type on the card, keeps the evidence to one grey line underneath, and the
+   whole thing is a button: tapping opens exactly which exercises and numbers produced
+   the finding, so no verdict is unexplained. */
+.wp{
+  display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+  background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--faint);
+  border-radius:13px;padding:13px 12px 13px 13px;margin-bottom:10px;
+  color:var(--text);cursor:pointer;font:inherit;
+  transition:border-color .15s, transform .12s;
+}
+.wp:active{transform:scale(.99)}
 .wp.sev3{border-left-color:var(--bad)}
 .wp.sev2{border-left-color:var(--arms)}
 .wp.sev1{border-left-color:var(--back)}
-.wp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.wp-head b{font-size:15.5px}
-.wp-sev{font:10px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--faint);flex-shrink:0}
-.wp-why{font-size:13.5px;color:var(--dim);margin-top:4px;line-height:1.45}
-.wp-fix{font-size:13.5px;margin-top:6px;line-height:1.45}
-.wp-fix b{font-family:var(--disp);font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--ok)}
+.wp-rank{
+  flex-shrink:0;width:26px;height:26px;border-radius:8px;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-weight:700;font-size:15px;
+}
+.wp.sev3 .wp-rank{background:rgba(224,82,72,.18);color:var(--bad)}
+.wp.sev2 .wp-rank{background:rgba(232,182,44,.18);color:var(--arms)}
+.wp.sev1 .wp-rank{background:rgba(74,130,224,.18);color:var(--back)}
+.wp-body{flex:1;min-width:0}
+.wp-do{font-size:16.5px;font-weight:600;line-height:1.35}
+.wp-who{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font:11px var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  color:var(--faint);margin-bottom:5px;
+}
+.wp-sev{flex-shrink:0}
+.wp-why{font-size:13.5px;color:var(--dim);margin-top:6px;line-height:1.5}
+.wp-more{
+  display:inline-block;margin-top:8px;
+  font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text);
+  border-bottom:1px solid var(--line);padding-bottom:2px;
+}
+.wp-chev{flex-shrink:0;color:var(--faint);font-size:19px;line-height:1;align-self:center}
+/* the drill-down modal a finding opens */
+.wd-lead{
+  background:var(--card2);border-radius:12px;padding:13px 14px;margin:2px 0 4px;
+  font-size:15.5px;line-height:1.5;
+}
+.wd-lead b{color:var(--text)}
+.wd-ex{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.wd-ex:last-child{border-bottom:none}
+.wd-ex .num{color:var(--dim);font-size:13px;white-space:nowrap}
+.wd-none{color:var(--faint);font-size:14px;padding:8px 0;line-height:1.5}
+.wd-meter{display:flex;align-items:center;gap:10px;margin:10px 0 4px}
+.wd-meter .wd-track{flex:1;height:10px;border-radius:5px;background:var(--card2);position:relative;overflow:hidden}
+.wd-meter .wd-track>i{display:block;height:100%;border-radius:5px}
+.wd-marks{display:flex;font:10px var(--mono);color:var(--faint);letter-spacing:.05em;margin-bottom:10px}
+.wd-marks>span{flex:1;text-align:center}
+
+/* ================= "SINCE LAST TIME" FOCUS CARD =================
+   The one thing worth changing today, pulled from the grade of your last session of
+   THIS rotation day. One card, one action; the full breakdown is a tap away. */
+.fc-card{border:1px solid var(--line);border-left:4px solid var(--arms);background:linear-gradient(180deg,rgba(232,182,44,.07),transparent)}
+.fc-k{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--disp);font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--arms);margin-bottom:7px;
+}
+.fc-grade{
+  font:11px var(--mono);letter-spacing:.06em;border-radius:5px;padding:2px 7px;
+  text-transform:none;letter-spacing:.02em;
+}
+.fc-do{font-size:16.5px;line-height:1.45}
+.fc-do b{font-weight:600}
+.fc-sub{font-size:13px;color:var(--dim);margin-top:7px;line-height:1.45}
+.fc-btn{
+  background:none;border:none;padding:0;margin-top:10px;cursor:pointer;color:var(--text);
+  font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;
+  border-bottom:1px solid var(--line);
+}
+/* the same tip, shrunk to a strip above the exercise it is about */
+.fc-inline{
+  display:flex;gap:9px;align-items:baseline;font-size:13.5px;line-height:1.45;
+  color:var(--text);margin:-4px 0 12px;
+}
 
 /* ================= WORKOUT QUALITY SCORE ================= */
 .sc-hero{display:flex;align-items:center;gap:16px;margin-bottom:4px}
@@ -804,14 +923,11 @@ body.shake{animation:shakeX .55s both}
   border-radius:6px;padding:2px 7px;flex-shrink:0;
 }
 
-/* ================= GLOSSARY ================= */
-.gl-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.gl-chip{
-  background:var(--card2);border:1px solid var(--line);border-radius:999px;
-  padding:9px 15px;cursor:pointer;color:var(--text);
-  font-family:var(--mono);font-size:13px;
-}
-.gl-chip:active{transform:scale(.97)}
+/* ================= GLOSSARY =================
+   The entries themselves, reached by tapping any dotted-underlined term. The chip grid
+   that used to list them all in a "Jargon buster" section is gone: every term in the
+   app is now tappable where it appears, which makes a separate index of the same
+   entries a second, worse route to the same place. */
 .gl-def{font-size:15px;color:var(--text);line-height:1.55;margin:10px 0}
 .gl-def b{color:var(--text)}
 .gl-scale{margin:14px 0 4px}
@@ -852,18 +968,41 @@ body.shake{animation:shakeX .55s both}
 </div>
 <div id="app"></div>
 <nav>
-  <button data-tab="today" class="on">Today</button>
-  <button data-tab="history">History</button>
-  <button data-tab="body">Body</button>
-  <button data-tab="program">Program</button>
-  <button data-tab="sync">Setup</button>
+  <button data-tab="today" class="on" aria-label="Today">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6.5 9v6M17.5 9v6"/><path d="M3.5 10.5v3M20.5 10.5v3"/><path d="M6.5 12h11"/>
+    </svg><span class="nav-lbl">Today</span>
+  </button>
+  <button data-tab="history" aria-label="History">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 4.6v3.9h3.9"/><path d="M12 7.6V12l3 1.8"/>
+    </svg><span class="nav-lbl">History</span>
+  </button>
+  <button data-tab="body" aria-label="Body">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="4.3" r="2.1"/><path d="M12 6.6v7.2"/><path d="M5.6 9.1 12 7.7l6.4 1.4"/>
+      <path d="M9.4 21.2 12 13.8l2.6 7.4"/>
+    </svg><span class="nav-lbl">Body</span>
+  </button>
+  <button data-tab="program" aria-label="Program">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3.2"/>
+      <path d="M8 8.6h8M8 12h8M8 15.4h5"/>
+    </svg><span class="nav-lbl">Program</span>
+  </button>
+  <button data-tab="sync" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.1"/>
+      <path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6 17 17M7 7 5.4 5.4"/>
+    </svg><span class="nav-lbl">Settings</span>
+  </button>
 </nav>
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
 <div id="toast"></div>
 
 <script>
 "use strict";
-const APP_VERSION = "1.9";
+const APP_VERSION = "2.0";
 /* ================= DATA ================= */
 const LS_KEY = "ironlog.v1";
 const GIST_FILE = "ironlog-data.json";
@@ -882,8 +1021,40 @@ const META = {
    dotted-underlined word. Tapping it opens the entry below. One delegated click
    listener handles the whole app, so it survives every re-render.
    ===================================================================== */
+/* The one-line gloss that appears on hover (and as the native tooltip on desktop).
+   Tapping still opens the full entry below. Declared above term() because
+   VOL_LANDMARK_SCALE calls term() while this file is still being evaluated, so the
+   full GLOSSARY object further down would still be in its temporal dead zone. */
+const GLOSSARY_TIP = {
+  rpe:"How hard a set felt, 1-10. Really it measures how many reps you had left.",
+  mev:"Minimum Effective Volume: the least weekly work a muscle needs before it grows at all.",
+  mav:"Maximum Adaptive Volume: the productive middle, where each added set still pays off.",
+  mrv:"Maximum Recoverable Volume: the most a muscle can recover from. Past it, sets cost fatigue but buy no growth.",
+  hardset:"A set taken close enough to failure to count, roughly RPE 7 or above. Warm-ups don't.",
+  acwr:"This week's load divided by your recent 4-week average. Over 1.5x is the classic injury spike.",
+  e1rm:"What you could probably lift for one rep, worked backwards from a set you actually did.",
+  fatigue:"Training residue that hasn't worn off yet, per muscle, right now.",
+  recovery:"How far through its own recovery window a muscle is since you last trained it.",
+  growth:"Is this muscle progressing? Last 3 weeks of strength and volume against the 3 before.",
+  injury:"Five load-based warning flags. A training-load signal, not a diagnosis.",
+  overload:"Giving your body slightly more than last time. The one rule that makes training work.",
+  failure:"Taking a set until you physically cannot complete another rep with good form. That's RPE 10.",
+  deload:"A deliberately easy week: keep the weights, halve the sets, so fatigue drains off.",
+  superset:"Two exercises done back to back with no rest between them.",
+  restwindow:"How long to wait between sets. Depends on how hard the set was, not one number for everything.",
+  dropoff:"How many reps you lose from your first set to your last at the same weight. ~25% is normal.",
+  density:"How many working sets you get through per hour. 15-20 is brisk and focused.",
+  weighting:"A set isn't worth the same to every muscle it touches, so it isn't counted as if it were.",
+  volume:"Two things get called volume: sets per week (for planning) and lb moved (for scale)."
+};
+/* Not esc(): term() runs while this file is still being evaluated (VOL_LANDMARK_SCALE
+   calls it), and `const esc` further down is still in its temporal dead zone then. */
+function attrSafe(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function term(id, label){
-  return `<span class="term" data-term="${id}" role="button" tabindex="0">${label==null?id:label}</span>`;
+  const tip = GLOSSARY_TIP[id];
+  return `<span class="term" data-term="${id}" role="button" tabindex="0"${
+    tip ? ` data-tip="${attrSafe(tip)}" title="${attrSafe(tip)}"` : ""
+  }>${label==null?id:label}</span>`;
 }
 // Shared tail for the three volume landmarks, they only make sense as a set.
 const VOL_LANDMARK_SCALE = `
@@ -1058,13 +1229,8 @@ const GLOSSARY = {
     </table>
     <p>When you see a volume judgement in this app, under-stimulated, in range, over MRV, it's always counting ${term("hardset","hard sets")}, never tonnage.</p>`}
 };
-const GLOSSARY_ORDER = ["rpe","failure","hardset","weighting","volume","overload","mev","mav","mrv",
-  "restwindow","dropoff","density","superset","fatigue","recovery","growth","injury","acwr","deload","e1rm"];
-const GLOSSARY_SHORT = {rpe:"RPE", failure:"Failure", hardset:"Hard set", weighting:"Set weighting", volume:"Volume",
-  overload:"Progressive overload", mev:"MEV", mav:"MAV", mrv:"MRV", restwindow:"Rest between sets",
-  dropoff:"Rep drop-off", density:"Density", superset:"Superset", fatigue:"Fatigue",
-  recovery:"Recovery", growth:"Growth", injury:"Injury risk", acwr:"Load change", deload:"Deload",
-  e1rm:"Estimated 1RM"};
+/* GLOSSARY_ORDER / GLOSSARY_SHORT lived here. They only fed the "Jargon buster"
+   chip grid, which is gone: terms are tappable in place instead. */
 
 /* The one canonical note every one-limb-at-a-time movement carries, so the
    instruction reads identically on Tricep Kickback, Preacher Curl, Spider Curl,
@@ -1072,6 +1238,142 @@ const GLOSSARY_SHORT = {rpe:"RPE", failure:"Failure", hardset:"Hard set", weight
 const ALT_ARM_NOTE = "single arm, alternate L/R each set";
 
 function ex(name,sets,reps,rpe,weight,note){ return {name,sets,reps,rpe,weight,note}; }
+
+/* =====================================================================
+   EXERCISE IDENTITY
+
+   Every history lookup, PR check, muscle attribution and grade comparison keys off the
+   exercise NAME. That made a rename silently destructive: "Tricep Pushdown" and
+   "Triceps Pushdown" are two different exercises to the old code, so the moment you
+   renamed one, "last time" went blank, PRs stopped firing because there was no history
+   to beat, and the workout grade reported "none of today's exercises appear in the
+   previous session".
+
+   Names now resolve to a canonical key in two passes:
+     1. ALIASES, either the built-in table below or one recorded when you renamed an
+        exercise yourself in the program editor (S.exAliases).
+     2. STRUCTURAL normalisation, which folds away the differences that are spelling
+        rather than movement: abbreviations, plurals, brackets, punctuation.
+
+   The result is that renaming an exercise is now cosmetic. Its whole past comes with it.
+   ===================================================================== */
+const EX_ALIASES = {
+  // spelling and abbreviation variants of the built-in program
+  "triceps pushdown":"tricep pushdown", "tricep pressdown":"tricep pushdown",
+  "triceps pressdown":"tricep pushdown", "cable pushdown":"tricep pushdown",
+  "triceps kickback":"tricep kickback",
+  "cable triceps extension":"cable tricep extension",
+  "overhead tricep extension":"cable tricep extension",
+  "overhead triceps extension":"cable tricep extension",
+  "cable overhead tricep extension":"cable tricep extension",
+  "lat prayer":"cable lat prayer", "straight arm pulldown":"cable lat prayer",
+  "straight-arm pulldown":"cable lat prayer",
+  "smith shoulder press":"smith machine shoulder press",
+  "smith machine overhead press":"smith machine shoulder press",
+  "smith squat":"smith machine squat",
+  "cable rear delt fly":"cable reverse rear delt fly",
+  "reverse cable fly":"cable reverse rear delt fly",
+  "cable reverse fly":"cable reverse rear delt fly",
+  "seated leg curl":"leg curl", "lying leg curl":"leg curl",
+  "cable crunch":"cable ab crunch", "ab crunch":"cable ab crunch",
+  "hanging leg raise":"leg raises", "lying leg raise":"leg raises",
+  "guillotine bench press":"guillotine press",
+  "incline db bench press":"incline dumbbell bench press",
+  "db bench press":"dumbbell bench press",
+  "romanian deadlift":"dumbbell rdl", "db rdl":"dumbbell rdl"
+};
+// User-recorded renames, loaded out of S once it exists. Kept in its own binding
+// because canonEx() runs during module evaluation, while `let S` is still in its
+// temporal dead zone, and even `typeof S` throws there.
+let USER_ALIASES = null;
+function nrmRaw(n){ return String(n==null?"":n).trim().toLowerCase().replace(/\s+/g," "); }
+/* Differences that are spelling, not movement. Deliberately conservative: it collapses
+   plurals and abbreviations, and it never merges two names that describe different
+   movements ("seated" vs "standing" calf raise stay distinct, because they train
+   different muscles). */
+function structNorm(k){
+  return k
+    .replace(/[.,’']/g, "")
+    .replace(/\s*\(([^)]*)\)\s*/g, " $1 ")           // keep the words, drop the brackets
+    .replace(/\bdb\b/g, "dumbbell").replace(/\bbb\b/g, "barbell")
+    .replace(/\bkb\b/g, "kettlebell").replace(/\bmach\b/g, "machine")
+    .replace(/\btriceps\b|\btris\b|\btri\b/g, "tricep")
+    .replace(/\bbiceps\b|\bbis\b/g, "bicep")
+    .replace(/\bdelts\b/g, "delt").replace(/\blats\b/g, "lat")
+    .replace(/\bpressdown\b/g, "pushdown")
+    .replace(/\bflyes\b|\bflies\b|\bflye\b/g, "fly")
+    .replace(/\braises\b/g, "raise").replace(/\bcurls\b/g, "curl")
+    .replace(/\bpresses\b/g, "press").replace(/\brows\b/g, "row")
+    .replace(/\bextensions\b/g, "extension").replace(/\bcrunches\b/g, "crunch")
+    .replace(/\bdips\b/g, "dip").replace(/\bpulldowns\b/g, "pulldown")
+    .replace(/\bkickbacks\b/g, "kickback").replace(/\bpushdowns\b/g, "pushdown")
+    .replace(/\s+/g, " ").trim();
+}
+function aliasHop(k){
+  if(USER_ALIASES && USER_ALIASES[k]) return nrmRaw(USER_ALIASES[k]);
+  if(EX_ALIASES[k]) return EX_ALIASES[k];
+  return null;
+}
+function canonEx(n){
+  let k = nrmRaw(n);
+  // alias first (a rename may point at a name that then needs normalising), then
+  // normalise, then alias again in case normalising revealed a known old name.
+  for(let i=0;i<4;i++){ const h = aliasHop(k); if(!h || h===k) break; k = h; }
+  k = structNorm(k);
+  for(let i=0;i<4;i++){ const h = aliasHop(k); if(!h || h===k) break; k = structNorm(h); }
+  return k;
+}
+/* The built-in tables are written with human-readable keys, so they get re-keyed
+   through the same canonicaliser once, at load, rather than at every lookup. */
+function canonIndex(o){
+  const out = {};
+  Object.keys(o).forEach(k=>{ out[canonEx(k)] = o[k]; });
+  return out;
+}
+/* ---------- keeping a renamed exercise's data ----------
+   Renaming carries the HISTORY across, but on its own it would still cost you the
+   curated tables: "Mid Row" has a hand-written muscle map and head split, whereas
+   "Chest Supported Row" would drop through to the keyword rules and get a rougher
+   approximation. This reverse index remembers the name the built-in tables know the
+   exercise by, so a rename costs nothing at all.
+
+   Built lazily, because the tables it reads are declared much further down the file
+   while renames are loaded during migrate(), long before those tables exist. */
+let TABLE_ORIGIN = null;
+function invalidateTableOrigin(){ TABLE_ORIGIN = null; }
+/* Which exercises the program runs on more than one day, cached. Declared up here with
+   the other boot-time state for the same reason TABLE_ORIGIN is: migrate() runs while
+   the file is still evaluating and clears this cache, and a `let` further down the file
+   would still be in its temporal dead zone at that point. */
+let MULTI_DAY = null;
+function invalidateMultiDay(){ MULTI_DAY = null; }
+function rebuildTableOrigin(){
+  const al = USER_ALIASES || {};
+  const built = {};
+  try{
+    Object.keys(al).forEach(oldRaw=>{
+      const oldKey = structNorm(nrmRaw(oldRaw));   // the pre-rename key, no alias hops
+      const newKey = canonEx(al[oldRaw]);
+      if(!newKey || newKey === oldKey) return;
+      const known = EX_MUSCLES_C[oldKey] || HEAD_BIAS_C[oldKey] || (oldKey in UNILATERAL_C);
+      if(known) built[newKey] = oldKey;
+    });
+  }catch(e){
+    /* Those tables are declared much further down the file, and migrate() runs at load
+       time asking isSingleArm() about every exercise in the program, so the first call
+       can land while they're still in their temporal dead zone. Leave the index
+       unbuilt rather than caching a broken one; it gets retried on the next lookup,
+       by which point the file has finished evaluating. */
+    return null;
+  }
+  TABLE_ORIGIN = built;
+  return built;
+}
+function tableKey(name){
+  const idx = (TABLE_ORIGIN !== null) ? TABLE_ORIGIN : rebuildTableOrigin();
+  const k = nrm(name);
+  return (idx && idx[k]) || k;
+}
 
 /* ---------- unilateral (one limb at a time) classification ----------
    Every exercise in the default program is classified explicitly below, so the
@@ -1088,7 +1390,10 @@ const UNILATERAL = {
   // ARMS
   "preacher curl": true,            // single arm, alternate L/R each set
   "tricep kickback": true,          // one arm braced on the bench at a time
-  "spider curl": true,              // done one arm at a time over the bench
+  // A spider curl is done with BOTH arms hanging over the pad at once; it was
+  // mis-tagged as one-arm-at-a-time, which put a bogus L/R chip on every set and a
+  // "start with your right arm" banner above an exercise that has no sides.
+  "spider curl": false,
   "incline dumbbell curl": false,   // both dumbbells together
   "hammer curl": false,             // both dumbbells together
   "tricep pushdown": false,         // two-handed on the bar/rope
@@ -1127,20 +1432,22 @@ const UNILATERAL = {
 const CROSSOVER = {
   "cable reverse rear delt fly": true
 };
+const CROSSOVER_C = canonIndex(CROSSOVER);
 function isCrossover(e){
   if(!e) return false;
   if(e.cross === true) return true;
   if(e.cross === false) return false;
-  const key = String(e.name||"").trim().toLowerCase();
-  if(key in CROSSOVER) return CROSSOVER[key];
+  const key = canonEx(e.name);
+  if(key in CROSSOVER_C) return CROSSOVER_C[key];
   return /\bcross[- ]?over\b|\bcrossed\b|one hand over/i.test((e.name||"")+" "+(e.note||""));
 }
+const UNILATERAL_C = canonIndex(UNILATERAL);
 function isSingleArm(e){
   if(!e) return false;
   if(e.uni === true) return true;    // explicit toggle in the program editor
   if(e.uni === false) return false;  // explicitly turned off
-  const key = String(e.name||"").trim().toLowerCase();
-  if(key in UNILATERAL) return UNILATERAL[key];
+  const key = tableKey(e.name);
+  if(key in UNILATERAL_C) return UNILATERAL_C[key];
   // Unknown exercise (custom / newly added) → fall back to reading name + note.
   const s = (e.name||"") + " " + (e.note||"");
   return /\b(single|one)[- ]?arm\b|\b(single|one)[- ]?leg\b|\bper (arm|leg|side)\b|\beach (arm|leg|side)\b|\bl\s*\/\s*r\b|\bunilateral\b|\balternating\b|alternat[a-z]*\s+(l\/r|arms?|legs?|left|right|side)/i.test(s);
@@ -1173,54 +1480,127 @@ function sideFull(style, side){
 }
 const ALT_CROSS_NOTE = "both arms, alternate which arm crosses on top each set";
 
+/* =====================================================================
+   PRESCRIPTION, sets / reps / RPE
+
+   Hypertrophy accrues across roughly 5-30 reps as long as sets are taken near failure
+   (Schoenfeld et al. 2017/2021; Baz-Valle 2022), so a rep range is not a growth switch,
+   it is a way of matching the rep count to what the MOVEMENT can express well:
+
+     • Heavy compounds (6-10). Enough load to be worth the setup, far enough from a
+       true max that form holds. Below 6 the fatigue and joint cost climb faster than
+       the stimulus does.
+     • Secondary compounds (8-12). The bulk of the work.
+     • Isolation (10-15). Single-joint movements stall out at heavy loads and the
+       stimulus is in the stretch, not the number on the stack.
+     • Small, fast-recovering, poor-leverage movements, lateral and rear delt raises,
+       calves, abs (12-20). Loading these heavy converts the movement into cheating
+       rather than into a bigger muscle.
+
+   RPE also changed where the old target was risky rather than merely hard: every set
+   of a free-weight press or an RDL at RPE 9-10 buys a little extra stimulus for a lot
+   of extra fatigue and, on the RDL, a lot of extra spinal load. RPE 8-9 is the
+   productive default; save true failure for the last set of an isolation movement.
+   ===================================================================== */
 function defaultProgram(){
   return {
     chest:[
-      ex("Dumbbell Bench Press",3,"8-10","9",40,"per dumbbell"),
+      ex("Dumbbell Bench Press",3,"6-10","8-9",40,"per dumbbell"),
       ex("Incline Dumbbell Bench Press",3,"8-12","8-9",35,"per dumbbell"),
-      ex("Mid Cable Fly (on bench)",3,"10-12","7-8",45,""),
-      ex("Cable Chest Press (on bench)",3,"10-12","8-9",35,""),
-      Object.assign(ex("Guillotine Press",3,"8-10","",30,""), {
-        alt: ex("Chest Dips",3,"5-8","",null,"bodyweight, log added lbs if weighted")
+      ex("Mid Cable Fly (on bench)",3,"12-15","8-9",45,""),
+      ex("Cable Chest Press (on bench)",3,"10-15","8-9",35,""),
+      Object.assign(ex("Guillotine Press",3,"8-12","8-9",30,""), {
+        alt: ex("Chest Dips",3,"6-10","8-9",null,"bodyweight, log added lbs if weighted")
       })
     ],
     back:[
-      ex("Lat Pulldown",3,"8-10","8-9",130,""),
-      ex("Mid Row",3,"8-10","8-9",130,""),
-      ex("Dumbbell RDL",3,"8-10","9-10",35,"per dumbbell"),
-      ex("Cable Lat Prayer",3,"10-12","8-9",null,"")
+      ex("Lat Pulldown",3,"8-12","8-9",130,""),
+      ex("Mid Row",3,"8-12","8-9",130,""),
+      ex("Dumbbell RDL",3,"8-12","7-8",35,"per dumbbell"),
+      ex("Cable Lat Prayer",3,"12-15","8-9",null,""),
+      ...abBlock()
     ],
     arms:[
-      ex("Incline Dumbbell Curl",3,"8-10","7-8",25,"per dumbbell"),
-      ex("Tricep Pushdown",3,"8-10","8-9",100,""),
-      ex("Preacher Curl",3,"8-10","9",25,ALT_ARM_NOTE),
-      ex("Tricep Kickback",3,"8-10","8-9",30,ALT_ARM_NOTE),
-      ex("Spider Curl",3,"8-10","8-9",25,ALT_ARM_NOTE),
-      ex("Hammer Curl",3,"8-10","7-8",25,"per dumbbell"),
+      ex("Incline Dumbbell Curl",3,"8-12","8-9",25,"per dumbbell"),
+      ex("Tricep Pushdown",3,"10-15","8-9",100,""),
+      ex("Preacher Curl",3,"10-12","8-9",25,ALT_ARM_NOTE),
+      ex("Tricep Kickback",3,"12-15","8-9",30,ALT_ARM_NOTE),
+      ex("Spider Curl",3,"10-15","8-9",25,"both arms together"),
+      ex("Hammer Curl",3,"10-15","8-9",25,"per dumbbell"),
       ex("Cable Tricep Extension",3,"10-15","8-9",65,"")
     ],
     shoulders:[
-      ex("Smith Machine Shoulder Press",3,"8-10","9",20,"10 lb plate each side"),
-      ex("Alternating Cable Lateral Raise",3,"8-10","8-9",15,ALT_ARM_NOTE),
-      ex("Cable Reverse Rear Delt Fly",3,"8-10","8-10",30,ALT_CROSS_NOTE)
+      ex("Smith Machine Shoulder Press",3,"6-10","8-9",20,"10 lb plate each side"),
+      ex("Alternating Cable Lateral Raise",3,"12-20","8-10",15,ALT_ARM_NOTE),
+      ex("Cable Reverse Rear Delt Fly",3,"12-20","8-10",30,ALT_CROSS_NOTE),
+      ...abBlock()
     ],
     legs:[
-      ex("Leg Curl",2,"8-10","7-8",80,""),
-      ex("Leg Extension",2,"8-10","7-8",55,""),
-      ex("Hip Thrust",2,"8-10","7-8",80,""),
-      ex("Smith Machine Squat",2,"5-8","9-10",50,"25 lb plate each side"),
-      ex("Standing Calf Raise (Smith)",2,"10-12","8-9",30,"15 lb each side")
+      ex("Leg Curl",3,"10-15","8-9",80,""),
+      ex("Leg Extension",3,"10-15","8-9",55,""),
+      ex("Hip Thrust",3,"8-12","8-9",80,""),
+      ex("Smith Machine Squat",3,"6-10","8-9",50,"25 lb plate each side"),
+      ex("Standing Calf Raise (Smith)",3,"10-15","8-10",30,"15 lb each side")
     ],
-    finisher: defaultFinisher()
+    /* The finisher used to hold the abs, and ran after EVERY workout. Abs now sit at
+       the end of Back and Shoulders day instead (see abBlock), so this is empty. The
+       mechanism stays: anything put in here still runs at the end of every session. */
+    finisher: []
   };
 }
-function defaultFinisher(){
+/* Direct core work, appended to the two shortest days.
+
+   It used to be a 3-set crunch → leg raise → crunch superset tacked onto all seven
+   workouts. Two problems with that: supersetting means no rest is recorded, so those
+   sets never got graded for rest and the ✓ never started the stopwatch; and single sets
+   scattered across seven sessions is the shape that produces the least growth per set,
+   because none of them are hard enough to matter on their own.
+
+   Three straight sets of each, twice a cycle, is fewer total sets but far more real
+   stimulus, and it lands on Back and Shoulders, which were the two shortest days. */
+function abBlock(){
   return [
-    Object.assign(ex("Cable Ab Crunch",1,"10-12","9-10",150,""), {superset:"abs"}),
-    Object.assign(ex("Leg Raises",1,"8-10","9-10",null,"bodyweight"), {superset:"abs"}),
-    Object.assign(ex("Cable Ab Crunch",1,"10-12","9-10",150,""), {superset:"abs", supersetEnd:true})
+    ex("Cable Ab Crunch",3,"10-15","9-10",150,""),
+    ex("Leg Raises",3,"10-15","9-10",null,"bodyweight")
   ];
 }
+/* ---------- prescription migration ----------
+   Programs already on a device are user data, so they can't just be overwritten. Each
+   row says: IF this exercise still carries the old built-in prescription, replace it
+   with the new one. Anything you edited yourself no longer matches, so it is left
+   exactly as you set it.  [name, oldSets, oldReps, oldRpe, newSets, newReps, newRpe]  */
+const RX_UPGRADE = [
+  ["dumbbell bench press",           3,"8-10","9",     3,"6-10","8-9"],
+  ["incline dumbbell bench press",   3,"8-12","8-9",   3,"8-12","8-9"],
+  ["mid cable fly (on bench)",       3,"10-12","7-8",  3,"12-15","8-9"],
+  ["cable chest press (on bench)",   3,"10-12","8-9",  3,"10-15","8-9"],
+  ["guillotine press",               3,"8-10","",      3,"8-12","8-9"],
+  ["chest dips",                     3,"5-8","",       3,"6-10","8-9"],
+  ["lat pulldown",                   3,"8-10","8-9",   3,"8-12","8-9"],
+  ["mid row",                        3,"8-10","8-9",   3,"8-12","8-9"],
+  ["dumbbell rdl",                   3,"8-10","9-10",  3,"8-12","7-8"],
+  ["cable lat prayer",               3,"10-12","8-9",  3,"12-15","8-9"],
+  ["incline dumbbell curl",          3,"8-10","7-8",   3,"8-12","8-9"],
+  ["tricep pushdown",                3,"8-10","8-9",   3,"10-15","8-9"],
+  ["preacher curl",                  3,"8-10","9",     3,"10-12","8-9"],
+  ["tricep kickback",                3,"8-10","8-9",   3,"12-15","8-9"],
+  ["spider curl",                    3,"8-10","8-9",   3,"10-15","8-9"],
+  ["hammer curl",                    3,"8-10","7-8",   3,"10-15","8-9"],
+  ["cable tricep extension",         3,"10-15","8-9",  3,"10-15","8-9"],
+  ["smith machine shoulder press",   3,"8-10","9",     3,"6-10","8-9"],
+  ["alternating cable lateral raise",3,"8-10","8-9",   3,"12-20","8-10"],
+  ["cable reverse rear delt fly",    3,"8-10","8-10",  3,"12-20","8-10"],
+  // Leg day ran on 2 working sets throughout, which is under MEV for every muscle it
+  // touches once the cycle only comes round to legs once. Three is the smallest number
+  // that puts quads, hamstrings, glutes and calves inside a productive range.
+  ["leg curl",                       2,"8-10","7-8",   3,"10-15","8-9"],
+  ["leg extension",                  2,"8-10","7-8",   3,"10-15","8-9"],
+  ["hip thrust",                     2,"8-10","7-8",   3,"8-12","8-9"],
+  ["smith machine squat",            2,"5-8","9-10",   3,"6-10","8-9"],
+  ["standing calf raise (smith)",    2,"10-12","8-9",  3,"10-15","8-10"],
+  ["cable ab crunch",                1,"10-12","9-10", 1,"10-15","9-10"],
+  ["leg raises",                     1,"8-10","9-10",  1,"10-15","9-10"]
+];
 
 /* ================= PROFILES =================
    Several people's logs live side by side in this one app: you, plus each client.
@@ -1348,6 +1728,13 @@ function switchProfile(id){
   return true;
 }
 function migrate(){
+  // Renames you've made yourself have to be live before ANY name comparison happens.
+  if(!S.exAliases || typeof S.exAliases !== "object") S.exAliases = {};
+  USER_ALIASES = S.exAliases;
+  invalidateTableOrigin();
+  // migrate() also runs after a sync pull, which can replace the whole program
+  invalidateMultiDay();
+
   // add the alternating chest finisher if this device has an older program
   const ch = S.program && S.program.chest;
   if(ch && !ch.some(e => e.alt || /guillotine|chest dip/i.test(e.name))){
@@ -1356,17 +1743,32 @@ function migrate(){
     }));
     saveQuiet();
   }
-  if(S.program && !S.program.finisher){ S.program.finisher = defaultFinisher(); saveQuiet(); }
-  if(S.program && S.program.finisher){
-    const f = S.program.finisher;
-    const r2 = f.findIndex(e=>/round 2/i.test(e.name||""));
-    if(r2 > -1){
-      f.splice(r2,1);
-      saveQuiet();
-    }
-    // upgrade the flat crunch/leg-raise finisher to the crunch→legraise→crunch superset
-    if(!f.some(e=>e.superset)){
-      S.program.finisher = defaultFinisher();
+  if(S.program && !Array.isArray(S.program.finisher)){ S.program.finisher = []; saveQuiet(); }
+
+  /* ---- abs move off the every-workout finisher ----
+     The old finisher ran a 3-set crunch → leg raise → crunch superset after all seven
+     workouts. That's gone: 3 straight sets of each now sit at the end of Back and
+     Shoulders day, which were also the two shortest days in the rotation.
+
+     Only a finisher that still looks like the built-in one is removed. If you'd put
+     something of your own in there, it stays exactly where it is and this does nothing,
+     because emptying it would be deleting work you chose to add. */
+  if(!S.absV2 && S.program){
+    const f = S.program.finisher || [];
+    const isStockAbs = f.length > 0 && f.every(e =>
+      ["cable ab crunch","leg raise"].indexOf(nrm(e.name)) > -1);
+    if(isStockAbs || f.length === 0){
+      S.program.finisher = [];
+      ["back","shoulders"].forEach(d=>{
+        if(!Array.isArray(S.program[d])) return;
+        // never double up if the abs are already on that day
+        const has = n => S.program[d].some(e => nrm(e.name) === nrm(n));
+        abBlock().forEach(a=>{ if(!has(a.name)) S.program[d].push(a); });
+      });
+      S.absV2 = true;
+      save();
+    } else {
+      S.absV2 = true;   // custom finisher: leave it alone, don't ask again
       saveQuiet();
     }
   }
@@ -1402,6 +1804,62 @@ function migrate(){
   if(!S.checkins) S.checkins = {};
   if(!Array.isArray(S.restLog)) S.restLog = [];
   if(!Array.isArray(S.deleted)) S.deleted = [];
+  if(!S.volWindow) S.volWindow = "cycle";   // Body tab accumulates over the cycle by default
+
+  /* ---- Spider Curl is bilateral ----
+     It was classified as one-limb-at-a-time, which stamped an L/R chip on every set,
+     printed a "start with your RIGHT arm" banner, and wrote the alternating note into
+     the program. The exercise itself never had sides, so those marks were labels on
+     data that was already whole-body. Clearing them from the program AND from logged
+     history makes the log and the printed report describe what you actually did. */
+  if(!S.fixSpiderV1){
+    const unspider = e=>{
+      if(!e || nrm(e.name) !== "spider curl") return false;
+      let hit = false;
+      if(e.uni || e.cross){ delete e.uni; delete e.cross; hit = true; }
+      if(e.altStyle || e.startSide){ delete e.altStyle; delete e.startSide; hit = true; }
+      const cleaned = String(e.note||"")
+        .replace(/single arm, alternate L\/R each set/ig, "")
+        .replace(/\s*·\s*·\s*/g, " · ").replace(/^\s*·\s*|\s*·\s*$/g, "").trim();
+      if(cleaned !== String(e.note||"")){ e.note = cleaned || "both arms together"; hit = true; }
+      return hit;
+    };
+    let touched = false;
+    if(S.program) Object.keys(S.program).forEach(k=>{
+      if(!Array.isArray(S.program[k])) return;
+      S.program[k].forEach(e=>{ if(unspider(e)) touched = true; if(e.alt && unspider(e.alt)) touched = true; });
+    });
+    (S.sessions||[]).forEach(s=> (s.entries||[]).forEach(e=>{ if(unspider(e)) touched = true; }));
+    if(S.active) (S.active.entries||[]).forEach(e=>{ if(unspider(e)) touched = true; });
+    S.fixSpiderV1 = true;
+    if(touched) save(); else saveQuiet();
+  }
+
+  /* ---- evidence-based prescriptions ----
+     Only rewrites an exercise that still carries the exact old built-in numbers, so
+     anything you tuned yourself survives untouched. See RX_UPGRADE. */
+  if(!S.rxV2 && S.program){
+    let changed = 0;
+    const rxFor = e=>{
+      if(!e || !e.name) return;
+      const k = nrm(e.name);
+      const row = RX_UPGRADE.find(r => canonEx(r[0]) === k);
+      if(!row) return;
+      const [, oS, oR, oRpe, nS, nR, nRpe] = row;
+      const sameSets = (parseInt(e.sets,10)||0) === oS;
+      const sameReps = String(e.reps||"").trim() === oR;
+      const sameRpe  = String(e.rpe||"").trim()  === oRpe;
+      if(!(sameSets && sameReps && sameRpe)) return;   // you edited it, leave it alone
+      e.sets = nS; e.reps = nR; e.rpe = nRpe;
+      changed++;
+    };
+    Object.keys(S.program).forEach(k=>{
+      if(!Array.isArray(S.program[k])) return;
+      S.program[k].forEach(e=>{ rxFor(e); if(e.alt) rxFor(e.alt); });
+    });
+    S.rxV2 = true;
+    if(changed) save(); else saveQuiet();
+  }
   // restore single restDay from any list form left by an earlier build
   if(Array.isArray(S.restDays)){
     if(!S.restDay && S.restDays.length) S.restDay = {date: S.restDays[S.restDays.length-1]};
@@ -1649,13 +2107,67 @@ function drawPRBadges(ei){
     if(chk && chk.parentElement) chk.parentElement.classList.toggle("is-pr", !!st.pr);
   });
 }
-// Every PR earned in a session, for the summary card.
+/* ---------- final PR sweep ----------
+   PR detection only ever ran inside the ✓ tap handler. That misses the single most
+   common way a set gets logged: you type the numbers into the last row and finish.
+   markPriorDone() auto-ticks the rows BEFORE the one you're typing in, never that row
+   itself, so the last set of an exercise, which is exactly where a record usually
+   lands, was frequently never examined at all. The PR went unrecorded, the badge never
+   appeared, and the workout grade saw no improvement to credit.
+
+   Every logged set is therefore re-checked once, at finish, against your entire history
+   with this session excluded. Records are awarded in set order so the badge lands on
+   the set that actually broke the record, not on every heavier set after it. */
+function sweepSessionPRs(sess){
+  const others = S.sessions.filter(s=>s.id !== sess.id);
+  (sess.entries||[]).forEach(e=>{
+    const key = nrm(e.name);
+    let maxW = 0, repsAtMaxW = 0, max1RM = 0, maxRepsBw = 0, seen = false;
+    const consider = st=>{
+      const w = parseFloat(st.weight)||0, reps = parseFloat(st.reps)||0;
+      if(!(reps>0) && !(w>0)) return;
+      seen = true;
+      if(w > maxW){ maxW = w; repsAtMaxW = reps; }
+      else if(w === maxW && reps > repsAtMaxW){ repsAtMaxW = reps; }
+      const e1 = est1RM(w, reps); if(e1 > max1RM) max1RM = e1;
+      if(!(w>0) && reps > maxRepsBw) maxRepsBw = reps;
+    };
+    others.forEach(s=> (s.entries||[]).forEach(en=>{ if(nrm(en.name)===key) en.sets.forEach(consider); }));
+    e.sets.forEach(st=>{
+      const w = parseFloat(st.weight)||0, reps = parseFloat(st.reps)||0;
+      if(!(reps>0) && !(w>0)){ delete st.pr; return; }
+      let pr = null;
+      if(seen){
+        if(w > 0){
+          if(w > maxW) pr = "WEIGHT PR";
+          else if(w === maxW && reps > repsAtMaxW) pr = "REP PR";
+          else if(est1RM(w, reps) > max1RM * 1.005) pr = "STRENGTH PR";
+        } else if(reps > maxRepsBw) pr = "REP PR";
+      }
+      if(pr) st.pr = pr; else delete st.pr;
+      consider(st);   // this set is now a record for the sets that follow it
+    });
+  });
+}
+/* The PRs earned in a session, for the summary card, one per exercise.
+
+   Every record-breaking SET keeps its own badge on the set row, because that's how you
+   see which set did it. But working up 30 → 35 → 45 breaks the record three times on
+   the way, and reporting "3 personal records" for one exercise overstates the day. The
+   summary therefore keeps only the best set per exercise. */
 function sessionPRs(sess){
-  const out = [];
+  const best = new Map();
   (sess.entries||[]).forEach(e=> e.sets.forEach((st,i)=>{
-    if(st.pr) out.push({name:e.name, set:i+1, kind:st.pr, weight:st.weight, reps:st.reps});
+    if(!st.pr) return;
+    const k = nrm(e.name);
+    const row = {name:e.name, set:i+1, kind:st.pr, weight:st.weight, reps:st.reps};
+    const prev = best.get(k);
+    if(!prev) { best.set(k, row); return; }
+    const w = parseFloat(st.weight)||0, pw = parseFloat(prev.weight)||0;
+    const r = parseFloat(st.reps)||0,   pr = parseFloat(prev.reps)||0;
+    if(w > pw || (w === pw && r > pr)) best.set(k, row);
   }));
-  return out;
+  return [...best.values()];
 }
 
 /* ---------- rest stopwatch ---------- */
@@ -1868,6 +2380,35 @@ function resolvedProgram(wid){
   const fin = (S.program.finisher||[]).map(e=>({chosen:e, other:null, isFinisher:true}));
   return main.concat(fin);
 }
+/* ---------- exercises that live on more than one day ----------
+   The abs sit on both Back and Shoulders day. That breaks the "last time" lookup's
+   default rule, which prefers the previous session of the SAME rotation day: standing
+   on Shoulders day it would show you last Shoulders day's crunch numbers and quietly
+   skip the Back day in between, which is the set you actually have to beat.
+
+   Rather than hard-coding the abs, any exercise the program runs on more than one day
+   is looked up across every session in date order, so "last time" always means the
+   last time. Recomputed on demand and cached, because it's read once per exercise per
+   render and the program only changes when you edit it.                             */
+function sharedAcrossDays(name){
+  if(MULTI_DAY === null){
+    const count = {};
+    Object.keys(META).forEach(wid=>{
+      const seen = new Set();
+      (S.program[wid] || []).forEach(e=>{
+        [e, e.alt].forEach(x=>{
+          if(!x || !x.name) return;
+          const k = nrm(x.name);
+          if(seen.has(k)) return;          // twice on one day is still one day
+          seen.add(k);
+          count[k] = (count[k] || 0) + 1;
+        });
+      });
+    });
+    MULTI_DAY = count;
+  }
+  return (MULTI_DAY[nrm(name)] || 0) > 1;
+}
 /* ---------- "last time" lookup ----------
    Two things used to go wrong here:
 
@@ -1881,7 +2422,8 @@ function resolvedProgram(wid){
       (crunch → leg raise → crunch). `entries.find(byName)` always returned the FIRST
       crunch, so the closing crunch showed the opening crunch's numbers. Lookups are
       now occurrence-aware: the 2nd crunch matches the 2nd crunch.                  */
-function nrm(n){ return String(n==null?"":n).trim().toLowerCase().replace(/\s+/g," "); }
+// Every "is this the same exercise?" comparison in the app funnels through here.
+function nrm(n){ return canonEx(n); }
 function occurrencesIn(session, exName){
   const k = nrm(exName);
   return (session.entries||[]).filter(en=>nrm(en.name)===k);
@@ -2009,7 +2551,10 @@ function fmtSet(st){
    again. `optional` groups are drawn and tracked but never flagged as weak points,
    because nothing in a normal programme trains them directly.                     */
 const GROUPS = {
-  chest:       {name:"Chest",          mev:10, mav:20, mrv:22, recov:48},
+  // `lc` is the lower-case noun used to build sentences ("add more chest work"). Chest
+  // was the only group missing it, which is why its weak-point advice read
+  // "add more undefined movement work".
+  chest:       {name:"Chest",          mev:10, mav:20, mrv:22, recov:48, lc:"chest", pl:0, region:"Chest"},
   delts_front: {name:"Front Shoulders",mev:6,  mav:12, mrv:16, recov:40, lc:"front shoulder", pl:1, region:"Shoulders"},
   delts_side:  {name:"Side Shoulders", mev:8,  mav:20, mrv:26, recov:36, lc:"side shoulder", pl:1, region:"Shoulders"},
   delts_rear:  {name:"Rear Shoulders", mev:6,  mav:18, mrv:24, recov:36, lc:"rear shoulder", pl:1, region:"Shoulders"},
@@ -2027,7 +2572,10 @@ const GROUPS = {
   hams:        {name:"Back Thighs",    mev:6,  mav:14, mrv:20, recov:60, lc:"back thigh", pl:1, region:"Legs"},
   calves:      {name:"Calves",         mev:8,  mav:14, mrv:20, recov:36, lc:"calf", pl:1, region:"Legs"},
   adductors:   {name:"Inner Thigh",    mev:0,  mav:6,  mrv:12, recov:48, optional:true, lc:"inner thigh", pl:1, region:"Legs"},
-  tibialis:    {name:"Shins",          mev:0,  mav:4,  mrv:8,  recov:32, optional:true, lc:"shin", pl:1, region:"Legs"},
+  /* Shins (tibialis anterior) used to be tracked here. Removed: nothing in this
+     programme, or in any normal hypertrophy programme, trains it directly, so it sat
+     permanently grey, added a row to every list and a shape to every figure, and told
+     you nothing. Its outline is still drawn, as part of the inert layer. */
   neck:        {name:"Neck",           mev:0,  mav:6,  mrv:12, recov:40, optional:true, lc:"neck", pl:0, region:"Back"}
 };
 const GKEYS = Object.keys(GROUPS);
@@ -2078,7 +2626,6 @@ const REGIONS = {
   calf_lateral: {g:"calves",      name:"Outer Calf",      tech:"lateral gastrocnemius", where:"the outer calf bulge", cue:"Standing calf raises, with the knee STRAIGHT."},
   calf_medial:  {g:"calves",      name:"Inner Calf",      tech:"medial gastrocnemius", where:"the inner calf bulge", cue:"Standing calf raises, with the knee STRAIGHT."},
   soleus:       {g:"calves",      name:"Deep Calf",       tech:"soleus", where:"underneath the gastrocnemius, in the lower calf", cue:"SEATED calf raises. A bent knee is the only way to load it properly, and most people never do."},
-  tibialis:     {g:"tibialis",    name:"Shin",            tech:"tibialis anterior", where:"the front of the shin", cue:"Toe raises. Rarely trained, useful for knee and ankle health."},
   neck:         {g:"neck",        name:"Neck",            tech:"neck flexors and extensors", where:"the front and sides of the neck", cue:"Only direct neck work trains this."}
 };
 const RKEYS = Object.keys(REGIONS);
@@ -2090,7 +2637,7 @@ const MKEYS = GKEYS;
 // "Lats ARE under-stimulated" / "Chest IS under-stimulated"
 function mIs(m){ return GROUPS[m].pl ? "are" : "is"; }
 function mIts(m){ return GROUPS[m].pl ? "their" : "its"; }
-function mMovement(m){ return GROUPS[m].lc + " movement"; }
+function mMovement(m){ return (GROUPS[m].lc || GROUPS[m].name.toLowerCase()) + " work"; }
 // regions belonging to each group, in declaration order
 const GROUP_REGIONS = (function(){
   const o = {}; GKEYS.forEach(g=> o[g] = []);
@@ -2106,7 +2653,7 @@ const AREA_OF = {
   traps:"Back", upper_back:"Back", lats:"Back", lower_back:"Back", neck:"Back",
   abs:"Core", obliques:"Core",
   glutes:"Legs", quads:"Legs", hams:"Legs", calves:"Legs",
-  adductors:"Legs", tibialis:"Legs"
+  adductors:"Legs"
 };
 const AREA_ORDER = ["Chest","Back","Shoulders","Arms","Core","Legs"];
 const REGION_ORDER = AREA_ORDER;
@@ -2115,19 +2662,28 @@ const REGION_ORDER = AREA_ORDER;
    secondary work. Counting secondaries at a fraction is why a chest day still shows
    up on your triceps and front delts, because it does. */
 const EX_MUSCLES = {
-  // chest
+  // ---- chest ----
   "dumbbell bench press":          {chest:1, delts_front:.5, triceps:.5},
   "incline dumbbell bench press":  {chest:1, delts_front:.6, triceps:.4},
-  "mid cable fly (on bench)":      {chest:1, delts_front:.3},
+  "mid cable fly (on bench)":      {chest:1, delts_front:.3, biceps:.1},
   "cable chest press (on bench)":  {chest:1, delts_front:.4, triceps:.4},
-  "guillotine press":              {chest:1, delts_front:.4, triceps:.4},
+  "guillotine press":              {chest:1, delts_front:.35, triceps:.4},
   "chest dips":                    {chest:1, triceps:.6, delts_front:.4},
-  // back
-  "lat pulldown":                  {lats:1, biceps:.5, traps:.3, forearms:.3},
-  "mid row":                       {traps:1, lats:.8, biceps:.5, delts_rear:.4, forearms:.3},
-  "dumbbell rdl":                  {hams:1, glutes:.8, lower_back:.6, traps:.3, forearms:.4},
-  "cable lat prayer":              {lats:1, abs:.3},
-  // arms
+  // ---- back ----
+  // A pulldown is not purely lats: the scapular retractors and the long head of the
+  // triceps both work through the pull, and the rear delt assists shoulder extension.
+  "lat pulldown":                  {lats:1, biceps:.5, upper_back:.4, traps:.3, delts_rear:.2, forearms:.3},
+  /* Mid Row is a MID-BACK movement. It used to be filed as a traps exercise, which put
+     every row you did into the traps column and left the mid back (rhomboids and teres,
+     the muscles a horizontal row is actually for) reading as untrained. Rowing at a
+     roughly horizontal angle is the single best loaded movement for scapular
+     retraction, so `upper_back` (displayed as "Mid Back") is the primary. */
+  "mid row":                       {upper_back:1, lats:.8, traps:.6, delts_rear:.5, biceps:.5, forearms:.3},
+  "dumbbell rdl":                  {hams:1, glutes:.8, lower_back:.6, traps:.2, forearms:.4},
+  // Straight-arm pulldown. The triceps long head is a shoulder extensor, so it works
+  // here even though the elbow never bends.
+  "cable lat prayer":              {lats:1, triceps:.25, abs:.3},
+  // ---- arms ----
   "incline dumbbell curl":         {biceps:1, forearms:.4},
   "tricep pushdown":               {triceps:1},
   "preacher curl":                 {biceps:1, forearms:.3},
@@ -2135,43 +2691,56 @@ const EX_MUSCLES = {
   "spider curl":                   {biceps:1, forearms:.3},
   "hammer curl":                   {biceps:1, forearms:.6},
   "cable tricep extension":        {triceps:1},
-  // shoulders
+  // ---- shoulders ----
   "smith machine shoulder press":  {delts_front:1, delts_side:.6, triceps:.5, traps:.3},
-  "alternating cable lateral raise":{delts_side:1, traps:.3},
-  "cable reverse rear delt fly":   {delts_rear:1, traps:.5},
-  // legs
+  "alternating cable lateral raise":{delts_side:1, traps:.3, delts_rear:.15},
+  // A reverse fly retracts the scapulae as well as horizontally abducting the shoulder,
+  // so the rhomboids and mid traps take a real share, not just the rear delt.
+  "cable reverse rear delt fly":   {delts_rear:1, upper_back:.5, traps:.5},
+  // ---- legs ----
   "leg curl":                      {hams:1, calves:.2},
   "leg extension":                 {quads:1},
-  "hip thrust":                    {glutes:1, hams:.5},
-  "smith machine squat":           {quads:1, glutes:.8, hams:.4, lower_back:.3},
+  "hip thrust":                    {glutes:1, hams:.5, adductors:.2},
+  // Hamstring involvement in a squat is small (it lengthens at the hip and shortens at
+  // the knee, so net length barely changes); the adductors do far more than most
+  // people credit, especially out of the hole.
+  "smith machine squat":           {quads:1, glutes:.8, adductors:.4, hams:.25, lower_back:.3},
   "standing calf raise (smith)":   {calves:1},
-  // finisher
+  // ---- finisher ----
   "cable ab crunch":               {abs:1, obliques:.3},
   "leg raises":                    {abs:1, obliques:.4}
 };
 // Anything you add later still lands somewhere sensible via its name.
 const MUSCLE_KEYWORDS = [
   [/bench|pec |pec$|\bfly\b|flye|chest press|\bdip|push[- ]?up|guillotine/, {chest:1, delts_front:.4, triceps:.4}],
-  [/pulldown|pull[- ]?up|chin[- ]?up|pullover|lat prayer|straight[- ]?arm/,  {lats:1, biceps:.4, traps:.3}],
-  [/\brow\b|row$|shrug|face pull|rear delt|reverse fly/,                    {traps:1, lats:.6, delts_rear:.6, biceps:.4}],
+  [/pulldown|pull[- ]?up|chin[- ]?up|pullover|lat prayer|straight[- ]?arm/,  {lats:1, biceps:.4, upper_back:.4, traps:.3}],
+  // Rows are a mid-back movement first and a trap movement second; shrugs are the
+  // reverse, so they get their own rule ahead of this one.
+  [/shrug/,                                                                 {traps:1, forearms:.3}],
+  [/face pull|rear delt|reverse fly|reverse pec/,                           {delts_rear:1, upper_back:.6, traps:.5}],
+  [/\brow\b|row$/,                                                          {upper_back:1, lats:.7, traps:.6, delts_rear:.4, biceps:.4}],
   [/lateral raise|side raise|upright row/,                                  {delts_side:1, traps:.3}],
   [/(shoulder|overhead|military|arnold).*(press)|press.*(overhead)/,        {delts_front:1, delts_side:.5, triceps:.5}],
   [/curl/,                                                                 {biceps:1, forearms:.4}],
   [/tricep|skull|pushdown|kickback|overhead extension|close[- ]?grip/,      {triceps:1}],
   [/wrist|grip|farmer/,                                                    {forearms:1}],
-  [/squat|leg press|lunge|split squat|hack/,                               {quads:1, glutes:.7, hams:.3}],
+  [/squat|leg press|lunge|split squat|hack/,                               {quads:1, glutes:.7, adductors:.35, hams:.25}],
   [/leg extension|sissy/,                                                  {quads:1}],
   [/(leg|lying|seated|nordic).*(curl)|rdl|romanian|good ?morning|stiff[- ]?leg/, {hams:1, glutes:.6, lower_back:.4}],
   [/hip thrust|glute bridge|kickback.*glute|abduction/,                    {glutes:1, hams:.4}],
+  [/adduction|adductor|copenhagen/,                                        {adductors:1, glutes:.3}],
   [/calf|calve|soleus/,                                                    {calves:1}],
   [/deadlift|back extension|hyperextension|erector/,                       {lower_back:1, glutes:.7, hams:.7, traps:.4}],
   [/crunch|sit[- ]?up|leg raise|ab wheel|hollow|plank|\babs?\b/,           {abs:1, obliques:.3}],
   [/oblique|russian twist|side bend|woodchop/,                             {obliques:1, abs:.4}]
 ];
+const EX_MUSCLES_C = canonIndex(EX_MUSCLES);
 function musclesFor(name){
   const k = nrm(name);
-  if(EX_MUSCLES[k]) return EX_MUSCLES[k];
-  for(const [re, m] of MUSCLE_KEYWORDS){ if(re.test(k)) return m; }
+  const t = tableKey(name);                       // survives a rename
+  if(EX_MUSCLES_C[t]) return EX_MUSCLES_C[t];
+  if(EX_MUSCLES_C[k]) return EX_MUSCLES_C[k];
+  for(const [re, m] of MUSCLE_KEYWORDS){ if(re.test(k) || re.test(t)) return m; }
   return null;
 }
 // No RPE logged? Assume a normal hard working set rather than throwing the set away.
@@ -2332,27 +2901,31 @@ function growthByMuscle(now){
      • high standing fatigue combined with low recovery
      • a large share of sets taken to true failure (RPE 9.5+)
      • heavy sets cut short on rest, so load is being handled pre-recovered            */
-function injuryByMuscle(now, wk, fat, rec){
+function injuryByMuscle(now, wk, fat, rec, lm, win){
   const chronic = windowStats(now - 28*DAY_MS, now + 1);
   const out = {};
   MKEYS.forEach(m=>{
     const M = MUSCLES[m];
     const sets = wk[m].sets;
+    // The accumulation window may be a cycle rather than a week, so anything compared
+    // against a per-week figure has to be expressed as a per-week rate first.
+    const perWeek = sets / (win.scale || 1);
+    const MRV = (lm[m] && lm[m].mrv) || M.mrv;
     const flags = [];
     let risk = 0;
 
-    if(sets > M.mrv){
-      const over = Math.min(1, (sets - M.mrv)/M.mrv);
+    if(sets > MRV){
+      const over = Math.min(1, (sets - MRV)/MRV);
       risk += 28*over + 8;
-      flags.push({w:Math.round(28*over+8), t:"weekly volume is past what this muscle recovers from ("+r1(sets)+" vs MRV "+M.mrv+")"});
+      flags.push({w:Math.round(28*over+8), t:"volume "+win.short+" is past what this muscle recovers from ("+r1(sets)+" sets vs a ceiling of "+r1(MRV)+")"});
     }
     const chronicWk = chronic[m].sets/4;
     if(chronicWk >= 2){
-      const acwr = sets/chronicWk;
+      const acwr = perWeek/chronicWk;
       if(acwr > 1.5){
         const x = Math.min(1, (acwr - 1.5)/1.0);
         risk += 24*x + 6;
-        flags.push({w:Math.round(24*x+6), t:"this week is "+acwr.toFixed(1)+"× your 4-week average, spikes above 1.5× are the classic injury marker"});
+        flags.push({w:Math.round(24*x+6), t:"you're running at "+acwr.toFixed(1)+"× your 4-week average, and spikes above 1.5× are the classic injury marker"});
       }
     }
     if(fat[m] >= 55 && rec[m] <= 55){
@@ -2470,14 +3043,29 @@ function adjustedLandmarks(A, g){
       : "good sleep and energy raise what you can recover from"});
   }
 
+  /* 6 - the window. Landmarks are published per week, but the Body tab accumulates over
+     the current cycle by default, and a cycle is rarely exactly 7 days. Scaling the
+     thresholds by the window's real length keeps the comparison honest: 10 sets over a
+     9-day cycle is not the same claim as 10 sets in a week, and only one of them should
+     be measured against a weekly MEV. */
+  const win = A.win || {scale:1, days:7, mode:"week"};
+  const scale = win.scale || 1;
+  const weekly = {mev: Math.round(mev*10)/10, mav: Math.round(mav*10)/10, mrv: Math.round(mrv*10)/10};
+  if(scale !== 1){
+    mev *= scale; mav *= scale; mrv *= scale;
+    why.push({k:"Window", v:Math.round(win.days)+" days",
+      note:"targets scaled from per-week figures to the length of this cycle"});
+  }
+
   const R = v => Math.max(0, Math.round(v*10)/10);
   mev = R(mev); mav = R(Math.max(mav, mev+1)); mrv = R(Math.max(mrv, mav+1));
-  return {mev, mav, mrv, why, exp, base:{mev:G.mev, mav:G.mav, mrv:G.mrv}};
+  return {mev, mav, mrv, weekly, scale, why, exp, base:{mev:G.mev, mav:G.mav, mrv:G.mrv}};
 }
 function landmarkExplainerHTML(A){
   const exp = experience();
-  let h = `<div class="bm-explain">Your weekly set targets are not fixed numbers. They start from published
-    population figures for each muscle group and then get scaled by five things the app can read from your own log.</div>
+  let h = `<div class="bm-explain">Your set targets are not fixed numbers. They start from published
+    population figures for each muscle group, then get scaled by five things the app can read from your own log,
+    and finally by the length of the window they're counted over.</div>
     <div class="rev-head">Your experience level</div>
     <div class="seg" style="margin-bottom:6px">${
       ["auto"].concat(EXP_LEVELS).map(l=>`<button class="${(experienceIsAuto()?"auto":exp)===l?"on":""}" data-exp="${l}">${l==="auto"?"Auto":l[0].toUpperCase()+l.slice(1)}</button>`).join("")
@@ -2497,7 +3085,7 @@ function landmarkExplainerHTML(A){
   GKEYS.forEach(g=>{ if(!GROUPS[g].optional && (!best || A.wk[g].sets > A.wk[best].sets)) best = g; });
   if(best){
     const L = adjustedLandmarks(A, best);
-    h += `<div class="sub" style="margin-bottom:6px">Worked through on <b>${esc(gName(best))}</b>, your highest-volume group this week:</div>
+    h += `<div class="sub" style="margin-bottom:6px">Worked through on <b>${esc(gName(best))}</b>, your highest-volume group ${esc((A.win&&A.win.short)||"this week")}:</div>
       <table class="gl-table">
         <tr><td>Base</td><td>MEV ${L.base.mev} / MAV ${L.base.mav} / MRV ${L.base.mrv} sets per week</td></tr>` +
       L.why.map(w=>`<tr><td>${esc(w.k)}</td><td><b>${esc(String(w.v))}</b><br><span style="color:var(--faint)">${esc(w.note)}</span></td></tr>`).join("") +
@@ -2519,21 +3107,56 @@ function volState(m, sets, L){
   return               {k:"over",    label:"too much",    txt:r1(sets)+" sets, past the "+L.mrv+" you can recover from"};
 }
 
+/* ---------- the accumulation window ----------
+   MEV / MAV / MRV are published per WEEK, but a 7-workout rotation plus a rest day
+   takes 8 to 11 real days to get through. Read on a rolling 7-day window, chest lands
+   inside the window twice in some weeks and once in others, so every number moves for
+   reasons that have nothing to do with training, and a muscle you trained perfectly
+   well reads as "under-stimulated" purely because its day happened to fall 8 days ago.
+
+   The default is therefore the CYCLE: everything since the current cycle began, with
+   the thresholds scaled by how long that cycle has actually run, so a 9-day cycle is
+   measured against 9/7 of the weekly landmark. The unit still matches the research; the
+   window now matches how you actually train. Settings switches it back to a rolling
+   7 days for anyone who plans by the calendar instead.                              */
+function volWindowInfo(now){
+  const week = {mode:"week", from: now - 7*DAY_MS, to: now + 1, days: 7, scale: 1,
+                label:"the last 7 days", short:"this week", unit:"per week",
+                prevFrom: now - 14*DAY_MS, prevTo: now - 7*DAY_MS, prevLabel:"the week before"};
+  if((S.volWindow || "cycle") !== "cycle") return week;
+  const start = S.cycleStart;
+  if(!start || start > now) return week;
+  const raw = (now - start)/DAY_MS;
+  // Two days into a cycle there is nothing to read, and scaling by a fraction of a day
+  // makes every target absurd, so the rolling week covers the gap.
+  if(raw < 2) return week;
+  const days = Math.min(21, raw);          // a stalled cycle shouldn't inflate targets forever
+  const prev = S.lastCycle;
+  return {
+    mode:"cycle", from:start, to: now + 1, days, scale: days/7,
+    label:"this cycle, "+Math.round(days)+" day"+(Math.round(days)===1?"":"s")+" so far",
+    short:"this cycle", unit:"this cycle",
+    prevFrom: prev ? prev.start : (start - days*DAY_MS),
+    prevTo:   prev ? prev.end   : start,
+    prevLabel: prev ? "last cycle" : "the period before"
+  };
+}
 /* One call, everything the Body tab needs. */
 function bodyAnalysis(){
   const now = Date.now();
-  const wk     = windowStats(now - 7*DAY_MS,  now + 1);
-  const prevWk = windowStats(now - 14*DAY_MS, now - 7*DAY_MS);
+  const win    = volWindowInfo(now);
+  const wk     = windowStats(win.from, win.to);
+  const prevWk = windowStats(win.prevFrom, win.prevTo);
   const fat    = fatigueByMuscle(now);
   const modInfo= recoveryModifier();
   const rec    = recoveryByMuscle(now, wk, modInfo);
   const grow   = growthByMuscle(now);
-  const inj    = injuryByMuscle(now, wk, fat, rec);
-  const vol    = blankMuscleMap(m => wk[m].sets);
-  // landmarks are personalised per group before any verdict is formed
+  // landmarks are personalised per group, and scaled to the window, before any verdict
   const lm = {};
-  const A0 = {wk, modInfo};
+  const A0 = {wk, modInfo, win};
   MKEYS.forEach(m=>{ lm[m] = adjustedLandmarks(A0, m); });
+  const inj    = injuryByMuscle(now, wk, fat, rec, lm, win);
+  const vol    = blankMuscleMap(m => wk[m].sets);
   const state  = blankMuscleMap(m => volState(m, wk[m].sets, lm[m]));
 
   /* Whole-body load. Deliberately NOT the sum of the per-muscle numbers: a bench press
@@ -2548,107 +3171,145 @@ function bodyAnalysis(){
     return n;
   };
   const totals = {
-    setsWk: rawSets(now - 7*DAY_MS, now + 1),
-    setsPrev: rawSets(now - 14*DAY_MS, now - 7*DAY_MS),
+    setsWk: rawSets(win.from, win.to),
+    setsPrev: rawSets(win.prevFrom, win.prevTo),
     fat: Math.round(MKEYS.reduce((t,m)=>t+fat[m],0)/MKEYS.length),
     rec: Math.round(MKEYS.reduce((t,m)=>t+rec[m],0)/MKEYS.length),
     inj: Math.round(Math.max(...MKEYS.map(m=>inj[m].score)))
   };
+  // ACWR is defined as a per-week rate against a 4-week average, so it stays weekly
+  // regardless of which window the volume columns are using.
   const chronicWkAll = rawSets(now - 28*DAY_MS, now + 1)/4;
-  totals.acwr = chronicWkAll >= 4 ? (totals.setsWk/chronicWkAll) : null;
+  totals.acwr = chronicWkAll >= 4 ? ((totals.setsWk/(win.scale||1))/chronicWkAll) : null;
 
-  const rwk = regionStats(now - 7*DAY_MS, now + 1);
-  return {now, wk, prevWk, fat, rec, grow, inj, vol, state, totals, modInfo, rwk,
-          weak: weakPoints({wk, prevWk, fat, rec, grow, inj, state})};
+  const rwk = regionStats(win.from, win.to);
+  return {now, win, lm, wk, prevWk, fat, rec, grow, inj, vol, state, totals, modInfo, rwk,
+          weak: weakPoints({wk, prevWk, fat, rec, grow, inj, state, lm, win, rwk})};
 }
 
 /* =============== WEAK POINT DETECTION ===============
-   Five separate lenses, because "weak point" means different things: a muscle can be
-   under-stimulated, stalled, structurally out of balance with its opposite, neglected
-   outright, or being driven past what it recovers from.                            */
+   Five separate lenses, because "weak point" means five different things: a muscle can
+   be under-stimulated, stalled, structurally out of balance with its opposite,
+   neglected outright, or driven past what it recovers from.
+
+   Each finding now carries FOUR pieces rather than three, because the old shape led
+   with a diagnosis and buried the action:
+
+     act    the thing to do, in an imperative sentence. This is the headline.
+     title  the diagnosis, kept as a subhead for people who want the label.
+     why    the evidence, one grey line: the numbers that produced the finding.
+     detail the longer reasoning, shown only when you open the finding.
+
+   `muscle` and `kind` are what make a finding drillable: tapping it opens exactly which
+   exercises fed that muscle and how far off the target it is, so no verdict here is
+   something you have to take on trust.                                              */
 function weakPoints(A){
   const out = [];
+  const win = A.win || {scale:1, short:"this week", unit:"per week"};
+  const L = m => (A.lm && A.lm[m]) || GROUPS[m];
   // `score` is 0-100 confidence-weighted urgency; the displayed severity band is
   // derived from it, so a 5%-short muscle never shouts as loud as a missing one.
-  const push = (score, muscle, title, why, fix)=> out.push({
-    score, sev: score>=68 ? 3 : score>=38 ? 2 : 1, muscle, title, why, fix
+  const push = (score, muscle, kind, title, act, why, detail)=> out.push({
+    score, sev: score>=68 ? 3 : score>=38 ? 2 : 1, muscle, kind, title, act, why, detail
   });
 
   // 1, under-stimulated relative to minimum effective volume
   MKEYS.forEach(m=>{
-    const M = MUSCLES[m], s = A.wk[m].sets, p = A.prevWk[m].sets;
+    const M = MUSCLES[m], lm = L(m), s = A.wk[m].sets, p = A.prevWk[m].sets;
     if(s <= 0 && p <= 0) return;                     // rule 2 owns the "not trained at all" case
-    if(s >= M.mev) return;
-    const shortfall = (M.mev - s)/M.mev;             // 0 → at MEV, 1 → nothing at all
-    const chronic = p < M.mev;
+    if(!(lm.mev > 0) || s >= lm.mev) return;
+    const shortfall = (lm.mev - s)/lm.mev;           // 0 → at MEV, 1 → nothing at all
+    const chronic = p < lm.mev;
     const score = Math.min(100, Math.round(shortfall*80*(chronic?1.25:0.8)));
     if(score < 18) return;                           // a rounding-error shortfall isn't a weak point
-    push(score, m, M.name+" "+mIs(m)+" under-stimulated",
-      r1(s)+" hard sets in the last 7 days against a minimum effective volume of about "+M.mev+
-      (chronic ? ". It was short the week before too, so this isn't a one-off light week." : ", though last week was in range."),
-      "Add about "+Math.max(2, Math.ceil(M.mev - s))+" hard sets a week, one more "+mMovement(m)+
-      " of 3 sets, or a set onto each "+mMovement(m)+" you already run.");
+    const need = Math.max(2, Math.ceil(lm.mev - s));
+    push(score, m, "under",
+      M.name+" "+mIs(m)+" under-stimulated",
+      "Add about "+need+" more hard sets of direct "+mMovement(m)+".",
+      r1(s)+" of the "+r1(lm.mev)+" sets it takes to grow, "+win.short+".",
+      "A muscle needs a certain amount of total work before it has any reason to adapt, and effort doesn't substitute for it. "+
+      (chronic ? "It was short in the previous period too, so this isn't one quiet week."
+               : "Last time round it was in range, so this may just be a light spell.")+
+      " One extra "+(GROUPS[m].lc||gName(m).toLowerCase())+" movement of 3 sets does it, or a set added to each one you already run.");
   });
 
   // 2, nothing in the program trains it
   MKEYS.forEach(m=>{
     if(A.wk[m].sets > 0 || A.prevWk[m].sets > 0) return;
     if(A.grow[m].score !== null) return;             // trained inside 3 weeks, just not lately
-    push(92, m, "Nothing in your program trains "+MUSCLES[m].name.toLowerCase(),
-      "No logged sets in the last 3 weeks. With no direct work, "+MUSCLES[m].lc+"s can only fall behind everything around them.",
-      "Add one direct movement. Even "+MUSCLES[m].mev+" sets a week is the difference between holding ground and losing it.");
+    push(92, m, "none",
+      "Nothing in your program trains "+MUSCLES[m].name.toLowerCase(),
+      "Add one direct "+MUSCLES[m].lc+" movement to your rotation.",
+      "No logged sets at all in the last 3 weeks.",
+      "With no direct work, "+MUSCLES[m].lc+"s can only fall behind everything around them. Even "+
+      r1(L(m).mev)+" sets is the difference between holding ground and losing it, and assisting on other lifts is not the same as being trained.");
   });
 
   // 3, stalled despite adequate volume
   MKEYS.forEach(m=>{
     const g = A.grow[m];
     if(!g || g.score === null || g.isNew) return;
-    if(A.wk[m].sets < MUSCLES[m].mev) return;        // rule 1 already owns this case
+    if(A.wk[m].sets < L(m).mev) return;              // rule 1 already owns this case
     if(g.score >= 45) return;
     const dropped = g.strP < -0.02;
     const score = dropped ? Math.min(95, 55 + Math.abs(g.strP)*300) : 42;
-    push(Math.round(score), m, MUSCLES[m].name+" "+(MUSCLES[m].pl?"have":"has")+" stalled",
-      "Volume is adequate but estimated strength is "+(dropped ? "down "+Math.abs(Math.round(g.strP*100))+"%" : "flat")+
-      " versus the previous 3 weeks"+(g.bestPrev ? " ("+Math.round(g.bestPrev)+" → "+Math.round(g.bestNow)+" lb estimated 1RM)" : "")+
-      ". More sets is the wrong lever when the sets you already do aren't converting.",
+    push(Math.round(score), m, "stall",
+      MUSCLES[m].name+" "+(MUSCLES[m].pl?"have":"has")+" stalled",
       dropped
-        ? "Take a lighter week, about half the sets at the same loads, then rebuild. A stall with falling strength is usually accumulated fatigue, not too little work."
-        : "Change the stimulus rather than the amount: swap the main movement, slow the eccentric to 3 seconds, or take the top set one RPE closer to failure.");
+        ? "Take a lighter week here: about half the sets, same loads."
+        : "Change the stimulus rather than the amount of it.",
+      "Volume is fine, but estimated strength is "+(dropped ? "down "+Math.abs(Math.round(g.strP*100))+"%" : "flat")+
+        " versus the previous 3 weeks"+(g.bestPrev ? " ("+Math.round(g.bestPrev)+" → "+Math.round(g.bestNow)+" lb est. 1RM)" : "")+".",
+      "More sets is the wrong lever when the sets you already do aren't converting. "+
+      (dropped
+        ? "A stall with falling strength is nearly always accumulated fatigue rather than too little work, so cut the sets by about half, keep the loads, and rebuild from there."
+        : "Swap the main movement, slow the lowering phase to about 3 seconds, or take the top set one RPE closer to failure. Any of the three changes what the muscle is being asked to adapt to."));
   });
 
   // 4, structural balance between opposing / paired muscles
   const ratios = [
-    {a:["chest","delts_front","triceps"], b:["lats","traps","biceps"],
+    {a:["chest","delts_front","triceps"], b:["lats","upper_back","traps","biceps"],
      an:"pushing", bn:"pulling", lo:0.75, hi:1.35,
-     fixLow:"Add pressing volume, your back work is outpacing your chest and front delts.",
-     fixHigh:"Add rowing and pulldown volume. Push dominance rounds the shoulders forward and is the most common source of front-shoulder pain."},
+     actLow:"Add pressing volume, your back work is ahead of your chest.",
+     actHigh:"Add rowing and pulldown volume to balance the pressing.",
+     whyLow:"Press work has fallen behind pull work.",
+     whyHigh:"Push dominance rounds the shoulders forward and is the most common source of front-shoulder pain."},
     {a:["quads"], b:["hams"], an:"quad", bn:"hamstring", lo:0.8, hi:2.0,
-     fixLow:"Add quad work, leg extensions or squats. Your hamstrings are ahead.",
-     fixHigh:"Add hamstring work: RDLs and leg curls. Quad dominance well past 2:1 tracks with hamstring strains and knee complaints."},
+     actLow:"Add quad work: leg extensions or squats.",
+     actHigh:"Add hamstring work: RDLs and leg curls.",
+     whyLow:"Your hamstrings are ahead of your quads.",
+     whyHigh:"Quad dominance well past 2:1 tracks with hamstring strains and knee complaints."},
     {a:["delts_front"], b:["delts_rear"], an:"front delt", bn:"rear delt", lo:0.6, hi:1.6,
-     fixLow:"Front delts are behind, they're mostly fed by pressing, so check your press volume.",
-     fixHigh:"Add rear delt work. Front delts get paid by every press you do; rear delts only grow from what you give them directly."}
+     actLow:"Check your press volume, front delts are behind.",
+     actHigh:"Add rear delt work: face pulls or reverse flyes.",
+     whyLow:"Front delts are mostly fed by pressing, so this usually means press volume dropped.",
+     whyHigh:"Front delts get paid by every press you do; rear delts only grow from what you give them directly."}
   ];
   ratios.forEach(R=>{
     const sa = R.a.reduce((t,m)=>t+A.wk[m].sets,0);
     const sb = R.b.reduce((t,m)=>t+A.wk[m].sets,0);
     if(sa + sb < 6) return;                          // too little data to call it
     if(sb < 1){
-      push(88, R.b[0], "No "+R.bn+" volume at all against "+r1(sa)+" sets of "+R.an+" work",
-        "Your "+R.an+" work has nothing balancing it this week.", R.fixHigh);
+      push(88, R.b[0], "balance",
+        "No "+R.bn+" volume at all",
+        R.actHigh,
+        r1(sa)+" sets of "+R.an+" work with nothing balancing it, "+win.short+".",
+        R.whyHigh);
       return;
     }
     const ratio = sa/sb;
     if(ratio > R.hi){
-      push(Math.min(95, Math.round(40 + (ratio/R.hi - 1)*90)), R.b[0],
+      push(Math.min(95, Math.round(40 + (ratio/R.hi - 1)*90)), R.b[0], "balance",
         R.bn.replace(/^./,c=>c.toUpperCase())+"s lag behind "+R.an+"s",
-        r1(sa)+" sets of "+R.an+" work against "+r1(sb)+" of "+R.bn+", a "+ratio.toFixed(1)+":1 ratio, where roughly 1:1 keeps the joint balanced.",
-        R.fixHigh);
+        R.actHigh,
+        r1(sa)+" sets of "+R.an+" against "+r1(sb)+" of "+R.bn+", a "+ratio.toFixed(1)+":1 ratio where about 1:1 keeps the joint balanced.",
+        R.whyHigh);
     } else if(ratio < R.lo){
-      push(Math.min(95, Math.round(40 + (R.lo/ratio - 1)*90)), R.a[0],
+      push(Math.min(95, Math.round(40 + (R.lo/ratio - 1)*90)), R.a[0], "balance",
         R.an.replace(/^./,c=>c.toUpperCase())+"s lag behind "+R.bn+"s",
-        r1(sa)+" sets of "+R.an+" work against "+r1(sb)+" of "+R.bn+" ("+ratio.toFixed(2)+":1).",
-        R.fixLow);
+        R.actLow,
+        r1(sa)+" sets of "+R.an+" against "+r1(sb)+" of "+R.bn+" ("+ratio.toFixed(2)+":1).",
+        R.whyLow);
     }
   });
 
@@ -2656,13 +3317,15 @@ function weakPoints(A){
   MKEYS.forEach(m=>{
     const i = A.inj[m];
     if(!i || i.score < 55) return;
-    push(i.score, m, MUSCLES[m].name+" "+mIs(m)+" being pushed past recovery",
+    push(i.score, m, "over",
+      MUSCLES[m].name+" "+mIs(m)+" being pushed past recovery",
+      "Cut "+MUSCLES[m].name.toLowerCase()+" sets by about a third, keep the loads.",
       i.flags.slice(0,2).map(f=>f.t).join("; ")+".",
-      "Pull it back for a week: cut the sets by about a third and keep the loads where they are. Volume you can't recover from is volume you don't grow from.");
+      "Volume you can't recover from is volume you don't grow from: past this point the sets cost fatigue without buying adaptation, and connective tissue takes the strain. Hold the weights where they are, because dropping the load is what costs you the strength.");
   });
 
-  // Most urgent first. One entry per muscle keeps the list readable, the highest
-  // scoring finding for a muscle is the one worth acting on first anyway.
+  // Most urgent first. One entry per muscle keeps the list readable, and the
+  // highest-scoring finding for a muscle is the one worth acting on first anyway.
   const seen = new Set();
   return out.sort((a,b)=>b.score-a.score).filter(w=>{
     if(seen.has(w.muscle)) return false;
@@ -2673,8 +3336,51 @@ function weakPoints(A){
 /* ================= RENDER ================= */
 let TAB = "today";
 document.querySelectorAll("nav button").forEach(b=>{
-  b.onclick = ()=>{ TAB=b.dataset.tab; document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b)); render(); window.scrollTo(0,0); };
+  b.onclick = ()=>{ TAB=b.dataset.tab; document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b)); render(); window.scrollTo(0,0); showNav(); };
 });
+/* ---------- tab bar behaviour ----------
+   Retracts as you scroll down and comes back the instant you scroll up, so a long tab
+   isn't read through a 78px letterbox and the bar is never more than a flick away.
+   It's always shown at the very top and the very bottom of the page.
+
+   Why the old bar felt like it was sticking, and what's different:
+
+     • `backdrop-filter: blur()` on a fixed element forces Safari to re-rasterise the
+       blur against whatever is behind it on every scroll frame, so the bar visibly
+       lagged the content. It's now a solid colour on its own compositor layer.
+     • This handler never reads layout. `pageYOffset` is free; `scrollHeight` is not,
+       and reading it inside a scroll handler forces a synchronous reflow on every
+       event. The document height is cached and refreshed on render and resize instead.
+     • The only write is a custom property that flips at most twice per gesture, because
+       setHidden() returns early when nothing changed, and it animates a transform,
+       which the compositor handles without touching layout at all.                  */
+let showNav = ()=>{};
+let refreshNavBounds = ()=>{};
+(function(){
+  const nav = document.querySelector("nav");
+  if(!nav) return;
+  const HIDE_AFTER = 90;   // stay put until you're properly into the page
+  const DEADZONE   = 8;    // ignore jitter and iOS rubber-banding
+  let lastY = 0, hidden = false, docH = 0;
+  const setHidden = v=>{
+    if(v === hidden) return;
+    hidden = v;
+    nav.style.setProperty("--navY", v ? "calc(100% + 2px)" : "0px");
+  };
+  refreshNavBounds = ()=>{ docH = document.documentElement.scrollHeight; };
+  refreshNavBounds();
+  window.addEventListener("scroll", ()=>{
+    const y = Math.max(0, window.pageYOffset || 0);
+    const dy = y - lastY;
+    if(Math.abs(dy) <= DEADZONE) return;
+    const atBottom = y + window.innerHeight >= docH - 4;
+    if(y < HIDE_AFTER || atBottom) setHidden(false);
+    else setHidden(dy > 0);
+    lastY = y;
+  }, {passive:true});
+  window.addEventListener("resize", refreshNavBounds, {passive:true});
+  showNav = ()=>{ lastY = Math.max(0, window.pageYOffset || 0); setHidden(false); refreshNavBounds(); };
+})();
 
 function render(){
   const app = $("#app");
@@ -2684,6 +3390,9 @@ function render(){
   else if(TAB==="program") app.innerHTML = viewProgram();
   else app.innerHTML = viewSync();
   bind();
+  // the page just changed height, so the tab bar's "am I at the bottom?" test needs
+  // the new figure. Read it here, once, rather than inside the scroll handler.
+  refreshNavBounds();
 }
 
 function plateStrip(){
@@ -2891,6 +3600,74 @@ function checkinCard(){
   </div>`;
 }
 
+/* =====================================================================
+   "SINCE LAST TIME" FEEDBACK, where a grade's advice actually surfaces
+
+   Putting the full report card at the start of the next workout is the obvious place
+   and the wrong one, for two reasons. The next workout is usually a DIFFERENT rotation
+   day, so most of the advice is about exercises you are not doing today. And an
+   eight-section card at the moment someone wants to start lifting is a wall to scroll
+   past, which is how you train people to dismiss it.
+
+   It lands in three places instead, each matched to the moment you can act on it:
+     • TODAY, before you start: one card carrying the single highest-value fix from the
+       last session of THIS rotation day, with the full breakdown one tap away.
+     • IN THE SESSION: the same line, shrunk to a strip above the exercise it is about,
+       so it is in front of you while you are choosing the weight.
+     • HISTORY: the full card, on demand, unchanged.
+   ===================================================================== */
+function lastGradedFor(wid){
+  for(let i=S.sessions.length-1;i>=0;i--){
+    const s = S.sessions[i];
+    if(s.workoutId === wid && s.quality) return s;
+  }
+  return null;
+}
+function focusCardHTML(wid){
+  const s = lastGradedFor(wid);
+  if(!s || !s.quality) return "";
+  const q = s.quality;
+  const a = (q.advice||[])[0];
+  const col = gradeColor(q.pct);
+  const d = new Date(s.date+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const nPr = (q.prs||[]).length;
+  // A near-perfect session has nothing worth changing. Say so, rather than inventing
+  // a criticism to fill the card, which is how advice stops being believed.
+  const body = a
+    ? `<div class="fc-do">${a.ex?`<b>${esc(a.ex)}</b> — `:""}${esc(a.text)}</div>`
+    : `<div class="fc-do">Nothing needs fixing. Repeat it, one small step heavier.</div>`;
+  const sub = [];
+  if(nPr) sub.push(`🔥 ${nPr} personal record${nPr>1?"s":""} that day.`);
+  if(a && !a.na && a.lost >= 1) sub.push(`Cost you ${r1(a.lost)} point${a.lost===1?"":"s"} on that grade.`);
+  else if(a && a.na) sub.push(`That section couldn't be graded at all last time.`);
+  return `<div class="card fc-card">
+    <div class="fc-k">Since your last ${esc(widName(wid).toLowerCase())} day
+      <span class="fc-grade" style="color:${col};background:${col}22">${esc(d)} · ${esc(q.grade)}</span></div>
+    ${body}
+    ${sub.length?`<div class="fc-sub">${sub.join(" ")}</div>`:""}
+    <button class="fc-btn" data-fullgrade="${esc(s.id)}">See the full breakdown</button>
+  </div>`;
+}
+/* Advice that names an exercise, keyed by canonical name, so the note about your squat
+   appears above your squat rather than in a list you read once and scrolled past. */
+function focusTipsFor(wid){
+  const s = lastGradedFor(wid);
+  const map = {};
+  if(!s || !s.quality) return map;
+  (s.quality.advice||[]).forEach(a=>{ if(a.ex) map[nrm(a.ex)] = a; });
+  return map;
+}
+/* `seen` stops the same note printing twice when an exercise appears more than once in
+   a session, which the finisher does by design: crunch → leg raise → crunch. */
+function inlineTipHTML(a, seen){
+  if(!a) return "";
+  if(seen){
+    if(seen.has(a.key)) return "";
+    seen.add(a.key);
+  }
+  return `<div class="fc-inline"><span class="ins-tag">Last time</span><span>${esc(a.text)}</span></div>`;
+}
+
 /* ---------- TODAY ---------- */
 function viewToday(){
   const wid = todaysWorkoutId();
@@ -2935,18 +3712,23 @@ function viewToday(){
     </div>
     <div class="sub">Next up in your rotation. Tap a plate above to move your week, or pick a different workout below.</div>
   </div>`;
+  // The one thing worth changing today, taken from the grade of your last session of
+  // THIS day. Sits above the exercise list, while there is still time to act on it.
+  h += focusCardHTML(wid);
   h += checkinCard();
 
   h += `<div class="card">`;
   let finLabeled = false;
   const rp = resolvedProgram(wid);
+  const tips = focusTipsFor(wid), tipsSeen = new Set();
   rp.forEach(({chosen:e, other, isFinisher}, rpi)=>{
     if(isFinisher && !finLabeled){ h += `<div class="fin-label">Finisher, every workout</div>`; finLabeled = true; }
     const occ = occIndex(rp, rpi);
-    const ll = lastBox(wid, e.name, isFinisher, occ);
+    const ll = lastBox(wid, e.name, isFinisher || sharedAcrossDays(e.name), occ);
     const ins = insight(e.name, occ);
     h += `<div class="ex-head"><b>${esc(e.name)}${other?'<span class="alt-badge">⇄</span>':''}</b><span class="ex-target">${e.sets}×${esc(e.reps)}${e.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(e.rpe))+'</span>':""}</span></div>`;
     if(ll) h += ll;
+    h += inlineTipHTML(tips[nrm(e.name)], tipsSeen);
     if(ins) h += `<div class="ex-insight"><span class="ins-tag">${esc(ins.tag)}</span><span>${esc(ins.msg)}</span></div>`;
     if(altStyle(e)) h += altHintHTML(altStyle(e), startSideFor(wid), e.sets);
     let subBits = [];
@@ -2998,11 +3780,13 @@ function viewActiveSession(){
   </div>`;
 
   let finLab = false;
+  const tips = focusTipsFor(a.workoutId), tipsSeen = new Set();
   a.entries.forEach((en,ei)=>{
     if(en.fin && !finLab){ h += `<div class="fin-label">Finisher</div>`; finLab = true; }
     const occ = occIndex(a.entries, ei);
-    const last = lastSetsFor(a.workoutId, en.name, en.fin, occ);
-    const ll = lastBox(a.workoutId, en.name, en.fin, occ);
+    const anyDay = en.fin || sharedAcrossDays(en.name);
+    const last = lastSetsFor(a.workoutId, en.name, anyDay, occ);
+    const ll = lastBox(a.workoutId, en.name, anyDay, occ);
     h += `<div class="card ex${en.superset?' ss-card':''}">
       <div class="ex-head"><b>${esc(en.name)}${en.superset?' <span class="ss-badge">superset</span>':''}</b>
         <span style="display:flex;align-items:center;gap:8px">
@@ -3015,6 +3799,7 @@ function viewActiveSession(){
         </span>
       </div>`;
     if(ll) h += ll;
+    h += inlineTipHTML(tips[nrm(en.name)], tipsSeen);
     if(en.note) h += `<div class="ex-note">${esc(en.note)}</div>`;
     if(en.startSide) h += altHintHTML(en.altStyle||"side", en.startSide, en.sets.length);
     h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
@@ -3135,14 +3920,16 @@ function viewFocusSession(){
     return h + focusFooter(a, true);
   }
   const occ = occIndex(a.entries, ei);
-  const last = lastSetsFor(a.workoutId, en.name, en.fin, occ);
-  const ll = lastBox(a.workoutId, en.name, en.fin, occ);
+  const anyDay = en.fin || sharedAcrossDays(en.name);
+  const last = lastSetsFor(a.workoutId, en.name, anyDay, occ);
+  const ll = lastBox(a.workoutId, en.name, anyDay, occ);
   h += `<div class="card ex focus">
     <div class="ex-head"><b class="focus-name">${esc(en.name)}${en.fin?' <span class="alt-badge">finisher</span>':''}</b>
       <span class="icon-btns ex-ctl"><button data-exskip="${ei}" aria-label="Skip today">✕</button></span>
     </div>
     <div class="ex-target" style="margin:2px 0 10px">${en.sets.length}×${esc(en.reps||"")}${en.rpe?' · <span class="rpe-help" title="Tap for what RPE means">'+esc(rpeTxt(en.rpe))+'</span>':""}</div>`;
   if(ll) h += ll;
+  h += inlineTipHTML(focusTipsFor(a.workoutId)[nrm(en.name)]);
   if(en.note) h += `<div class="ex-note">${esc(en.note)}</div>`;
   if(en.startSide) h += altHintHTML(en.altStyle||"side", en.startSide, en.sets.length);
   h += `<div class="set-labels"><span>set</span><span>lbs</span><span>reps</span><span class="rpe-help" title="Tap for what RPE means">rpe ⓘ</span><span>✓</span></div>`;
@@ -3201,11 +3988,24 @@ function ramp(stops, t){
 }
 const METRICS = [
   {id:"fatigue",  label:"Fatigue"},
-  {id:"volume",   label:"Weekly Volume"},
+  {id:"volume",   label:"Volume"},
   {id:"recovery", label:"Recovery"},
   {id:"growth",   label:"Growth"},
   {id:"injury",   label:"Injury Risk"}
 ];
+// Volume is the one metric whose meaning depends on the window it's counted over, so
+// its label and its one-liner say which window that is rather than assuming a week.
+function metricLabel(id, win){
+  const m = METRICS.find(x=>x.id===id);
+  if(!m) return id;
+  return id === "volume" ? (win && win.mode==="cycle" ? "Cycle Volume" : "Weekly Volume") : m.label;
+}
+function metricOneLiner(id, win){
+  if(id === "volume"){
+    return "How much work each muscle got "+((win && win.short) || "this week")+".";
+  }
+  return METRIC_ONELINER[id];
+}
 // value (0..100 or null), colour, glow strength (0..1) and a plain-English read
 function muscleMetric(A, m, metric){
   if(metric==="fatigue"){
@@ -3262,14 +4062,6 @@ const METRIC_ONELINER = {
   growth:"Which muscles are actually getting stronger.",
   injury:"Where you're pushing harder than you're recovering."
 };
-const METRIC_BLURB = {
-  fatigue:`Glowing red means that muscle is still tired from recent training. Every ${term("hardset","hard set")} leaves fatigue behind, and it wears off on that muscle's own clock, shoulders and calves bounce back in about a day and a half, thighs and lower back take closer to three days. See ${term("fatigue","how this is worked out")}.`,
-  volume:`How many ${term("hardset","hard sets")} each muscle got in the last 7 days. Blue means too little to grow, green is the sweet spot, amber is a lot but manageable, red is more than the muscle can recover from. The three thresholds are ${term("mev","MEV")}, ${term("mav","MAV")} and ${term("mrv","MRV")}, tap any of them to see what they mean.`,
-  recovery:`Green means that muscle has had enough time off and is ready to train hard again. Red means it hasn't. Heavier sessions need longer, and your logged sleep and energy shift the whole picture. See ${term("recovery","how this is worked out")}.`,
-  growth:`Compares the last 3 weeks against the 3 before, using ${term("e1rm","estimated 1RM")} and total volume. Green means you're genuinely getting stronger there, grey means holding steady, red means last block went backwards. See ${term("growth","how this is worked out")}.`,
-  injury:`Red means you're loading that muscle faster than you're recovering from it. It combines five warning signs including going past ${term("mrv","MRV")} and a sudden ${term("acwr","jump in weekly workload")}. It's a training-load flag, not a diagnosis, see ${term("injury","what goes into it")}.`
-};
-
 /* ---------- the figure ----------
    Two stylised views so every muscle in the model has somewhere to live: chest, front
    delts, biceps, abs, obliques and quads read from the front; lats, traps, rear delts,
@@ -3399,8 +4191,10 @@ const HEAD_BIAS = {
   "cable tricep extension":  {triceps:{tri_long:1,   tri_lateral:.55, tri_medial:.65}},
   "tricep pushdown":         {triceps:{tri_long:.35, tri_lateral:1,   tri_medial:.9}},
   "tricep kickback":         {triceps:{tri_long:.5,  tri_lateral:.9,  tri_medial:1}},
+  // Guillotine = flat bench pressed to the neck, which raises the effective incline of
+  // the pressing arc, so it reads as an upper-chest movement, not a mid-chest one.
   "guillotine press":        {triceps:{tri_long:.3,  tri_lateral:.9,  tri_medial:1},
-                              chest:{chest_upper:.8, chest_mid:1, chest_lower:.7}},
+                              chest:{chest_upper:1, chest_mid:.9, chest_lower:.35}},
   "chest dips":              {triceps:{tri_long:.4,  tri_lateral:1,   tri_medial:.9},
                               chest:{chest_upper:.3, chest_mid:.8, chest_lower:1}},
   // ---- chest: incline is the only reliable way into the upper pec
@@ -3410,8 +4204,10 @@ const HEAD_BIAS = {
   "mid cable fly (on bench)":     {chest:{chest_upper:.5, chest_mid:1, chest_lower:.8}},
   // ---- back
   "lat pulldown":   {lats:{lats:1}, upper_back:{rhomboids:.5, teres:1}, traps:{traps_upper:.3, traps_mid:.8}},
-  "mid row":        {traps:{traps_upper:.4, traps_mid:1}, upper_back:{rhomboids:1, teres:.6}},
-  "cable lat prayer":{lats:{lats:1}, upper_back:{rhomboids:.3, teres:.7}},
+  "mid row":        {traps:{traps_upper:.4, traps_mid:1}, upper_back:{rhomboids:1, teres:.8}},
+  // The long head extends the shoulder, which is the whole movement here.
+  "cable lat prayer":{lats:{lats:1}, upper_back:{rhomboids:.3, teres:.7},
+                      triceps:{tri_long:1, tri_lateral:.25, tri_medial:.25}},
   "dumbbell rdl":   {hams:{ham_lateral:.8, ham_medial:1}, glutes:{glute_max:1, glute_med:.4},
                      lower_back:{erectors:1, ql:.6}},
   // ---- shoulders
@@ -3435,8 +4231,7 @@ const HEAD_BIAS = {
   "standing calf raise (smith)": {calves:{calf_lateral:1, calf_medial:1, soleus:.35}},
   // ---- core
   "cable ab crunch": {abs:{abs_upper:1, abs_mid:1, abs_lower:.5}, obliques:{obliques:1, serratus:.5}},
-  "leg raises":      {abs:{abs_upper:.4, abs_mid:.8, abs_lower:1}, obliques:{obliques:.8, serratus:.3},
-                      adductors:{adductors:1}}
+  "leg raises":      {abs:{abs_upper:.4, abs_mid:.8, abs_lower:1}, obliques:{obliques:.8, serratus:.3}}
 };
 /* Keyword fallbacks, so an exercise you add later still lands on the right heads. */
 const HEAD_KEYWORDS = [
@@ -3455,15 +4250,17 @@ const HEAD_KEYWORDS = [
   [/face pull|rear delt|reverse fly/, {traps:{traps_upper:.3, traps_mid:1}}],
   [/shrug/,                         {traps:{traps_upper:1, traps_mid:.3}}]
 ];
+const HEAD_BIAS_C = canonIndex(HEAD_BIAS);
 /* How this exercise splits a group's credit across that group's heads, normalised so
    the biggest-hit head gets the full 1.0 and the others a fraction of it. */
 function headShares(exName, group){
   const regions = GROUP_REGIONS[group] || [];
   if(regions.length <= 1){ const o={}; regions.forEach(r=>o[r]=1); return o; }
-  const k = nrm(exName);
-  let raw = (HEAD_BIAS[k] && HEAD_BIAS[k][group]) || null;
+  const k = nrm(exName), t = tableKey(exName);
+  let raw = (HEAD_BIAS_C[t] && HEAD_BIAS_C[t][group])
+         || (HEAD_BIAS_C[k] && HEAD_BIAS_C[k][group]) || null;
   if(!raw){
-    for(const [re, map] of HEAD_KEYWORDS){ if(re.test(k) && map[group]){ raw = map[group]; break; } }
+    for(const [re, map] of HEAD_KEYWORDS){ if((re.test(k) || re.test(t)) && map[group]){ raw = map[group]; break; } }
   }
   const out = {};
   if(!raw){ regions.forEach(r=> out[r] = 1); return out; }   // unknown: split evenly
@@ -3537,9 +4334,17 @@ function clipWrap(key, view, inner){
    shapes rather than 37 competing ones. Tap a group and it drills in: that group splits
    into its individual heads while everything else fades back, so you are only ever
    looking at as much detail as you asked for. */
+/* Shapes that still have to be DRAWN so the silhouette has no holes in it, but are no
+   longer tracked muscles. Shins live here: the outline stays, the colour and the tap
+   target are gone. */
+const MM_RETIRED = ["tibialis"];
+function retiredPaths(view){
+  return MM_RETIRED.map(k=>(MM_REGIONS[k]&&MM_REGIONS[k][view])||[]).flat();
+}
 function bodyViewSVG(view, A, metric, label){
-  const inert = MM_INERT[view];
-  const all = RKEYS.map(k=>(MM_REGIONS[k]&&MM_REGIONS[k][view])||[]).flat().concat(inert);
+  const inert = MM_INERT[view].concat(retiredPaths(view));
+  // weld from every shape that exists, tracked or not, so no seam shows through
+  const all = Object.keys(MM_REGIONS).map(k=>(MM_REGIONS[k]&&MM_REGIONS[k][view])||[]).flat().concat(MM_INERT[view]);
   const focus = BODY_FOCUS;
   let out = `<svg viewBox="${MM_VIEW[view]}" role="img" aria-label="${label} of body">`;
   out += `<g class="bm-weld">${mmPaths(all)}</g>`;
@@ -3594,24 +4399,32 @@ function sectionCard(key, title, sub, body, count){
   </div>`;
 }
 
-/* The line under the figure, which always says where you are and what tapping does next.
-   Nothing selected, a group highlighted, or that group split into its heads. */
+/* The line under the figure. It always says where you are and what a tap does next.
+
+   The figure opens at MAJOR MUSCLE level and stays there. Splitting a group into its
+   individual heads is now an explicit action ("Break it down") rather than something a
+   second tap does by accident, because 37 competing shapes is not a picture anyone can
+   read, and the heads only mean anything once you have picked a muscle to study. */
 function drillBarHTML(A, metric){
   if(!BODY_FOCUS){
-    return `<div class="bm-tap">Tap a muscle to select it. Tap it again to split it into its parts.</div>`;
+    return `<div class="bm-tap">Tap any muscle to see how it's doing.</div>`;
   }
   const g = BODY_FOCUS, heads = GROUP_REGIONS[g] || [];
   const gm = groupTileMetric(A, g, metric);
-  const L = adjustedLandmarks(A, g);
+  const L = A.lm[g] || adjustedLandmarks(A, g);
   const stat = A.wk[g].sets > 0
-    ? r1(A.wk[g].sets)+" of "+L.mav+" target sets this week"
-    : "no work logged this week";
+    ? r1(A.wk[g].sets)+" of "+L.mav+" target sets "+A.win.short
+    : "no work logged "+A.win.short;
   if(!BODY_EXPAND){
     return `<div class="bm-drill">
-      <span><b>${esc(gName(g))}</b><br><small>${esc(stat)}${gm.txt&&gm.txt!=="not trained"?", "+esc(gm.txt):""}</small></span>
-      ${heads.length>1
-        ? `<button data-g2="${g}">Show its ${heads.length} parts</button>`
-        : `<button data-open1="${heads[0]}">Details</button>`}
+      <span><b>${esc(gName(g))}</b><br><small>${esc(stat)}${
+        gm.txt && gm.txt !== "not trained" && metric !== "volume"
+          ? " · "+esc(metricLabel(metric, A.win).toLowerCase())+" "+esc(gm.txt) : ""
+      }</small></span>
+      <span style="display:flex;gap:7px;flex-shrink:0">
+        <button data-gdetail="${g}">Analyse</button>
+        ${heads.length>1 ? `<button data-g2="${g}" style="background:var(--card2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)">Break it down</button>` : ""}
+      </span>
     </div>
     <div class="bm-tap" style="margin-top:7px"><button class="bm-clear" id="bmBack">Clear selection</button></div>`;
   }
@@ -3627,6 +4440,25 @@ function drillBarHTML(A, metric){
     }).join("")}</div>`;
 }
 
+/* =====================================================================
+   BODY TAB
+
+   Reordered around one question per card, top to bottom, so it reads as an argument
+   rather than a pile of panels:
+
+     1. WHICH PICTURE   the metric picker
+     2. THE PICTURE     the figure, major muscles only
+     3. THE HEADLINE    one sentence, plus the two numbers that frame it
+     4. WHAT TO FIX     the actions, open by default, each one drillable
+     5. EVERY MUSCLE    the full table, groups only
+     6. YOUR CYCLE      zoomed out to overall load
+
+   Removed on the way: "What am I looking at?" (its content is now the permanent
+   one-liner over the figure and the hover glosses on the terms themselves) and the
+   "Jargon buster" grid (every term in the app is tappable in place, so a separate
+   dictionary of the same entries was a second, worse way to reach them). "How your
+   targets are set" moved to Settings, where the rest of the configuration lives.
+   ===================================================================== */
 function viewBody(){
   const metric = BODY_METRIC;
   let h = `<div class="hdr"><h1>Body</h1>${hdrRight()}</div>`;
@@ -3634,14 +4466,15 @@ function viewBody(){
     return h + `<div class="empty">Log a workout or two and this map fills in. It shows which muscles you have trained, how tired each one is, and where the gaps are.</div>`;
   }
   const A = bodyAnalysis();
+  const win = A.win;
 
-  /* -------- 1. the map, front and centre, with nothing above it but the picker ---- */
+  /* -------- 1 + 2. the picture, with nothing above it but the picker -------------- */
   h += `<div class="metric-scroll"><div class="metric-seg">${
-    METRICS.map(m=>`<button data-metric="${m.id}" class="${m.id===metric?"on":""}">${m.label}</button>`).join("")
+    METRICS.map(m=>`<button data-metric="${m.id}" class="${m.id===metric?"on":""}">${esc(metricLabel(m.id, win))}</button>`).join("")
   }</div></div>`;
 
   h += `<div class="card bm-card">
-    <div class="bm-oneline">${esc(METRIC_ONELINER[metric])}</div>
+    <div class="bm-oneline">${esc(metricOneLiner(metric, win))}</div>
     <div class="bm-figs">
       <div class="bm-fig">${bodyFrontSVG(A, metric)}<div class="bm-fig-label">Front</div></div>
       <div class="bm-fig">${bodyBackSVG(A, metric)}<div class="bm-fig-label">Back</div></div>
@@ -3650,102 +4483,106 @@ function viewBody(){
     ${drillBarHTML(A, metric)}
   </div>`;
 
-  /* -------- 2. one plain-English takeaway ---------------------------------------- */
-  const rrank = RKEYS.map(r=>({r, mm:regionMetric(A, r, metric)}));
+  /* -------- 3. the headline -------------------------------------------------------
+     Ranked at GROUP level, not head level. Reading "your triceps long head is the most
+     fatigued thing on your body" as the top-line summary was technically true and
+     practically useless; the group is the level you can act at.                     */
+  const grank = GKEYS.filter(g=>!GROUPS[g].optional).map(g=>({g, mm:groupTileMetric(A, g, metric)}));
   const dir = (metric==="recovery"||metric==="growth") ? 1 : -1;
-  const scored = rrank.filter(x=>x.mm.v!=null)
-    .sort((a,b)=> dir===1 ? a.mm.v-b.mm.v : b.mm.v-a.mm.v);
+  const scored = grank.filter(x=>x.mm.v!=null).sort((a,b)=> dir===1 ? a.mm.v-b.mm.v : b.mm.v-a.mm.v);
   const worst = scored[0];
-  const untrained = rrank.filter(x=>x.mm.v==null && !GROUPS[gOf(x.r)].optional);
+  const untrained = grank.filter(x=>x.mm.v==null);
+  const t = A.totals;
   h += `<div class="card bm-lead">
     <div class="bm-lead-k">In one line</div>
     ${worst?`<div class="bm-lead-v">
       <span class="bm-dot" style="background:${worst.mm.color}"></span>
-      <span><b>${esc(regionLabel(worst.r))}</b> ${esc(headlineFor(metric, {mm:worst.mm}))}</span>
+      <span><b>${esc(gName(worst.g))}</b> ${esc(headlineFor(metric, {mm:worst.mm}))}</span>
     </div>`:""}
     ${untrained.length?`<div class="bm-lead-v">
       <span class="bm-dot" style="background:${C_GREY}"></span>
-      <span><b>${untrained.length}</b> muscle${untrained.length===1?"":"s"} got no work this week: ${esc(untrained.slice(0,4).map(x=>regionLabel(x.r)).join(", "))}${untrained.length>4?" and "+(untrained.length-4)+" more":""}.</span>
+      <span><b>${untrained.length}</b> muscle group${untrained.length===1?"":"s"} got no work ${esc(win.short)}: ${esc(untrained.slice(0,4).map(x=>gName(x.g)).join(", "))}${untrained.length>4?" and "+(untrained.length-4)+" more":""}.</span>
     </div>`:""}
+    <div class="bm-lead-v" style="border-top:1px solid var(--line);margin-top:11px;padding-top:11px">
+      <span class="bm-dot" style="background:${ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], t.fat/100)}"></span>
+      <span><b>${t.setsWk}</b> working sets over ${esc(win.label)}, at <b>${t.fat}%</b> average ${term("fatigue","tiredness")}.</span>
+    </div>
   </div>`;
 
-  /* -------- 3. what am I looking at (collapsed) ---------------------------------- */
-  h += sectionCard("what", "What am I looking at?",
-    "New here? Start with this.",
-    `<div class="bm-explain">${METRIC_BLURB[metric]}</div>
-     <div class="bm-explain" style="margin-top:10px">Any word with a <span class="term" data-term="hardset">dotted underline</span> can be tapped for a plain-English definition.</div>
-     <div class="bm-explain" style="margin-top:10px;color:var(--faint)">Grey means you have not trained that muscle in the last 7 days. It is not a judgement, some muscles simply are not in every programme.</div>`);
-
-  /* -------- 4. what to fix (top 3, rest behind a toggle) ------------------------- */
+  /* -------- 4. what to fix, open by default, every row drillable ------------------ */
   const spanDays = (Date.now() - S.sessions[0].startedAt)/DAY_MS;
   const enoughWP = S.sessions.length >= 4 && spanDays >= 6;
   let wpBody = "";
   if(!enoughWP){
-    wpBody = `<div class="sub">Needs at least 4 sessions across a full week before it can tell a real weak point from a rotation that has not come round yet. You are at ${S.sessions.length} session${S.sessions.length===1?"":"s"} over ${Math.max(1,Math.round(spanDays))} day${Math.round(spanDays)===1?"":"s"}.</div>`;
+    wpBody = `<div class="sub">This needs at least 4 sessions across a full week before it can tell a real weak point from a rotation that hasn't come round yet. You're at ${S.sessions.length} session${S.sessions.length===1?"":"s"} over ${Math.max(1,Math.round(spanDays))} day${Math.round(spanDays)===1?"":"s"}.</div>`;
   } else if(!A.weak.length){
-    wpBody = `<div class="sub">Nothing flagged. Every muscle group is inside its productive volume range, balanced against its opposite, and progressing or holding.</div>`;
+    wpBody = `<div class="sub">Nothing to fix. Every muscle group is inside its productive volume range, balanced against its opposite, and either progressing or holding.</div>`;
   } else {
     const show = BODY_OPEN.wpall ? A.weak : A.weak.slice(0,3);
-    wpBody = show.map(w=>`<div class="wp sev${w.sev}">
-        <div class="wp-head"><b>${esc(w.title)}</b><span class="wp-sev">${w.sev>=3?"high priority":w.sev===2?"worth fixing":"minor"}</span></div>
-        <div class="wp-why">${esc(w.why)}</div>
-        <div class="wp-fix"><b>Do this</b> ${esc(w.fix)}</div>
-      </div>`).join("");
+    wpBody = show.map((w,i)=>`<button class="wp sev${w.sev}" data-wp="${A.weak.indexOf(w)}">
+        <span class="wp-rank">${i+1}</span>
+        <span class="wp-body">
+          <span class="wp-who">${esc(gName(w.muscle))}<span class="wp-sev">· ${w.sev>=3?"high priority":w.sev===2?"worth fixing":"minor"}</span></span>
+          <span class="wp-do">${esc(w.act)}</span>
+          <span class="wp-why">${esc(w.why)}</span>
+          <span class="wp-more">Show me what this is about</span>
+        </span>
+        <span class="wp-chev">›</span>
+      </button>`).join("");
     if(A.weak.length > 3){
       wpBody += `<button class="more-btn" data-sec="wpall">${BODY_OPEN.wpall?"Show fewer":"Show "+(A.weak.length-3)+" more"}</button>`;
     }
   }
   BODY_OPEN.fix = BODY_OPEN.fix===undefined ? true : BODY_OPEN.fix;   // open by default
   h += sectionCard("fix", "What to fix",
-    "Muscles that are short on work, stalled, out of balance, or being pushed past recovery.",
+    "In order of what would help most. Tap any one to see the exercises and numbers behind it.",
     wpBody, enoughWP ? A.weak.length : null);
 
-  /* -------- 5. every muscle (collapsed, grouped by body area) -------------------- */
+  /* -------- 5. every muscle, GROUPS ONLY ------------------------------------------
+     This list used to print every group followed by a row of chips for each of its
+     individual heads: 21 groups plus 37 heads, 58 tappable things, in a section whose
+     job is "let me scan everything at once". Heads belong behind a muscle you have
+     deliberately opened, not in the overview.                                       */
   let listBody = "";
+  const shownGroups = GKEYS.filter(g=>!GROUPS[g].optional || A.wk[g].sets > 0);
   AREA_ORDER.forEach(area=>{
-    const groups = GKEYS.filter(g=>AREA_OF[g]===area);
+    const groups = shownGroups.filter(g=>AREA_OF[g]===area);
     if(!groups.length) return;
     let rows = "";
     groups.forEach(g=>{
-      const L = adjustedLandmarks(A, g);
+      const L = A.lm[g] || adjustedLandmarks(A, g);
       const gm = muscleMetric(A, g, metric);
-      const heads = GROUP_REGIONS[g];
-      rows += `<div class="bm-grow">
-        <span class="bm-gname">${esc(gName(g))}</span>
-        <span class="bm-gval">${esc(metric==="volume" ? r1(A.wk[g].sets)+" / "+L.mav+" sets" : gm.txt)}</span>
-        <span class="bm-bar"><i style="width:${Math.max(3,gm.v==null?0:gm.v)}%;background:${gm.color}"></i></span>
-      </div>`;
-      if(heads.length > 1){
-        rows += `<div class="bm-heads">` + heads.map(r=>{
-          const rm = regionMetric(A, r, metric);
-          return `<button class="bm-head" data-mrow="${r}" style="border-color:${rm.color}55">
-            <span class="bm-hdot" style="background:${rm.color}"></span>${esc(REGIONS[r].name)}
-            <small>${esc(rm.txt)}</small></button>`;
-        }).join("") + `</div>`;
-      } else {
-        rows += `<div class="bm-heads"><button class="bm-head" data-mrow="${heads[0]}" style="border-color:${gm.color}55"><span class="bm-hdot" style="background:${gm.color}"></span>Details</button></div>`;
-      }
+      const trained = A.wk[g].sets > 0;
+      const val = metric==="volume" ? r1(A.wk[g].sets)+" / "+L.mav+" sets" : (trained ? gm.txt : "not trained");
+      const col = trained ? gm.color : C_GREY;
+      rows += `<button class="bm-row" data-grow="${g}" style="width:100%;background:none;border:none;border-bottom:1px solid var(--line);text-align:left;color:var(--text);font:inherit">
+        <span class="bm-swatch" style="background:${col}"></span>
+        <span class="bm-name"><span>${esc(gName(g))}</span><small>${esc(GROUP_REGIONS[g].length)} part${GROUP_REGIONS[g].length===1?"":"s"} · ${esc(gm.note||"")}</small></span>
+        <span class="bm-right">
+          <span class="bm-val">${esc(val)}</span>
+          <span class="bm-bar"><i style="width:${Math.max(3,gm.v==null?0:gm.v)}%;background:${col}"></i></span>
+        </span>
+      </button>`;
     });
-    listBody += `<div class="bm-area">${esc(area)}</div>` + rows;
+    listBody += `<div class="bm-area">${esc(area)}</div><div class="bm-rank">` + rows + `</div>`;
   });
   h += sectionCard("all", "Every muscle",
-    "All 21 muscle groups and their individual heads. Tap a head for what it is and how to train it.",
-    listBody, RKEYS.length);
+    "Your "+shownGroups.length+" major muscle groups. Tap one to open it and, if you want, split it into its parts.",
+    listBody, shownGroups.length);
 
-  /* -------- 6. your week (collapsed) --------------------------------------------- */
-  const t = A.totals;
+  /* -------- 6. the whole cycle ---------------------------------------------------- */
   const acwrNote = t.acwr==null ? "needs 4 weeks of history to mean anything"
     : t.acwr > 1.5 ? "you ramped up fast, which is the classic injury warning sign"
-    : t.acwr < 0.8 ? "well under your usual, fine for a light week"
+    : t.acwr < 0.8 ? "well under your usual, fine for a light spell"
     : "a safe, steady rate of change";
-  h += sectionCard("week", "Your week as a whole",
-    "Zoomed out from individual muscles to your overall training load.",
+  h += sectionCard("week", "Your training load",
+    "Zoomed out from individual muscles to the whole of you.",
     `<div class="sys-grid">
-      <div class="sys-tile"><div class="sys-k">${term("hardset","Working sets")} in 7 days</div>
+      <div class="sys-tile"><div class="sys-k">${term("hardset","Working sets")} ${esc(win.short)}</div>
         <div class="sys-v">${t.setsWk}</div>
-        <div class="sys-s">${t.setsPrev>0?(t.setsWk>=t.setsPrev?"+":"")+Math.round((t.setsWk-t.setsPrev)/t.setsPrev*100)+"% vs the week before":"first week on record"}</div></div>
+        <div class="sys-s">${t.setsPrev>0?(t.setsWk>=t.setsPrev?"+":"")+Math.round((t.setsWk-t.setsPrev)/t.setsPrev*100)+"% vs "+esc(win.prevLabel):"first "+esc(win.short.replace(/^this /,""))+" on record"}</div></div>
       <div class="sys-tile"><div class="sys-k">${term("acwr","Load change")}</div>
-        <div class="sys-v" style="color:${t.acwr==null?"var(--dim)":(t.acwr>1.5||t.acwr<0.8)?"var(--arms)":"var(--ok)"}">${t.acwr==null?"\u2014":t.acwr.toFixed(2)+"\u00d7"}</div>
+        <div class="sys-v" style="color:${t.acwr==null?"var(--dim)":(t.acwr>1.5||t.acwr<0.8)?"var(--arms)":"var(--ok)"}">${t.acwr==null?"—":t.acwr.toFixed(2)+"×"}</div>
         <div class="sys-s">${acwrNote}</div></div>
       <div class="sys-tile"><div class="sys-k">Average ${term("fatigue","tiredness")}</div>
         <div class="sys-v" style="color:${ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], t.fat/100)}">${t.fat}%</div>
@@ -3755,39 +4592,155 @@ function viewBody(){
         <div class="sys-s">${t.inj>=55?"at least one muscle is being pushed too hard":"nothing above moderate"}</div></div>
     </div>
     ${A.modInfo.why.length?`<div class="bm-explain" style="margin-top:12px">Recovery adjusted for your check-ins: ${esc(A.modInfo.why.join("; "))}.</div>`:
-      `<div class="bm-explain" style="margin-top:12px;color:var(--faint)">Log sleep and energy in your daily check-in and recovery gets adjusted for them.</div>`}`);
-
-  /* -------- 7. how your targets are set (collapsed, advanced) -------------------- */
-  h += sectionCard("targets", "How your targets are set",
-    "Advanced. Where your volume numbers come from and what moves them.",
-    landmarkExplainerHTML(A));
-
-  /* -------- 8. jargon (collapsed) ------------------------------------------------ */
-  h += sectionCard("jargon", "Jargon buster",
-    "Every term this app uses, in plain English.",
-    `<div class="gl-grid">${GLOSSARY_ORDER.map(id=>`<button class="gl-chip" data-term="${id}">${esc(GLOSSARY_SHORT[id])}</button>`).join("")}</div>`,
-    GLOSSARY_ORDER.length);
+      `<div class="bm-explain" style="margin-top:12px;color:var(--faint)">Log sleep and energy in your daily check-in and recovery gets adjusted for them.</div>`}
+    <div class="bm-explain" style="margin-top:12px;color:var(--faint)">Volume is counted over <b>${esc(win.label)}</b>, and your targets are scaled to match. Change this, and see where the targets come from, in <b>Settings</b>.</div>`);
 
   h += `<div class="bm-credit">Anatomy from <a href="https://github.com/melihcolpan/MuscleMap" target="_blank" rel="noopener">MuscleMap</a> by Melih Colpan, MIT licence</div>`;
   return h;
+}
+
+/* ---------- a weak point, opened ----------
+   The whole point of making these tappable: a finding is only trustworthy if you can
+   see the sets that produced it. This shows the muscle's position against its own
+   thresholds, then every exercise that fed it and by how much, then the reasoning. */
+function openWeakPoint(idx){
+  const A = bodyAnalysis();
+  const w = A.weak[idx];
+  if(!w) return;
+  const g = w.muscle, G = GROUPS[g], L = A.lm[g], o = A.wk[g];
+  const sets = o.sets;
+  const gm = muscleMetric(A, g, "volume");
+  // Counted at GROUP level. Summing the per-head numbers would double-count, because
+  // one set of a pressing movement pays into all three heads of the chest.
+  const exs = o.exs || {};
+  const names = Object.keys(exs).sort((a,b)=>exs[b]-exs[a]);
+
+  // the bar runs 0 → a little past MRV, so "over the ceiling" is visible rather than clipped
+  const pos = Math.max(0, Math.min(100, sets/Math.max(1, L.mrv*1.15)*100));
+
+  let h = `<h3>${esc(w.act)}</h3>
+  <div class="wd-lead"><b>${esc(w.title)}.</b><br>
+    <span style="color:var(--dim);font-size:14px">${esc(w.why)}</span></div>
+
+  <div class="rev-head">Where it sits</div>
+  <div class="wd-meter">
+    <span class="wd-track">
+      <i style="width:${pos}%;background:${gm.color}"></i>
+    </span>
+    <span class="num" style="flex-shrink:0;font-size:14px">${r1(sets)} sets</span>
+  </div>
+  <div class="wd-marks">
+    <span>0</span><span>${term("mev","MEV")} ${L.mev}</span><span>${term("mav","MAV")} ${L.mav}</span><span>${term("mrv","MRV")} ${L.mrv}</span>
+  </div>
+  <div class="sub" style="margin:-2px 0 4px;color:var(--faint)">Counted over ${esc(A.win.label)}, with the thresholds scaled to match.</div>
+
+  <div class="rev-head">What's feeding it, ${esc(A.win.short)}</div>`;
+  if(names.length){
+    names.forEach(n=>{
+      h += `<div class="wd-ex"><b>${esc(n)}</b><span class="num">${r1(exs[n])} sets</span></div>`;
+    });
+    h += `<div class="bm-explain" style="margin-top:9px">Notice the fractions: a set is not worth the same to every muscle it touches. ${term("weighting","Why")}</div>`;
+  } else {
+    h += `<div class="wd-none">Nothing at all over ${esc(A.win.label)} — which is the finding.</div>`;
+  }
+
+  h += `<div class="rev-head">Why this matters</div>
+    <div class="bm-explain">${esc(w.detail)}</div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn small" data-gdetail="${g}">Open ${esc(gName(g))}</button>
+      <button class="btn ghost small" id="closeModal">Done</button>
+    </div>`;
+  showModal(h);
+  MODAL_REOPEN = ()=> openWeakPoint(idx);
+  document.querySelectorAll("#modal [data-gdetail]").forEach(b=> b.onclick=()=>{
+    BODY_FOCUS = g; BODY_EXPAND = false;
+    openGroupDetail(g);
+  });
+}
+
+/* ---------- a whole muscle group, opened ----------
+   The top level of the drill-down. Heads are deliberately NOT listed here as data;
+   they're offered as one button, so the detail you get is the detail you asked for. */
+function openGroupDetail(g){
+  const G = GROUPS[g];
+  if(!G) return;
+  const A = bodyAnalysis();
+  const L = A.lm[g] || adjustedLandmarks(A, g);
+  const o = A.wk[g], st = A.state[g], gr = A.grow[g], inj = A.inj[g];
+  const heads = GROUP_REGIONS[g] || [];
+  const line = (k,v,c)=>`<div class="rev-line"><b>${k}</b><span class="num"${c?` style="color:${c}"`:""}>${v}</span></div>`;
+  const lastTxt = o.lastMs
+    ? (()=>{ const hrs = Math.round((Date.now()-o.lastMs)/3600e3);
+             return hrs < 48 ? hrs+" h ago" : Math.round(hrs/24)+" days ago"; })()
+    : "not in this window";
+
+  let h = `<h3>${esc(G.name)}</h3>
+  <div class="md-what">
+    <div class="md-row"><span class="md-k">Right now</span><span>${esc(st.txt.charAt(0).toUpperCase()+st.txt.slice(1))}.</span></div>
+    <div class="md-row"><span class="md-k">Made of</span><span>${esc(heads.map(r=>REGIONS[r].name).join(", "))}.</span></div>
+  </div>
+
+  <div class="rev-head">Your ${esc(G.name.toLowerCase())}, ${esc(A.win.short)}</div>
+  ${line(term("hardset","Hard sets"), r1(o.sets)+" of "+L.mav+" target", muscleMetric(A,g,"volume").color)}
+  ${line("Your range", term("mev","MEV")+" "+L.mev+" / "+term("mav","MAV")+" "+L.mav+" / "+term("mrv","MRV")+" "+L.mrv)}
+  ${line("Trained", lastTxt+", "+(o.days||0)+" session"+((o.days||0)===1?"":"s"))}
+  ${line(term("fatigue","How tired"), A.fat[g]+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], A.fat[g]/100))}
+  ${line(term("recovery","How recovered"), A.rec[g]+"%", ramp([[0,C_BAD],[.5,C_WARN],[1,C_OK]], A.rec[g]/100))}
+  ${line(term("injury","Injury risk"), inj.score+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], inj.score/100))}
+  ${line(term("growth","Growth"), gr.score==null?"no recent data":(gr.isNew?"first block":(gr.strP>=0?"+":"")+Math.round(gr.strP*100)+"% strength"), gr.score==null?null:ramp([[0,C_BAD],[.5,C_FLAT],[1,C_OK]], gr.score/100))}`;
+
+  const exs = Object.keys(o.exs||{}).sort((a,b)=>o.exs[b]-o.exs[a]);
+  h += `<div class="rev-head">What's feeding it</div>`;
+  if(exs.length){
+    exs.forEach(n=> h += `<div class="wd-ex"><b>${esc(n)}</b><span class="num">${r1(o.exs[n])} sets</span></div>`);
+    h += `<div class="bm-explain" style="margin-top:9px">A set is not worth the same to every muscle it touches. ${term("weighting","Why the fractions")}</div>`;
+  } else {
+    h += `<div class="wd-none">Nothing in ${esc(A.win.label)}.</div>`;
+  }
+
+  const spanDays = S.sessions.length ? (Date.now() - S.sessions[0].startedAt)/DAY_MS : 0;
+  const mine = (S.sessions.length >= 4 && spanDays >= 6) ? A.weak.filter(w=>w.muscle===g) : [];
+  if(mine.length){
+    h += `<div class="rev-head">Flagged</div>`;
+    mine.forEach(w=> h += `<div class="wp sev${w.sev}" style="cursor:default">
+      <span class="wp-rank">!</span>
+      <span class="wp-body"><span class="wp-do">${esc(w.act)}</span><span class="wp-why">${esc(w.detail)}</span></span>
+    </div>`);
+  }
+
+  h += heads.length > 1
+    ? `<div class="btn-row" style="margin-top:16px">
+        <button class="btn small" id="gSplit">Break into its ${heads.length} parts</button>
+        <button class="btn ghost small" id="closeModal">Done</button>
+      </div>
+      <div class="sub" style="margin-top:8px;color:var(--faint)">Volume targets only exist at group level; there's no research at head level, and no exercise isolates a single head cleanly enough to aim at one. Heads are judged on their share of the group's work instead.</div>`
+    : `<button class="btn" style="margin-top:16px" id="closeModal">Done</button>`;
+  showModal(h);
+  MODAL_REOPEN = ()=> openGroupDetail(g);
+  const sp = $("#gSplit");
+  if(sp) sp.onclick = ()=>{
+    BODY_FOCUS = g; BODY_EXPAND = true;
+    hideModal();
+    if(TAB !== "body"){
+      TAB = "body";
+      document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on", x.dataset.tab==="body"));
+    }
+    render();
+    window.scrollTo(0,0);
+    showNav();
+  };
 }
 /* Tapping any head opens this. It is the main place a beginner learns what a muscle
    even is, so it leads with plain English and puts the numbers underneath. */
 function openMuscleDetail(key){
   const R = REGIONS[key];
-  if(!R){ return; }                                  // group keys are not tappable
+  if(!R){ return openGroupDetail(key); }             // a group key drills to its own card
   const g = R.g, G = GROUPS[g];
   const A = bodyAnalysis();
-  const L = adjustedLandmarks(A, g);
+  const L = A.lm[g] || adjustedLandmarks(A, g);
   const own = A.rwk.sets[key] || 0;
   const share = A.rwk.share[key] || 0;
   const heads = GROUP_REGIONS[g];
-  const gwk = A.wk[g], st = A.state[g], gr = A.grow[g], inj = A.inj[g];
-  const line = (k,v,c)=>`<div class="rev-line"><b>${k}</b><span class="num"${c?` style="color:${c}"`:""}>${v}</span></div>`;
-  const lastTxt = gwk.lastMs
-    ? (()=>{ const hrs = Math.round((Date.now()-gwk.lastMs)/3600e3);
-             return hrs < 48 ? hrs+" h ago" : Math.round(hrs/24)+" days ago"; })()
-    : "not in the last 7 days";
 
   let h = `<h3>${esc(R.name)}</h3>
   <div class="md-what">
@@ -3817,42 +4770,22 @@ function openMuscleDetail(key){
       <div class="bm-explain" style="margin-top:8px">${esc(verdict)} An even split would be about ${Math.round(fair*100)}% each.</div>`;
   }
 
-  // group level numbers, clearly labelled as group level
-  h += `<div class="rev-head">Your ${esc(G.name.toLowerCase())} this week</div>
-  <div class="sub" style="margin:-2px 0 8px;color:var(--faint)">Volume targets work at group level, not per head. ${term("mev","Why")}</div>
-  ${line(term("hardset","Hard sets"), r1(gwk.sets)+" of "+L.mav+" target", muscleMetric(A,g,"volume").color)}
-  ${line("Your range", "MEV "+L.mev+" / MAV "+L.mav+" / MRV "+L.mrv)}
-  ${line("Trained", lastTxt+", "+(gwk.days||0)+"x this week")}
-  ${line(term("fatigue","How tired"), A.fat[g]+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], A.fat[g]/100))}
-  ${line(term("recovery","How recovered"), A.rec[g]+"%", ramp([[0,C_BAD],[.5,C_WARN],[1,C_OK]], A.rec[g]/100))}
-  ${line(term("injury","Injury risk"), inj.score+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], inj.score/100))}
-  ${line(term("growth","Growth"), gr.score==null?"no recent data":(gr.isNew?"first block":(gr.strP>=0?"+":"")+Math.round(gr.strP*100)+"% strength"), gr.score==null?null:ramp([[0,C_BAD],[.5,C_FLAT],[1,C_OK]], gr.score/100))}
-  <div class="bm-explain" style="margin-top:8px">${esc(st.txt.charAt(0).toUpperCase()+st.txt.slice(1))}.</div>`;
-
-  // WHAT IS FEEDING IT, with the reasoning behind the weights
+  // WHAT IS FEEDING IT
   const exs = Object.keys(A.rwk.exs[key]||{}).sort((a,b)=>A.rwk.exs[key][b]-A.rwk.exs[key][a]);
-  h += `<div class="rev-head">What is feeding it</div>`;
+  h += `<div class="rev-head">What's feeding it, ${esc(A.win.short)}</div>`;
   if(exs.length){
-    exs.forEach(n=>{
-      const c = A.rwk.exs[key][n];
-      h += `<div class="rev-line"><b>${esc(n)}</b><span class="num">${r1(c)} sets</span></div>`;
-    });
-    h += `<div class="bm-explain" style="margin-top:8px">Notice the fractions. A set almost never counts as a
-      whole set for every muscle it touches, and that is deliberate.</div>`;
+    exs.forEach(n=> h += `<div class="wd-ex"><b>${esc(n)}</b><span class="num">${r1(A.rwk.exs[key][n])} sets</span></div>`);
   } else {
-    h += `<div class="sub">Nothing in the last 7 days.</div>`;
+    h += `<div class="wd-none">Nothing in ${esc(A.win.label)}.</div>`;
   }
-  h += `<button class="more-btn" data-term="weighting" style="margin-top:10px">Why do sets count as fractions?</button>`;
 
-  const spanDays = S.sessions.length ? (Date.now() - S.sessions[0].startedAt)/DAY_MS : 0;
-  const mine = (S.sessions.length >= 4 && spanDays >= 6) ? A.weak.filter(w=>w.muscle===g) : [];
-  if(mine.length){
-    h += `<div class="rev-head">Flagged</div>`;
-    mine.forEach(w=> h += `<div class="wp sev${w.sev}"><div class="wp-head"><b>${esc(w.title)}</b></div><div class="wp-why">${esc(w.why)}</div><div class="wp-fix"><b>Do this</b> ${esc(w.fix)}</div></div>`);
-  }
-  h += `<button class="btn" style="margin-top:16px" id="closeModal">Done</button>`;
+  h += `<div class="btn-row" style="margin-top:16px">
+      <button class="btn small" data-gopen="${g}">Back to ${esc(G.name)}</button>
+      <button class="btn ghost small" id="closeModal">Done</button>
+    </div>`;
   showModal(h);
   MODAL_REOPEN = ()=> openMuscleDetail(key);
+  document.querySelectorAll("#modal [data-gopen]").forEach(b=> b.onclick=()=> openGroupDetail(g));
 }
 /* ---------- HISTORY ---------- */
 function viewHistory(){
@@ -3880,7 +4813,7 @@ function viewHistory(){
           <span class="dot" style="background:${m.color}"></span><b>${m.name}</b>
         </div>
         <span style="display:flex;align-items:center;gap:8px">
-          ${q?`<span class="sc-badge" style="color:${qc};background:${qc}22">${q.grade} · ${q.total}</span>`:""}
+          ${q?`<span class="sc-badge" style="color:${qc};background:${qc}22">${q.grade} · ${Math.round(q.pct*100)}%</span>`:""}
           <span class="sub num">${fmtDate(s.date)}</span>
         </span>
       </div>
@@ -3937,23 +4870,34 @@ function viewProgram(){
     });
     h += `<button class="btn ghost small" data-addex="${wid}" style="margin-top:10px">+ Add exercise</button></div>`;
   });
-  // finisher, attached to every workout
-  h += `<div class="card">
-    <div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">
-      <span class="dot" style="background:var(--dim)"></span><h3>Finisher</h3>
-    </div>
-    <div class="sub" style="margin-bottom:6px">Runs at the end of every workout, in this order.</div>`;
-  (S.program.finisher||[]).forEach((e,i)=>{
-    h += `<div class="prog-ex">
-      <div><b>${esc(e.name)}</b><div class="meta">${e.sets}×${esc(e.reps)}${e.rpe?" · "+esc(rpeTxt(e.rpe)):""}${e.weight!=null?" · "+e.weight+" lb":""}${e.note?" · "+esc(e.note):""}</div></div>
-      <div class="icon-btns">
-        <button data-up="finisher:${i}" aria-label="Move up">↑</button>
-        <button data-down="finisher:${i}" aria-label="Move down">↓</button>
-        <button data-edit="finisher:${i}" aria-label="Edit">✎</button>
+  /* The finisher, which runs at the end of every workout. It's empty by default now
+     that the abs live on Back and Shoulders day, so the full card only appears once
+     there's something in it; otherwise it's one quiet line, which keeps the option
+     available without leaving an empty panel on the page. */
+  const fin = S.program.finisher || [];
+  if(fin.length){
+    h += `<div class="card">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">
+        <span class="dot" style="background:var(--dim)"></span><h3>Finisher</h3>
       </div>
+      <div class="sub" style="margin-bottom:6px">Runs at the end of every workout, in this order.</div>`;
+    fin.forEach((e,i)=>{
+      h += `<div class="prog-ex">
+        <div><b>${esc(e.name)}</b><div class="meta">${e.sets}×${esc(e.reps)}${e.rpe?" · "+esc(rpeTxt(e.rpe)):""}${e.weight!=null?" · "+e.weight+" lb":""}${e.note?" · "+esc(e.note):""}</div></div>
+        <div class="icon-btns">
+          <button data-up="finisher:${i}" aria-label="Move up">↑</button>
+          <button data-down="finisher:${i}" aria-label="Move down">↓</button>
+          <button data-edit="finisher:${i}" aria-label="Edit">✎</button>
+        </div>
+      </div>`;
+    });
+    h += `<button class="btn ghost small" data-addex="finisher" style="margin-top:10px">+ Add exercise</button></div>`;
+  } else {
+    h += `<div class="sub" style="text-align:center;margin:4px 2px 8px">
+      No finisher. Core work sits at the end of Back and Shoulders day instead.
+      <button class="linklike" data-addex="finisher" style="margin-left:4px">Add a finisher</button>
     </div>`;
-  });
-  h += `<button class="btn ghost small" data-addex="finisher" style="margin-top:10px">+ Add exercise</button></div>`;
+  }
   return h;
 }
 
@@ -3978,8 +4922,32 @@ function viewSync(){
       <button class="${S.viewMode!=="focus"?"on":""}" data-vmode="regular">Regular</button>
       <button class="${S.viewMode==="focus"?"on":""}" data-vmode="focus">Focus</button>
     </div>
-  </div>
-  <div class="card">
+  </div>`;
+
+  /* Moved here from the Body tab. It is configuration and reference material, not
+     something you read while looking at the map, and it was the last long block
+     standing between the map and the answers underneath it. */
+  h += `<div class="card sec">
+    <button class="sec-h" data-sec="targets">
+      <span class="sec-t">How your targets are set</span>
+      <span class="sec-x">${BODY_OPEN.targets?"−":"+"}</span>
+    </button>
+    <div class="sec-sub">Where your volume numbers come from, what moves them, and which window they're counted over.</div>
+    ${BODY_OPEN.targets?`<div class="sec-b">
+      <div class="rev-head" style="margin-top:0">What a "week" means here</div>
+      <div class="bm-explain" style="margin-bottom:9px">Volume research is published per week, but your rotation is 7 workouts plus a rest day, which takes 8 to 11 real days. Counted on a rolling week, a muscle lands inside the window twice in some weeks and once in others, so its numbers move for reasons that have nothing to do with your training.</div>
+      <div class="seg" style="margin-bottom:6px">
+        <button class="${(S.volWindow||"cycle")==="cycle"?"on":""}" data-volwin="cycle">This cycle</button>
+        <button class="${(S.volWindow||"cycle")==="week"?"on":""}" data-volwin="week">Rolling 7 days</button>
+      </div>
+      <div class="sub" style="margin-bottom:10px">${(S.volWindow||"cycle")==="cycle"
+        ? "Counting everything since this cycle began, with your MEV / MAV / MRV thresholds scaled to the cycle's real length. Recommended: it matches how you actually train."
+        : "Counting the last 7 calendar days against unscaled weekly thresholds. Simpler, but noisier on a rotation that doesn't line up with the calendar week."}</div>
+      ${S.sessions.length ? landmarkExplainerHTML(bodyAnalysis()) : `<div class="sub">Log a few sessions and this fills in with your own numbers.</div>`}
+    </div>`:""}
+  </div>`;
+
+  h += `<div class="card">
     <h3>GitHub gist sync</h3>
     <div class="sub" style="margin-bottom:10px">Set this up <b>once per device</b> and syncing is fully automatic from then on, when you open the app, when you come back to it, and after every workout or program change. The dot next to the app name shows status (green = synced). Create a <b>classic token</b> at github.com → Settings → Developer settings → Personal access tokens, with only the <b>gist</b> scope. It's stored only in this browser.</div>
     <div class="field"><label>Personal access token</label><input id="tokenIn" type="password" value="${esc(c.token)}" placeholder="ghp_..."></div>
@@ -4128,6 +5096,12 @@ function bind(){
       save(); queueSync(); render();
     }
   };
+
+  // "See the full breakdown" on the Since-last-time card
+  document.querySelectorAll("[data-fullgrade]").forEach(b=> b.onclick=()=>{
+    const s = S.sessions.find(x=>x.id===b.dataset.fullgrade);
+    if(s) openScoreCard(s, null);
+  });
 
   const start = $("#startBtn");
   if(start) start.onclick = ()=> startWorkout(todaysWorkoutId());
@@ -4343,8 +5317,14 @@ function bind(){
   document.querySelectorAll("[data-scoresess]").forEach(b=> b.onclick=()=>{
     const s = S.sessions.find(x=>x.id===b.dataset.scoresess);
     if(!s) return;
-    // grade older sessions on demand and keep the result
-    if(!s.quality){ s.quality = scoreWorkout(s); s.edited = Date.now(); save(); queueSync(); }
+    // Grade older sessions on demand and keep the result. A score from the previous
+    // scoring version is re-run too, so History isn't a mix of two different scales.
+    if(!s.quality || s.quality.v !== 2){
+      sweepSessionPRs(s);
+      s.quality = scoreWorkout(s);
+      s.edited = Date.now();
+      save(); queueSync();
+    }
     openScoreCard(s, ()=>render());
   });
   // reorder exercises inside a finished session, straight from History
@@ -4366,20 +5346,29 @@ function bind(){
     BODY_METRIC = b.dataset.metric;
     render();
   });
-  /* Figure taps. A whole group drills in to its heads; a head opens its detail. Tapping
-     the group you are already inside backs out again, so it is a toggle either way. */
+  /* Figure taps. A tap SELECTS a major muscle and nothing more; splitting it into its
+     individual heads is an explicit button, not something a second tap does by accident.
+     Tapping the selected muscle again clears it, so it stays a toggle. */
   document.querySelectorAll("#app [data-g]").forEach(el=> el.onclick=()=>{
     const g = el.dataset.g;
-    const heads = GROUP_REGIONS[g] || [];
-    if(BODY_FOCUS !== g){ BODY_FOCUS = g; BODY_EXPAND = false; }      // 1st tap: highlight it
-    else if(heads.length > 1 && !BODY_EXPAND){ BODY_EXPAND = true; }  // 2nd tap: split into heads
-    else if(heads.length === 1){ openMuscleDetail(heads[0]); return; }// nothing to split
-    else { BODY_FOCUS = null; BODY_EXPAND = false; }                  // 3rd tap: clear
+    if(BODY_FOCUS === g){ BODY_FOCUS = null; BODY_EXPAND = false; }   // tap again to clear
+    else { BODY_FOCUS = g; BODY_EXPAND = false; }
     render();
   });
   document.querySelectorAll("#app [data-m]").forEach(el=> el.onclick=()=> openMuscleDetail(el.dataset.m));
-  document.querySelectorAll("[data-g2]").forEach(b=> b.onclick=()=>{ BODY_FOCUS=b.dataset.g2; BODY_EXPAND=true; render(); });
-  document.querySelectorAll("[data-open1]").forEach(b=> b.onclick=()=> openMuscleDetail(b.dataset.open1));
+  // "Break it down": the only route to head level from the figure
+  document.querySelectorAll("#app [data-g2]").forEach(b=> b.onclick=()=>{ BODY_FOCUS=b.dataset.g2; BODY_EXPAND=true; render(); });
+  // "Analyse", and the rows in Every muscle: open the group's own card
+  document.querySelectorAll("#app [data-gdetail]").forEach(b=> b.onclick=()=>{
+    BODY_FOCUS = b.dataset.gdetail;
+    openGroupDetail(b.dataset.gdetail);
+  });
+  document.querySelectorAll("#app [data-grow]").forEach(b=> b.onclick=()=>{
+    BODY_FOCUS = b.dataset.grow; BODY_EXPAND = false;
+    openGroupDetail(b.dataset.grow);
+  });
+  // a "What to fix" row: show the exercises and numbers the finding came from
+  document.querySelectorAll("#app [data-wp]").forEach(b=> b.onclick=()=> openWeakPoint(parseInt(b.dataset.wp,10)));
   const bmb = $("#bmBack");
   if(bmb) bmb.onclick = ()=>{ BODY_FOCUS = null; BODY_EXPAND = false; render(); };
   document.querySelectorAll("[data-mrow]").forEach(r=> r.onclick=()=>{
@@ -4393,6 +5382,11 @@ function bind(){
     S.experience = b.dataset.exp;
     save(); queueSync(); render();
     toast(b.dataset.exp==="auto" ? "Experience set from your history" : "Targets scaled for "+b.dataset.exp);
+  });
+  document.querySelectorAll("[data-volwin]").forEach(b=> b.onclick=()=>{
+    S.volWindow = b.dataset.volwin;
+    save(); queueSync(); render();
+    toast(S.volWindow==="cycle" ? "Volume counted over your cycle" : "Volume counted over a rolling 7 days");
   });
 
   document.querySelectorAll("[data-edit]").forEach(b=> b.onclick=()=> openExEditor(...b.dataset.edit.split(":")));
@@ -4514,6 +5508,9 @@ function finishWorkout(){
   S.sessions.push(sessObj);
   S.sessions.sort((x,y)=>x.startedAt-y.startedAt);
   S.active = null;
+  // Re-check every logged set for records BEFORE grading, so a PR typed into a row
+  // that never got an explicit ✓ still counts, both as a badge and as improvement.
+  sweepSessionPRs(sessObj);
   // graded once, at the moment it's finished, and stored on the session so History
   // shows the same number later even as the surrounding history grows
   sessObj.quality = scoreWorkout(sessObj);
@@ -4653,13 +5650,34 @@ function openExEditor(wid, idx){
       if(!na.name){ toast("Name the alternate too"); return; }
       ne.alt = na;
     }
+    /* A rename must not orphan the exercise's own history. Two things happen:
+       the old name is registered as an alias, which is enough on its own because every
+       lookup in the app canonicalises through it, so "last time", PR detection and the
+       overload grade all keep working; and the logged entries are rewritten so History
+       and the printed report show the new name too. */
+    const oldName = isNew ? "" : String(e.name||"");
+    if(!isNew && oldName && nrm(oldName) !== nrm(ne.name)){
+      const oldKey = nrmRaw(oldName);
+      let moved = 0;
+      S.sessions.forEach(s=>{
+        let touched = false;
+        (s.entries||[]).forEach(en=>{
+          if(nrmRaw(en.name) === oldKey){ en.name = ne.name; touched = true; moved++; }
+        });
+        if(touched) s.edited = Date.now();
+      });
+      S.exAliases[oldKey] = ne.name;
+      USER_ALIASES = S.exAliases; invalidateTableOrigin();
+      if(moved) toast("Renamed, and "+moved+" logged entr"+(moved===1?"y":"ies")+" came with it");
+    }
     if(isNew) S.program[wid].push(ne); else S.program[wid][idx]=ne;
+    invalidateMultiDay();
     save(); queueSync(); hideModal(); render();
   };
   const del = $("#delEx");
   if(del) del.onclick = ()=>{
     if(confirm("Remove this exercise from the program? Past logs keep it.")){
-      S.program[wid].splice(idx,1); save(); queueSync(); hideModal(); render();
+      S.program[wid].splice(idx,1); invalidateMultiDay(); save(); queueSync(); hideModal(); render();
     }
   };
 }
@@ -4811,18 +5829,31 @@ function renderSessEditor(s){
 /* =====================================================================
    WORKOUT QUALITY SCORE
 
-   Eight sections, 100 points, each one grading something with an actual evidence base
-   behind it rather than a vibe. Every section reports its own grade and the reasoning,
-   so the number is auditable, you can always see which points you left on the table.
+   Eight sections, 100 points, each grading something with an evidence base behind it
+   rather than a vibe. Every section reports its grade, its reasoning, and where it can,
+   the exercises the finding came from, so nothing here is a verdict you can't audit.
 
-     1. Completion .............. 15   did the planned work get done
-     2. Progressive overload .... 15   did it beat the last time
-     3. Effective intensity ..... 14   were sets close enough to failure to count
-     4. Rest discipline ......... 14   rest matched to what each set demanded
+   Two decisions worth spelling out, because they changed how the number behaves:
+
+   • A SECTION THE APP CANNOT MEASURE IS NOT SCORED. The old card handed out half credit
+     when RPE or rest times were missing, which quietly capped a genuinely excellent
+     session at about 93% for not filling in a field, and rewarded a bad session for the
+     same omission. Unmeasurable sections are now marked N/A and dropped from the
+     denominator: the grade describes the training the app could actually see. What was
+     skipped is still listed, with what to log to make it count next time.
+
+   • THE POINTS FOLLOW THE EVIDENCE. Whether the load went up is the best single
+     predictor that training worked, so overload carries the most weight. Session
+     efficiency has the weakest link to any outcome, so it carries the least.
+
+     1. Completion .............. 14   did the planned work get done
+     2. Progressive overload .... 20   did it beat the last time you did it
+     3. Effective intensity ..... 16   were sets close enough to failure to count
+     4. Rest discipline ......... 12   rest matched to what each set demanded
      5. Rep-range adherence ..... 10   sets landing in their prescribed range
      6. Fatigue management ...... 10   performance held across sets
-     7. Session efficiency ...... 12   duration and density
-     8. Log quality ............. 10   RPE, feel, note, check-in, timer use
+     7. Session efficiency ......  8   duration and density
+     8. Log quality ............. 10   RPE, rest, feel, note, check-in
    ===================================================================== */
 function gradeFor(pct){
   if(pct >= .97) return "A+";
@@ -4846,7 +5877,7 @@ function repRange(str){
   const one = String(str||"").match(/(\d+)/);
   return one ? [parseInt(one[1],10), parseInt(one[1],10)] : null;
 }
-// The previous session of the same rotation day, what "did I progress?" measures against.
+// The previous session of the same rotation day, used for the section's headline text.
 function priorSessionFor(sess){
   let best = null;
   S.sessions.forEach(s=>{
@@ -4857,86 +5888,153 @@ function priorSessionFor(sess){
   });
   return best;
 }
+/* ---------- the last time you did THIS EXERCISE ----------
+   Overload used to be measured only against the previous session of the same rotation
+   day, matched on the exact name. That failed in three ordinary situations, all of
+   which read to you as "the app says nothing improved" when something clearly had:
+
+     • the exercise was renamed, so it no longer matched its own history at all;
+     • it moved between days, or you swapped a workout, so the same-day session had
+       never contained it;
+     • it is the finisher, which runs at the end of EVERY workout, so the same-day
+       lookup skipped over the four more recent times you actually did it.
+
+   It now finds the last session that contains the exercise, preferring the same
+   rotation day where there is one and falling back to any earlier session where there
+   isn't, and matches on the canonical name so a rename is invisible here.           */
+function priorEntryFor(sess, exName, occ){
+  occ = occ || 0;
+  const k = nrm(exName);
+  const earlier = S.sessions
+    .filter(s => s.id !== sess.id && s.startedAt < sess.startedAt)
+    .sort((a,b)=> b.startedAt - a.startedAt);
+  for(const sameDayOnly of [true, false]){
+    for(const s of earlier){
+      if(sameDayOnly && s.workoutId !== sess.workoutId) continue;
+      const hits = (s.entries||[]).filter(en => nrm(en.name) === k);
+      if(!hits.length) continue;
+      return {entry: hits[Math.min(occ, hits.length-1)], sess:s, sameDay: s.workoutId === sess.workoutId};
+    }
+  }
+  return null;
+}
+// Best estimated 1RM across a set list. Bodyweight movements fall back to rep count,
+// which is the only thing that can move on them.
+function topE1RM(sets){
+  return (sets||[]).reduce((b,st)=>{
+    if(!isWorkingSet(st)) return b;
+    const v = est1RM(parseFloat(st.weight)||0, parseFloat(st.reps)||0) || (parseFloat(st.reps)||0);
+    return v > b ? v : b;
+  }, 0);
+}
 function scoreWorkout(sess){
   const secs = [];
-  const add = (key, label, max, earned, why, tip)=>{
+  /* `opt.na` marks a section as unmeasurable: it keeps its explanation and its
+     "log this to unlock it" line, but contributes neither points nor maximum. */
+  const add = (key, label, max, earned, why, tip, opt)=>{
+    opt = opt || {};
+    if(opt.na){
+      secs.push({key, label, max, na:true, pts:0, pct:null, grade:"—",
+                 why:why.filter(Boolean), tip:tip||null, unlock:opt.unlock||null});
+      return;
+    }
     const pts = Math.max(0, Math.min(max, earned));
     secs.push({key, label, max, pts:Math.round(pts*10)/10, pct:pts/max,
-               grade:gradeFor(pts/max), why:why.filter(Boolean), tip});
+               grade:gradeFor(pts/max), why:why.filter(Boolean), tip:tip||null,
+               ex:opt.ex||null});
   };
   const entries = sess.entries || [];
   const allSets = [];
   entries.forEach(e=> e.sets.forEach(st=>{ if(isWorkingSet(st)) allSets.push({e, st}); }));
   const nSets = allSets.length;
+  const prs = sessionPRs(sess);
 
   /* 1, COMPLETION ------------------------------------------------------------- */
   (()=>{
-    const planned = resolvedProgram(sess.workoutId)
-      .reduce((t,{chosen:e})=>t + (parseInt(e.sets,10)||0), 0);
+    const plan = resolvedProgram(sess.workoutId);
+    const planned = plan.reduce((t,{chosen:e})=>t + (parseInt(e.sets,10)||0), 0);
     const why = [];
     if(!planned){
-      add("completion","Completion",15,15,["No prescribed set count to compare against, credited in full."]);
+      add("completion","Completion",14,0,
+        ["This workout has no prescribed set count to compare against."],null,
+        {na:true, unlock:"Give these exercises a target number of sets in Program."});
       return;
     }
     const ratio = nSets/planned;
     // Overshooting the plan isn't extra credit; hitting it is.
-    const earned = 15 * Math.min(1, ratio);
+    const earned = 14 * Math.min(1, ratio);
     why.push(nSets+" working sets logged against "+planned+" planned ("+Math.round(ratio*100)+"%).");
-    const skipped = resolvedProgram(sess.workoutId).length - entries.length;
+    const skipped = plan.length - entries.length;
     if(skipped > 0) why.push(skipped+" exercise"+(skipped>1?"s":"")+" from the plan didn't get logged.");
     if(ratio >= 1) why.push("Everything on the card got done.");
-    add("completion","Completion",15,earned,why,
+    add("completion","Completion",14,earned,why,
       ratio < 1 ? "Unfinished sets are the cheapest points on this card. If time is the constraint, superset the accessories rather than dropping them."
                 : null);
   })();
 
-  /* 2, PROGRESSIVE OVERLOAD --------------------------------------------------- */
+  /* 2, PROGRESSIVE OVERLOAD ---------------------------------------------------
+     Graded per exercise against the last time you did THAT exercise, rather than
+     against a whole session. A personal record counts as improvement outright: a PR
+     is by definition the best you have ever done that movement, so a comparison that
+     disagrees is the comparison being wrong, not the lift.                          */
   (()=>{
-    const prev = priorSessionFor(sess);
-    const why = [];
-    if(!prev){
-      add("overload","Progressive overload",15,15*0.8,
-        ["No previous "+widName(sess.workoutId).toLowerCase()+" session to compare against, this one becomes the baseline."],
-        "From your next "+widName(sess.workoutId).toLowerCase()+" day on, this section grades you against today's numbers.");
-      return;
-    }
-    let beat = 0, held = 0, lost = 0;
-    const gains = [], drops = [];
+    const prNames = new Set(prs.map(p=>nrm(p.name)));
+    const rows = [];
     entries.forEach((e,i)=>{
+      const a = topE1RM(e.sets);
+      if(!a) return;
       const occ = occIndex(entries, i);
-      const hits = occurrencesIn(prev, e.name);
-      if(!hits.length) return;
-      const pe = hits[Math.min(occ, hits.length-1)];
-      const top = sets => sets.reduce((b,st)=>{
-        if(!isWorkingSet(st)) return b;
-        const v = est1RM(parseFloat(st.weight)||0, parseFloat(st.reps)||0) || (parseFloat(st.reps)||0);
-        return v > b ? v : b;
-      }, 0);
-      const a = top(e.sets), b = top(pe.sets);
-      if(!a || !b) return;
-      if(a > b*1.004){ beat++; gains.push(e.name); }
-      else if(a >= b*0.985) held++;
-      else { lost++; drops.push(e.name); }
+      const prior = priorEntryFor(sess, e.name, occ);
+      const b = prior ? topE1RM(prior.entry.sets) : 0;
+      const isPR = prNames.has(nrm(e.name));
+      if(!b){ rows.push({name:e.name, kind:isPR?"up":"new", a, pr:isPR}); return; }
+      const d = (a - b)/b;
+      let kind = d > 0.004 ? "up" : d >= -0.015 ? "held" : "down";
+      if(isPR) kind = "up";                      // a record beats any comparison
+      rows.push({name:e.name, a, b, d, kind, pr:isPR, sameDay:prior.sameDay});
     });
-    const compared = beat + held + lost;
-    if(!compared){
-      add("overload","Progressive overload",15,15*0.8,
-        ["None of today's exercises appear in the previous "+widName(sess.workoutId).toLowerCase()+" session, so there's nothing to compare."],
-        "Keeping the same core movements week to week is what makes overload measurable.");
+    const cmp = rows.filter(r=>r.kind!=="new");
+    const why = [];
+    if(!cmp.length){
+      why.push(rows.length
+        ? "Every exercise today is one with no earlier log to beat, so this is the baseline."
+        : "No loads logged, so progression can't be measured.");
+      add("overload","Progressive overload",20,0,why,
+        "From here on, this section compares each exercise against the last time you did it, whichever day that was.",
+        {na:true, unlock:"Run the same movements again next time round."});
       return;
     }
-    // Beating a lift is worth full credit, holding is worth most of it, going
-    // backwards earns nothing, matching how overload actually drives adaptation.
-    const earned = 15 * ((beat*1 + held*0.62) / compared);
-    why.push(beat+" of "+compared+" compared lifts went up, "+held+" held, "+lost+" went down.");
-    if(gains.length) why.push("Up: "+gains.slice(0,4).join(", ")+(gains.length>4?" +"+(gains.length-4)+" more":"")+".");
-    if(drops.length) why.push("Down: "+drops.slice(0,4).join(", ")+(drops.length>4?" +"+(drops.length-4)+" more":"")+".");
-    add("overload","Progressive overload",15,earned,why,
-      beat === 0 && lost > 0
-        ? "Nothing moved up and some lifts regressed, that's usually fatigue rather than effort. A lighter week often unlocks the next jump."
-        : beat === 0
+    const up = cmp.filter(r=>r.kind==="up");
+    const held = cmp.filter(r=>r.kind==="held");
+    const down = cmp.filter(r=>r.kind==="down");
+    // Beating a lift earns full credit; holding earns most of it, because holding under
+    // accumulated fatigue is a real outcome; going backwards earns nothing.
+    const earned = 20 * ((up.length + held.length*0.62)/cmp.length);
+    why.push(up.length+" of "+cmp.length+" lifts went up, "+held.length+" held, "+down.length+" went down.");
+    if(prs.length) why.push("Personal record"+(prs.length>1?"s":"")+" today: "+
+      [...new Set(prs.map(p=>p.name))].join(", ")+".");
+    const fmtRow = r=>r.name+" ("+Math.round(r.b)+"→"+Math.round(r.a)+" est. 1RM)";
+    if(up.length) why.push("Up: "+up.slice(0,4).map(r=>r.b?fmtRow(r):r.name).join(", ")+
+      (up.length>4?" +"+(up.length-4)+" more":"")+".");
+    if(down.length) why.push("Down: "+down.slice(0,4).map(fmtRow).join(", ")+
+      (down.length>4?" +"+(down.length-4)+" more":"")+".");
+    const worst = down.slice().sort((x,y)=>x.d-y.d)[0];
+    add("overload","Progressive overload",20,earned,why,
+      up.length === 0 && down.length > 0
+        ? "Nothing moved up and some lifts went backwards. That is usually accumulated fatigue rather than effort, and a lighter week often unlocks the next jump."
+        : up.length === 0
           ? "Holding is not failing, but pick one lift next session and add either 2.5-5 lb or a single rep. Overload only needs one variable to move."
-          : null);
+          : down.length > up.length
+            ? "More lifts went backwards than forwards. Look at the running order: whatever sits at the end of the session pays for everything in front of it."
+            : down.length
+              ? "Most things moved, but "+
+                (down.length===1 ? down[0].name
+                 : down.length===2 ? down[0].name+" and "+down[1].name
+                 : down[0].name+", "+down[1].name+" and "+(down.length-2)+" other"+(down.length===3?"":"s"))+
+                " went backwards. If that keeps happening, try moving "+
+                (worst ? worst.name : "it")+" earlier, while you're still fresh."
+              : null,
+      {ex: worst ? worst.name : null});
   })();
 
   /* 3, EFFECTIVE INTENSITY ---------------------------------------------------- */
@@ -4944,20 +6042,21 @@ function scoreWorkout(sess){
     const rpes = allSets.map(x=>parseFloat(x.st.rpe)).filter(v=>v>0);
     const why = [];
     if(!rpes.length){
-      add("intensity","Effective intensity",14,14*0.5,
-        ["No RPE logged, so proximity to failure can't be assessed, scored at half credit."],
-        "RPE is the single most informative number you can log. Even a rough 8 or 9 on the last set of each exercise makes this section real.");
+      add("intensity","Effective intensity",16,0,
+        ["No RPE logged, so how close these sets came to failure can't be assessed."],
+        "RPE is the most informative number you can log: weight and reps say what you lifted, RPE says whether it was hard enough to grow anything.",
+        {na:true, unlock:"Score even the last set of each exercise and this starts counting."});
       return;
     }
     const avg = rpes.reduce((a,b)=>a+b,0)/rpes.length;
     const inRange = rpes.filter(v=>v>=7 && v<=10).length;
     const junk = rpes.filter(v=>v<7).length;
     const maxedOut = rpes.filter(v=>v>=9.5).length;
-    // Hypertrophy accrues from sets taken within ~4 reps of failure; below RPE 7 the
-    // stimulus drops off sharply. Ideal average sits around 8.5.
-    const rangeScore = inRange/rpes.length;                    // share of usable sets
-    const avgScore = 1 - Math.min(1, Math.abs(avg - 8.5)/2.5); // how close the average is to 8.5
-    let earned = 14 * (rangeScore*0.6 + avgScore*0.4);
+    // Hypertrophy accrues from sets taken within about 4 reps of failure; below RPE 7
+    // the stimulus falls away sharply. The productive average sits around 8.5.
+    const rangeScore = inRange/rpes.length;
+    const avgScore = 1 - Math.min(1, Math.abs(avg - 8.5)/2.5);
+    let earned = 16 * (rangeScore*0.6 + avgScore*0.4);
     why.push("Average RPE "+r1(avg)+" across "+rpes.length+" scored sets"+(rpes.length<nSets?" ("+(nSets-rpes.length)+" unscored)":"")+".");
     why.push(inRange+" of "+rpes.length+" sets landed in the productive RPE 7-10 band.");
     if(junk) why.push(junk+" set"+(junk>1?"s":"")+" below RPE 7, too far from failure to drive much growth.");
@@ -4965,7 +6064,7 @@ function scoreWorkout(sess){
       earned *= 0.9;
       why.push("Over half your sets went to RPE 9.5+; training that close to failure everywhere costs more recovery than it buys.");
     }
-    add("intensity","Effective intensity",14,earned,why,
+    add("intensity","Effective intensity",16,earned,why,
       avg < 7.5 ? "Most sets stopped short of where growth happens. Take the last set of each exercise to within 1-2 reps of failure."
       : maxedOut/rpes.length > 0.5 ? "Save true failure for the last set of an exercise. Earlier sets at RPE 8 give nearly the same stimulus for far less fatigue."
       : null);
@@ -4976,9 +6075,10 @@ function scoreWorkout(sess){
     const timed = allSets.filter(x=> x.st.rest != null && !x.e.superset);
     const why = [];
     if(!timed.length){
-      add("rest","Rest discipline",14,14*0.5,
-        ["No rest times recorded, so rest can't be graded, scored at half credit."],
-        "The stopwatch starts on its own when you tap ✓. Leave it running and this section grades itself.");
+      add("rest","Rest discipline",12,0,
+        ["No rest times recorded for this session."],
+        "The stopwatch starts on its own when you tap ✓, so this section grades itself if you just leave it running.",
+        {na:true, unlock:"Leave the rest timer running between sets."});
       return;
     }
     let sum = 0, short = 0, long = 0, good = 0;
@@ -4988,26 +6088,25 @@ function scoreWorkout(sess){
       let s;
       if(r >= t.ideal[0] && r <= t.ideal[1]){ s = 1; good++; }
       else if(r < t.ideal[0]){
-        // credit falls off toward zero as rest approaches nothing
-        s = Math.max(0, r / t.ideal[0]) * 0.85;
+        s = Math.max(0, r / t.ideal[0]) * 0.85;   // credit falls off toward nothing
         if(r < t.warn) short++;
       } else {
-        // long rests cost far less than short ones, mostly a time problem
-        s = Math.max(0.55, 1 - (r - t.ideal[1])/(t.ideal[1]*2));
+        s = Math.max(0.55, 1 - (r - t.ideal[1])/(t.ideal[1]*2));  // long rests cost far less
         if(r > t.hard) long++;
       }
       sum += s;
     });
-    const earned = 14 * (sum/timed.length);
+    const earned = 12 * (sum/timed.length);
     why.push(good+" of "+timed.length+" timed rests sat inside the window that set's load called for.");
-    if(short) why.push(short+" rest"+(short>1?"s were":" was")+" cut short for the intensity, heavy and near-failure sets want 3-5 min, 8-12 rep work 1.5-3 min.");
+    if(short) why.push(short+" rest"+(short>1?"s were":" was")+" cut short for the intensity: heavy and near-failure sets want 3-5 min, 8-12 rep work 1.5-3 min.");
     if(long) why.push(long+" rest"+(long>1?"s ran":" ran")+" well past the window, which stretches the session without adding stimulus.");
     const bands = {};
     timed.forEach(({e,st})=>{ const b = restTargetFor(e,st).band; bands[b] = (bands[b]||0)+1; });
     why.push("Set mix: "+Object.keys(bands).map(b=>bands[b]+" "+b).join(", ")+".");
-    add("rest","Rest discipline",14,earned,why,
+    if(timed.length < nSets) why.push((nSets-timed.length)+" of "+nSets+" sets weren't timed, so this is graded on the ones that were.");
+    add("rest","Rest discipline",12,earned,why,
       short > timed.length*0.3
-        ? "Short rests on heavy work quietly cap your loads, you're fighting the last set instead of the weight. Give the compounds a full 3 minutes."
+        ? "Short rests on heavy work quietly cap your loads: you end up fighting the last set instead of the weight. Give the compounds a full 3 minutes."
         : long > timed.length*0.3 ? "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing."
         : null);
   })();
@@ -5015,29 +6114,35 @@ function scoreWorkout(sess){
   /* 5, REP-RANGE ADHERENCE ---------------------------------------------------- */
   (()=>{
     let inR = 0, under = 0, over = 0, checked = 0;
+    const overEx = {}, underEx = {};
     allSets.forEach(({e, st})=>{
       const range = repRange(e.reps);
       if(!range) return;
       checked++;
       const r = parseFloat(st.reps)||0;
-      if(r < range[0]) under++;
-      else if(r > range[1]) over++;
+      if(r < range[0]){ under++; underEx[e.name] = (underEx[e.name]||0)+1; }
+      else if(r > range[1]){ over++; overEx[e.name] = (overEx[e.name]||0)+1; }
       else inR++;
     });
     const why = [];
     if(!checked){
-      add("reprange","Rep-range adherence",10,10,["No prescribed rep ranges on today's exercises, credited in full."]);
+      add("reprange","Rep-range adherence",10,0,
+        ["None of today's exercises carry a prescribed rep range."],null,
+        {na:true, unlock:"Add a range like 8-12 to these exercises in Program."});
       return;
     }
-    // one rep outside a range is a near miss, not a failure
-    const earned = 10 * ((inR + (under+over)*0.45)/checked);
+    const earned = 10 * ((inR + (under+over)*0.45)/checked);  // one rep out is a near miss
     why.push(inR+" of "+checked+" sets finished inside their prescribed rep range.");
-    if(under) why.push(under+" set"+(under>1?"s":"")+" fell short, the load is likely too heavy for that range.");
-    if(over) why.push(over+" set"+(over>1?"s":"")+" went over the top of the range, that load has become too light.");
+    const topOf = o => Object.keys(o).sort((a,b)=>o[b]-o[a])[0];
+    if(over) why.push(over+" set"+(over>1?"s":"")+" went over the top of the range"+
+      (topOf(overEx)?" (mostly "+topOf(overEx)+")":"")+", so that load has become too light.");
+    if(under) why.push(under+" set"+(under>1?"s":"")+" fell short"+
+      (topOf(underEx)?" (mostly "+topOf(underEx)+")":"")+", so the load is likely too heavy for that range.");
     add("reprange","Rep-range adherence",10,earned,why,
-      over > under && over > 1 ? "Sets finishing above the range are your cue to add weight. Move those up 5 lb next session."
+      over > under && over > 1 ? "Sets finishing above the range are your cue to add weight. Move those up about 5 lb next session."
       : under > 1 ? "Dropping below the range means the load is winning. Come down slightly and earn the reps back."
-      : null);
+      : null,
+      {ex: over > under ? topOf(overEx) : topOf(underEx)});
   })();
 
   /* 6, FATIGUE MANAGEMENT ----------------------------------------------------- */
@@ -5056,29 +6161,31 @@ function scoreWorkout(sess){
     });
     const why = [];
     if(!drops.length){
-      add("fatigue","Fatigue management",10,10*0.8,
-        ["Not enough multi-set exercises at a steady load to measure drop-off."],
-        null);
+      add("fatigue","Fatigue management",10,0,
+        ["No exercise here has two or more sets at a steady load, so rep drop-off can't be measured."],
+        null, {na:true, unlock:"Run at least one exercise for 2+ sets at the same weight."});
       return;
     }
     const avgDrop = drops.reduce((t,d)=>t+d.drop,0)/drops.length;
-    const bad = drops.filter(d=>d.drop > 0.35);
-    // A drop-off up to ~25% across sets is normal and expected; past ~35% the later
-    // sets are being run on empty and contribute mostly fatigue rather than stimulus.
+    const bad = drops.filter(d=>d.drop > 0.35).sort((a,b)=>b.drop-a.drop);
+    // Up to about 25% drop-off across sets is normal and expected; past about 35% the
+    // later sets run on empty and contribute mostly fatigue rather than stimulus.
     const earned = 10 * Math.max(0, Math.min(1, 1 - Math.max(0, avgDrop - 0.25)/0.35));
-    why.push("Reps fell "+Math.round(avgDrop*100)+"% on average from first set to last at the same load, up to about 25% is normal.");
+    why.push("Reps fell "+Math.round(avgDrop*100)+"% on average from first set to last at the same load. Up to about 25% is normal.");
     if(bad.length) why.push("Steep drop-off on "+bad.slice(0,3).map(d=>d.name+" ("+d.first+"→"+d.last+")").join(", ")+".");
-    else why.push("Performance held well across sets, rest and load were matched to the work.");
+    else why.push("Performance held well across sets, so rest and load were matched to the work.");
     add("fatigue","Fatigue management",10,earned,why,
-      bad.length ? "A collapse like that is nearly always too little rest or too heavy an opening set. Rest longer, or start 5 lb lighter and keep the reps."
-      : null);
+      bad.length ? "A collapse like that is nearly always too little rest or too heavy an opening set. Rest longer, or start about 5 lb lighter and hold the reps."
+      : null,
+      {ex: bad.length ? bad[0].name : null});
   })();
 
   /* 7, SESSION EFFICIENCY ----------------------------------------------------- */
   (()=>{
     const why = [];
     if(!sess.startedAt || !sess.finishedAt || sess.finishedAt <= sess.startedAt){
-      add("efficiency","Session efficiency",12,12*0.7,["No usable start/finish time for this session."],null);
+      add("efficiency","Session efficiency",8,0,["No usable start and finish time for this session."],
+        null, {na:true, unlock:"Start the workout from the Today tab so it gets timed."});
       return;
     }
     const mins = (sess.finishedAt - sess.startedAt)/60000;
@@ -5090,14 +6197,14 @@ function scoreWorkout(sess){
     else durScore = Math.max(0.4, 1 - (mins-80)/90);
     const density = nSets / Math.max(1, mins/60);      // working sets per hour
     const denScore = Math.max(0.35, Math.min(1, density/18));
-    const earned = 12 * (durScore*0.6 + denScore*0.4);
+    const earned = 8 * (durScore*0.6 + denScore*0.4);
     why.push(Math.round(mins)+" minutes for "+nSets+" working sets, "+r1(density)+" sets per hour.");
-    why.push(mins < 40 ? "Short session; there's room for more volume before quality suffers."
-           : mins > 80 ? "Long session, past about 80 minutes focus and set quality tend to fall off."
+    why.push(mins < 40 ? "Short session, so there's room for more volume before quality suffers."
+           : mins > 80 ? "Long session. Past about 80 minutes, focus and set quality tend to fall off."
            : "Duration sits in the productive 40-80 minute window.");
-    add("efficiency","Session efficiency",12,earned,why,
+    add("efficiency","Session efficiency",8,earned,why,
       density < 12 ? "Around "+r1(density)+" sets an hour means a lot of standing around. Supersetting unrelated accessories is free time."
-      : mins > 95 ? "Split this into two shorter sessions if you can, two 50-minute workouts beat one 100-minute one."
+      : mins > 95 ? "Split this into two shorter sessions if you can: two 50-minute workouts beat one 100-minute one."
       : null);
   })();
 
@@ -5125,8 +6232,10 @@ function scoreWorkout(sess){
       : null);
   })();
 
-  const total = secs.reduce((t,s)=>t+s.pts, 0);
-  const maxTotal = secs.reduce((t,s)=>t+s.max, 0);
+  const graded  = secs.filter(s=>!s.na);
+  const skipped = secs.filter(s=>s.na);
+  const total = graded.reduce((t,s)=>t+s.pts, 0);
+  const maxTotal = graded.reduce((t,s)=>t+s.max, 0);
   const pct = maxTotal ? total/maxTotal : 0;
   return {
     total: Math.round(total),
@@ -5134,19 +6243,38 @@ function scoreWorkout(sess){
     pct,
     grade: gradeFor(pct),
     sections: secs,
-    prs: sessionPRs(sess),
+    skipped: skipped.map(s=>({key:s.key, label:s.label, unlock:s.unlock})),
+    prs,
+    advice: sessionAdvice(secs),
     when: Date.now(),
-    v: 1
+    v: 2
   };
+}
+/* ---------- what to actually do about it ----------
+   The value of a grade isn't the letter, it's the one change worth making next time.
+   This ranks every section's tip by the points it actually cost, so the top of the list
+   is the highest-value fix rather than whichever section happened to be graded first.
+   Sections that couldn't be scored are worth surfacing too, but never above a real
+   training problem, so they sort last. */
+function sessionAdvice(secs){
+  const out = [];
+  secs.forEach(s=>{
+    if(!s.tip) return;
+    const lost = s.na ? 0 : (s.max - s.pts);
+    out.push({key:s.key, label:s.label, text:s.tip, ex:s.ex||null, lost, na:!!s.na});
+  });
+  return out.sort((a,b)=> (a.na - b.na) || (b.lost - a.lost)).slice(0, 4);
 }
 function scoreBlurb(q){
   const p = q.pct;
-  const weakest = q.sections.slice().sort((a,b)=>a.pct-b.pct)[0];
+  const graded = q.sections.filter(s=>!s.na);
+  const weakest = graded.slice().sort((a,b)=>a.pct-b.pct)[0];
   const lead = p >= .93 ? "Just about a model session."
     : p >= .85 ? "A strong session."
     : p >= .75 ? "A solid session with clear room to tighten up."
     : p >= .6  ? "The work got done, but a lot of value leaked out."
     : "This one was rough, worth understanding why before the next.";
+  if(!weakest) return lead;
   return lead + " Your weakest section was <b>" + esc(weakest.label) + "</b> at " +
     weakest.pts + "/" + weakest.max + ".";
 }
@@ -5167,11 +6295,24 @@ function scoreCardHTML(q, sess){
     h += `<div class="rev-head">Personal records, ${q.prs.length}</div>`;
     q.prs.forEach(p=> h += `<div class="rev-line"><b>🔥 ${esc(p.name)}</b><span class="num">${esc(p.kind)} · ${esc(p.weight||"bw")}×${esc(p.reps||"")}</span></div>`);
   }
-  h += `<div class="rev-head">The eight sections</div>`;
+  /* The single most useful thing on this card is the top of this list, so it goes above
+     the section breakdown rather than being scattered through it. Ranked by the points
+     each one actually cost. */
+  if(q.advice && q.advice.length){
+    h += `<div class="rev-head">Worth changing next time</div>`;
+    q.advice.forEach((a,i)=>{
+      h += `<div class="sc-tip" style="margin:0 0 10px">
+        <b>${i===0?"Start here":esc(a.label)}</b> ${esc(a.text)}
+        ${a.ex?`<div class="sub" style="margin-top:3px;font-size:12.5px">Mostly about <span style="color:var(--text);font-weight:600">${esc(a.ex)}</span></div>`:""}
+      </div>`;
+    });
+  }
+  const graded = q.sections.filter(s=>!s.na);
+  h += `<div class="rev-head">How the ${graded.length} graded section${graded.length===1?"":"s"} scored</div>`;
   // each section title links to the concept it grades
   const SEC_TERM = {overload:"overload", intensity:"rpe", rest:"restwindow",
     reprange:"volume", fatigue:"dropoff", efficiency:"density", logquality:"hardset"};
-  q.sections.forEach(s=>{
+  graded.forEach(s=>{
     const c = gradeColor(s.pct);
     const tid = SEC_TERM[s.key];
     h += `<div class="sc-sec">
@@ -5182,9 +6323,26 @@ function scoreCardHTML(q, sess){
       </div>
       <div class="sc-track"><i style="width:${Math.max(2,Math.round(s.pct*100))}%;background:${c}"></i></div>
       <div class="sc-why"><ul>${s.why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>
-      ${s.tip?`<div class="sc-tip"><b>Next time</b>, ${esc(s.tip)}</div>`:""}
     </div>`;
   });
+  /* Sections the app couldn't measure are shown but NOT scored, so a missing field can
+     never drag a good session's grade down. Each one says what to log to turn it on. */
+  const na = q.sections.filter(s=>s.na);
+  if(na.length){
+    h += `<div class="rev-head">Not graded this time</div>
+      <div class="sub" style="margin:-2px 0 8px">These were left out of the score entirely rather than marked down, so the grade only reflects what could actually be measured.</div>`;
+    na.forEach(s=>{
+      h += `<div class="sc-sec">
+        <div class="sc-sh">
+          <span class="sc-sg" style="color:var(--faint);background:var(--card2)">—</span>
+          <span class="sc-n" style="color:var(--dim)">${esc(s.label)}</span>
+          <span class="sc-pts">n/a</span>
+        </div>
+        <div class="sc-why"><ul>${s.why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>
+        ${s.unlock?`<div class="sc-tip"><b>To grade it</b> ${esc(s.unlock)}</div>`:""}
+      </div>`;
+    });
+  }
   return h;
 }
 function openScoreCard(sess, onDone){
@@ -5532,7 +6690,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, exAliases:S.exAliases||{}, volWindow:S.volWindow||"cycle", deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -5666,6 +6824,8 @@ async function pullFromGist(){
     if(remote.lastCycle) S.lastCycle = remote.lastCycle;
     if(remote.lastReview) S.lastReview = remote.lastReview;
     S.checkins = Object.assign({}, S.checkins||{}, remote.checkins||{});
+    S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
+    USER_ALIASES = S.exAliases; invalidateTableOrigin();
     S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
     S.restDay = pickRestDay(S.restDay, remote.restDay);
     S.deleted = [...tomb];
@@ -5725,6 +6885,8 @@ async function syncNow(announce){
       if(remote.lastCycle) S.lastCycle = remote.lastCycle;
       if(remote.lastReview) S.lastReview = remote.lastReview;
       S.checkins = Object.assign({}, S.checkins||{}, remote.checkins||{});
+      S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
+      USER_ALIASES = S.exAliases; invalidateTableOrigin();
       S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
       S.deleted = [...tomb];
       S.sessions = mergeSessions(S.sessions, remote.sessions||[], tomb);
@@ -5736,6 +6898,8 @@ async function syncNow(announce){
     } else if(remote){
       const tomb = new Set([...(S.deleted||[]), ...(remote.deleted||[])]);
       S.checkins = Object.assign({}, remote.checkins||{}, S.checkins||{});
+      S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
+      USER_ALIASES = S.exAliases; invalidateTableOrigin();
       S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
       S.restDay = pickRestDay(S.restDay, remote.restDay);
       S.deleted = [...tomb];
