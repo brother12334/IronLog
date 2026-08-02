@@ -160,6 +160,7 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 #reportOverlay .rep-bar{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:#111}
 #reportOverlay .rep-btn{padding:11px 18px;border:none;border-radius:9px;font:bold 15px sans-serif;cursor:pointer}
 #reportOverlay .rep-btn.close{background:#333;color:#fff}
+#reportOverlay .rep-btn.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1px #555}
 #reportOverlay .rep-btn.print{background:#fff;color:#111}
 #reportOverlay .rep-scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;color:#111;background:#fff;padding:24px 20px calc(40px + env(safe-area-inset-bottom));font-family:Georgia,'Times New Roman',serif;line-height:1.55;font-size:16px}
 #reportOverlay .rep-scroll h1{font-size:26px;margin:0 0 2px;border-bottom:3px solid #111;padding-bottom:8px;color:#111}
@@ -290,7 +291,12 @@ nav .nav-lbl{
   letter-spacing:.07em;line-height:1;white-space:nowrap;
 }
 nav button.on{color:var(--text);background:var(--card2)}
-nav button.on svg{filter:drop-shadow(0 0 7px rgba(236,234,228,.35))}
+nav button.on svg{filter:drop-shadow(0 0 7px rgba(236,234,228,.3))}
+/* The accent shape inside each icon: invisible until that tab is selected, then it
+   fills, so the active tab reads at a glance from the icon itself rather than relying
+   on the label or the pill behind it. */
+nav .nav-fill{fill:transparent;stroke:none;transition:fill .18s ease}
+nav button.on .nav-fill{fill:currentColor;fill-opacity:.22}
 nav button:active{transform:scale(.94)}
 
 /* ================= INLINE TERMS =================
@@ -656,8 +662,31 @@ body.shake{animation:shakeX .55s both}
   box-shadow:0 0 12px rgba(232,182,44,.45);
 }
 .set.is-pr input{border-color:rgba(232,182,44,.55)}
-.pr-row{margin:-3px 0 7px;padding-left:47px}
+.pr-row{margin:-3px 0 7px;padding-left:47px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .pr-row:empty{display:none}
+
+/* ================= "WHAT WENT WRONG?" =================
+   The reason chip that sits under a set that came in far under its target, and the
+   picker that captures it. Reasons meaning "this set did what it should have" are
+   green rather than amber, because they are not failures and should not read as one. */
+.why-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font:11px var(--mono);letter-spacing:.03em;
+  color:var(--dim);background:var(--card2);
+  border:1px solid var(--line);border-radius:6px;padding:2px 7px;
+  max-width:100%;
+}
+.why-chip.why-ok{color:var(--ok);border-color:rgba(70,168,92,.4);background:rgba(70,168,92,.09)}
+.why-chip.why-pain{color:var(--bad);border-color:rgba(224,82,72,.45);background:rgba(224,82,72,.1)}
+.reason-btn{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  background:var(--card2);border:1px solid var(--line);border-radius:13px;
+  padding:14px 14px;color:var(--text);cursor:pointer;
+  font:15.5px/1.35 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  transition:border-color .12s, transform .1s;
+}
+.reason-btn:active{transform:scale(.985);border-color:var(--text)}
+.reason-ic{font-size:21px;line-height:1;flex-shrink:0;width:26px;text-align:center}
 
 /* ================= BODY / TRAINING STRESS MAP ================= */
 .metric-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
@@ -968,32 +997,48 @@ body.shake{animation:shakeX .55s both}
 </div>
 <div id="app"></div>
 <nav>
+  <!-- Rounded-geometric icon set, 24px grid, 2px strokes with round joins, drawn on a
+       consistent optical weight so no single tab shouts louder than the others. Each
+       one carries a `nav-fill` accent shape that only paints on the active tab, which
+       is what makes the selected state read instantly without a colour change. -->
   <button data-tab="today" class="on" aria-label="Today">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M6.5 9v6M17.5 9v6"/><path d="M3.5 10.5v3M20.5 10.5v3"/><path d="M6.5 12h11"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect class="nav-fill" x="9.25" y="9.5" width="5.5" height="5" rx="1.6"/>
+      <path d="M4.9 9.6v4.8M19.1 9.6v4.8"/>
+      <path d="M2.4 11.1v1.8M21.6 11.1v1.8"/>
+      <path d="M7.6 12h8.8"/>
+      <rect x="6.6" y="7.9" width="2.6" height="8.2" rx="1.3"/>
+      <rect x="14.8" y="7.9" width="2.6" height="8.2" rx="1.3"/>
     </svg><span class="nav-lbl">Today</span>
   </button>
   <button data-tab="history" aria-label="History">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 4.6v3.9h3.9"/><path d="M12 7.6V12l3 1.8"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle class="nav-fill" cx="12" cy="12" r="3.4" stroke="none"/>
+      <path d="M12 3.4a8.6 8.6 0 1 1-8.24 11"/>
+      <path d="M6.4 12H3.1l1.9-2.4"/>
+      <path d="M12 7.9V12l2.9 1.7"/>
     </svg><span class="nav-lbl">History</span>
   </button>
   <button data-tab="body" aria-label="Body">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="4.3" r="2.1"/><path d="M12 6.6v7.2"/><path d="M5.6 9.1 12 7.7l6.4 1.4"/>
-      <path d="M9.4 21.2 12 13.8l2.6 7.4"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle class="nav-fill" cx="12" cy="4.4" r="2.3"/>
+      <path d="M4.9 8.7c4.6 1.5 9.6 1.5 14.2 0"/>
+      <path d="M12 8.9v5.4"/>
+      <path d="M8.6 21.1 12 14.3l3.4 6.8"/>
     </svg><span class="nav-lbl">Body</span>
   </button>
   <button data-tab="program" aria-label="Program">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3.2"/>
-      <path d="M8 8.6h8M8 12h8M8 15.4h5"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect class="nav-fill" x="3.3" y="3.3" width="17.4" height="17.4" rx="4.6"/>
+      <rect x="3.3" y="3.3" width="17.4" height="17.4" rx="4.6"/>
+      <path d="M7.6 9.1h8.8M7.6 12.6h8.8M7.6 16.1h5"/>
     </svg><span class="nav-lbl">Program</span>
   </button>
   <button data-tab="sync" aria-label="Settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3.1"/>
-      <path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6 17 17M7 7 5.4 5.4"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle class="nav-fill" cx="12" cy="12" r="2.9"/>
+      <circle cx="12" cy="12" r="2.9"/>
+      <path d="M19.3 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.84 2.84l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56v.17a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.84-2.84l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H2.7a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.35 8.6a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 6.79 3.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 9.83 2.67V2.5a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.84 2.84l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.56 1.03h.17a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03z"/>
     </svg><span class="nav-lbl">Settings</span>
   </button>
 </nav>
@@ -1805,6 +1850,7 @@ function migrate(){
   if(!Array.isArray(S.restLog)) S.restLog = [];
   if(!Array.isArray(S.deleted)) S.deleted = [];
   if(!S.volWindow) S.volWindow = "cycle";   // Body tab accumulates over the cycle by default
+  if(S.askWhy === undefined) S.askWhy = true;   // ask what happened when a set collapses
 
   /* ---- Spider Curl is bilateral ----
      It was classified as one-limb-at-a-time, which stamped an L/R chip on every set,
@@ -2094,15 +2140,17 @@ function refreshPRs(ei){
 function prBadgeHTML(st){
   return (st && st.pr) ? `<span class="pr-badge">🔥 ${esc(st.pr)}</span>` : "";
 }
-// always emitted (empty when there's no PR) so the node exists to fill in-place
+/* Always emitted (empty when there's nothing to show) so the node exists to fill
+   in-place. It carries both the PR badge and the "what went wrong" chip, since a set
+   can't be both and the two never need to be told apart by position. */
 function prBadgeRow(st, ei, si){
-  return `<div class="pr-row" data-prrow="${ei}-${si}">${prBadgeHTML(st)}</div>`;
+  return `<div class="pr-row" data-prrow="${ei}-${si}">${prBadgeHTML(st)}${whyBadgeHTML(st)}</div>`;
 }
 function drawPRBadges(ei){
   if(!S.active || !S.active.entries[ei]) return;
   S.active.entries[ei].sets.forEach((st,j)=>{
     const row = document.querySelector(`[data-prrow="${ei}-${j}"]`);
-    if(row) row.innerHTML = prBadgeHTML(st);
+    if(row) row.innerHTML = prBadgeHTML(st) + whyBadgeHTML(st);
     const chk = document.querySelector(`.set .chk[data-e="${ei}"][data-s="${j}"]`);
     if(chk && chk.parentElement) chk.parentElement.classList.toggle("is-pr", !!st.pr);
   });
@@ -2267,6 +2315,178 @@ async function confirmShortRest(sec, verb){
     yes: "Yes, I'm done resting",
     no: "No, keep resting"
   });
+}
+/* =====================================================================
+   "WHAT WENT WRONG?", catching a collapsed set while you still remember why
+
+   A set that lands far under its target is the most informative thing that happens in
+   a workout, and it's also the thing you have completely forgotten by the time you look
+   at the log. Three weeks later the row just reads 185×4, and there is no way to tell
+   whether that was a bad night's sleep, too heavy an opening set, a set you cut short
+   on purpose to make a train, or your shoulder tweaking. Those four need opposite
+   responses, and until now the app silently treated them as the same failure: all four
+   cost you the same rep-range points and all four pushed the same "come down slightly
+   and earn the reps back" advice, which is actively the wrong thing to say to someone
+   whose shoulder just went.
+
+   So it asks once, at the moment it happens, with one tap to answer.
+
+   Three rules keep it from becoming nagging, which is the only way a prompt like this
+   survives contact with an actual gym:
+     • It asks at most ONCE PER EXERCISE per session, however many sets collapse.
+     • It doesn't ask when the answer is obvious: a set that's heavier than you have
+       ever lifted is supposed to be low, that's a PR attempt, not a failure.
+     • Dismissing it counts as an answer, so it never asks the same question twice.
+   ===================================================================== */
+const SET_REASONS = [
+  {code:"heavy",      icon:"🏋️", label:"The weight was too heavy",     short:"too heavy"},
+  {code:"fatigue",    icon:"🔋", label:"I ran out of gas",              short:"ran out of gas"},
+  {code:"form",       icon:"📐", label:"Form started breaking down",    short:"form broke down"},
+  {code:"pain",       icon:"🚑", label:"Pain, or something felt off",   short:"pain or a tweak"},
+  {code:"deliberate", icon:"⏱️", label:"I stopped it short on purpose", short:"stopped on purpose"},
+  {code:"fine",       icon:"👍", label:"Nothing wrong, that's just where it landed", short:"nothing wrong"}
+];
+const REASON_BY_CODE = (function(){ const o={}; SET_REASONS.forEach(r=>o[r.code]=r); return o; })();
+// Reasons that mean the set did what it was supposed to, so it must not be marked down
+// for missing its rep range: you either chose to stop, or stopping was correct.
+const REASON_EXEMPT = {deliberate:1, pain:1};
+
+/* How far under target is far enough to be worth asking about?
+
+   Not an absolute number: 5 reps is a small miss on a 6-10 squat and a collapse on a
+   12-20 lateral raise. It's judged against the PRESCRIBED FLOOR, and needs to be both
+   proportionally large and at least 2 whole reps, so a one-rep miss never interrupts
+   you. On 6-10 that fires at 4 reps or fewer, on 8-12 at 5, on 12-20 at 8.           */
+function lowRepMiss(entry, st){
+  const reps = parseFloat(st && st.reps) || 0;
+  if(!(reps > 0)) return null;
+  const range = repRange(entry && entry.reps);
+  if(!range) return null;
+  const floor = range[0];
+  if(!(floor > 0)) return null;
+  const missBy = floor - reps;
+  if(missBy < 2) return null;                  // a rep or two short is just a hard day
+  if(missBy / floor < 0.3) return null;         // and it has to be proportionally big
+  return {floor, reps, missBy, pct: Math.round(missBy / floor * 100)};
+}
+/* Whether to interrupt for this set. Everything here is a reason NOT to ask. */
+function shouldAskWhy(ei, si){
+  if(!S.active) return null;
+  if(S.askWhy === false) return null;                       // turned off in Settings
+  const entry = S.active.entries[ei];
+  const st = entry && entry.sets[si];
+  if(!entry || !st) return null;
+  if(st.why) return null;                                   // already answered
+  if(entry.whyAsked) return null;                           // once per exercise, per session
+  const miss = lowRepMiss(entry, st);
+  if(!miss) return null;
+  /* A load heavier than anything in your history is SUPPOSED to give low reps. That's a
+     personal-record attempt, and asking "what went wrong" about the best set you have
+     ever done is the fastest way to teach someone to dismiss this prompt on sight. */
+  const w = parseFloat(st.weight) || 0;
+  if(w > 0){
+    const best = bestEverFor(entry.name, ei, si);
+    if(best.seen && best.maxW > 0 && w > best.maxW * 1.03) return null;
+  }
+  return miss;
+}
+/* The prompt. Big tap targets, one tap to answer, and an optional note that is only
+   worth typing when something actually hurt. Resolves to a reason code, or null if it
+   was dismissed. */
+function askSetReason(entry, st, miss){
+  return new Promise(resolve=>{
+    let settled = false;
+    const done = v=>{
+      if(settled) return;
+      settled = true;
+      MODAL_DISMISS = null;
+      $("#modalBg").classList.remove("show");
+      resolve(v);
+    };
+    const setTxt = (st.weight!=null && st.weight!=="" ? st.weight+" lb" : "bodyweight")+" × "+miss.reps+" reps";
+    $("#modal").innerHTML = `
+      <h3>What happened there?</h3>
+      <div class="sub" style="margin:-4px 0 4px">
+        <b>${esc(entry.name)}</b> came in at <b>${esc(setTxt)}</b>, ${miss.missBy} rep${miss.missBy===1?"":"s"}
+        under the bottom of its ${esc(entry.reps)} target.
+      </div>
+      <div class="sub" style="margin:0 0 14px;color:var(--faint)">
+        One tap. It only asks once per exercise, and knowing which of these it was is what
+        stops the app giving you the wrong advice next time.
+      </div>
+      <div class="wr-list" style="gap:8px;margin:0;max-width:none">
+        ${SET_REASONS.map(r=>`
+          <button class="reason-btn" data-reason="${r.code}">
+            <span class="reason-ic">${r.icon}</span>
+            <span>${esc(r.label)}</span>
+          </button>`).join("")}
+      </div>
+      <div class="field" style="margin:14px 0 0">
+        <label>Anything to add? Optional</label>
+        <input id="whyNote" placeholder="e.g. left shoulder, only on the last rep" autocomplete="off">
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn ghost small" id="whySkip" style="flex:1">Skip, don't ask again for this exercise</button>
+      </div>`;
+    $("#modal").scrollTop = 0;
+    $("#modalBg").classList.add("show");
+    document.querySelectorAll("#modal [data-reason]").forEach(b=> b.onclick = ()=>{
+      const note = ($("#whyNote") && $("#whyNote").value.trim()) || "";
+      done({code: b.dataset.reason, note});
+    });
+    $("#whySkip").onclick = ()=> done(null);
+    MODAL_DISMISS = ()=> done(null);          // tapping the backdrop = skip
+  });
+}
+/* Ask, record, and act on the answer. Called from every path that can complete a set. */
+async function maybeAskWhy(ei, si){
+  const miss = shouldAskWhy(ei, si);
+  if(!miss) return;
+  const entry = S.active.entries[ei];
+  const st = entry.sets[si];
+  entry.whyAsked = true;                      // set before awaiting, so a second tap can't double-prompt
+  save();
+  const ans = await askSetReason(entry, st, miss);
+  if(!S.active || !S.active.entries[ei]) return;      // workout ended under us
+  if(ans){
+    st.why = {code: ans.code, note: ans.note || "", at: Date.now(), missBy: miss.missBy};
+    save();
+    drawWhyBadges(ei);
+    const r = REASON_BY_CODE[ans.code];
+    // Pain is the one answer that deserves more than a toast, because the useful
+    // response to it is to stop loading that movement today, not to try again harder.
+    if(ans.code === "pain"){
+      toast("Logged. Go easy on that movement today");
+    } else if(ans.code === "heavy"){
+      toast("Logged, try about 5-10% lighter next set");
+    } else if(r){
+      toast("Logged: "+r.short);
+    }
+  }
+}
+function whyBadgeHTML(st){
+  if(!st || !st.why) return "";
+  const r = REASON_BY_CODE[st.why.code];
+  if(!r) return "";
+  const cls = st.why.code === "pain" ? " why-pain" : (REASON_EXEMPT[st.why.code] ? " why-ok" : "");
+  const note = st.why.note ? " · "+st.why.note : "";
+  return `<span class="why-chip${cls}" title="${attrSafe(r.label + note)}">${r.icon} ${esc(r.short)}${
+    st.why.note ? ` <i style="opacity:.75;font-style:normal">· ${esc(st.why.note)}</i>` : ""}</span>`;
+}
+function drawWhyBadges(ei){
+  if(!S.active || !S.active.entries[ei]) return;
+  S.active.entries[ei].sets.forEach((st,j)=>{
+    const row = document.querySelector(`[data-prrow="${ei}-${j}"]`);
+    if(row) row.innerHTML = prBadgeHTML(st) + whyBadgeHTML(st);
+  });
+}
+// Every flagged set in a session, for the score card and the report.
+function sessionFlags(sess){
+  const out = [];
+  (sess.entries||[]).forEach(e=> (e.sets||[]).forEach((st,i)=>{
+    if(st.why && REASON_BY_CODE[st.why.code]) out.push({name:e.name, set:i+1, ...st.why});
+  }));
+  return out;
 }
 async function stopRest(){
   const sec = restElapsed();
@@ -3753,7 +3973,11 @@ function setListHTML(e){
     const chip = side
       ? `<i class="side-chip ${side==="L"?"sc-l":"sc-r"}" style="margin-right:5px">${esc(sideTag(e.altStyle||"side", side))}</i>`
       : "";
-    parts.push(chip + esc(fmtSet(st)));
+    // A set with a logged reason carries it here too, so reading back an old session
+    // never leaves you staring at a collapsed row with no idea what happened.
+    const r = st.why && REASON_BY_CODE[st.why.code];
+    const flag = r ? ` <span title="${attrSafe(r.label + (st.why.note ? " — "+st.why.note : ""))}">${r.icon}</span>` : "";
+    parts.push(chip + esc(fmtSet(st)) + flag);
   });
   return parts.join("&nbsp; · &nbsp;") || " ";
 }
@@ -4843,7 +5067,11 @@ function viewHistory(){
 /* ---------- PROGRAM ---------- */
 function viewProgram(){
   let h = `<div class="hdr"><h1>Program</h1>${hdrRight()}</div>
-  <div class="sub" style="margin:-8px 2px 16px">Your rotation: Chest → Back → Arms → Shoulders → Chest → Arms → Legs. Exercises marked ⇄ alternate automatically every other session of that day. Targets show <span class="rpe-help">RPE</span>, tap to see what it means.</div>`;
+  <div class="sub" style="margin:-8px 2px 14px">Your rotation: ${ROTATION.map(w=>META[w].name).join(" → ")}. Exercises marked ⇄ alternate automatically every other session of that day. Targets show <span class="rpe-help">RPE</span>, tap to see what it means.</div>
+  <div class="btn-row" style="margin-bottom:16px">
+    <button class="btn ghost small" id="planBtn">📄 View / download full plan</button>
+  </div>
+  <div class="sub" style="margin:-8px 2px 16px;font-size:12.5px;color:var(--faint)">The whole schedule as a document: every day, every exercise, sets, reps, RPE, loads, the ⇄ pairs, and what each muscle gets per cycle. Print it, save it as a Word file, or hand it to a coach.</div>`;
   Object.keys(META).forEach(wid=>{
     const m = META[wid];
     h += `<div class="card">
@@ -4921,6 +5149,11 @@ function viewSync(){
     <div class="seg">
       <button class="${S.viewMode!=="focus"?"on":""}" data-vmode="regular">Regular</button>
       <button class="${S.viewMode==="focus"?"on":""}" data-vmode="focus">Focus</button>
+    </div>
+    <div class="sub" style="margin:14px 0 8px">When a set lands far under its target, ask what went wrong. One tap, at most once per exercise, and the answer changes the advice you get rather than just marking you down.</div>
+    <div class="seg">
+      <button class="${S.askWhy!==false?"on":""}" data-askwhy="on">Ask me</button>
+      <button class="${S.askWhy===false?"on":""}" data-askwhy="off">Don't ask</button>
     </div>
   </div>`;
 
@@ -5131,7 +5364,7 @@ function bind(){
 
   document.querySelectorAll(".set input, .set select").forEach(el=>{
     if(el.dataset.e==null) return;      // skip the session-editor's own rows
-    el.onchange = ()=>{
+    el.onchange = async ()=>{
       const ei = parseInt(el.dataset.e,10), si = parseInt(el.dataset.s,10), f = el.dataset.f;
       const st = S.active.entries[ei].sets[si];
       const before = st.pr || null;
@@ -5150,6 +5383,10 @@ function bind(){
         }
       }
       save();
+      /* The rep count landing is the trigger, not the ✓. Plenty of sessions get logged
+         by typing the numbers straight in and never tapping the tick at all, and those
+         are exactly the sessions where a collapsed set would otherwise go unexplained. */
+      if(f === "reps") await maybeAskWhy(ei, si);
     };
   });
   document.querySelectorAll(".set .chk").forEach(el=>{
@@ -5185,6 +5422,7 @@ function bind(){
         if(rt && rt.e===ei && rt.s===si){ S.active.restTimer=null; hideRestUI(); }
         delete st.rest;
         delete st.pr;
+        delete st.why;              // no longer a completed set, so its reason is stale
       }
       el.classList.toggle("on", st.done);
       refreshPRs(ei);
@@ -5200,6 +5438,9 @@ function bind(){
           setTimeout(()=>document.body.classList.remove("shake"), 600);
         }
       }
+      /* Last, and only after the rest clock is already running, so answering the
+         question doesn't eat into the rest it just started timing. */
+      if(st.done) await maybeAskWhy(ei, si);
     };
   });
   document.querySelectorAll("[data-addset]").forEach(b=> b.onclick=()=>{
@@ -5285,6 +5526,8 @@ function bind(){
     if(confirm("Discard this workout? Nothing will be saved.")){ S.active=null; hideRestUI(); save(); render(); }
   };
 
+  const plan = $("#planBtn");
+  if(plan) plan.onclick = openPlan;
   const rep = $("#reportBtn");
   if(rep) rep.onclick = openReport;
   const docB = $("#docBtn");
@@ -5382,6 +5625,11 @@ function bind(){
     S.experience = b.dataset.exp;
     save(); queueSync(); render();
     toast(b.dataset.exp==="auto" ? "Experience set from your history" : "Targets scaled for "+b.dataset.exp);
+  });
+  document.querySelectorAll("[data-askwhy]").forEach(b=> b.onclick=()=>{
+    S.askWhy = b.dataset.askwhy === "on";
+    save(); queueSync(); render();
+    toast(S.askWhy ? "I'll ask about collapsed sets" : "Won't ask about collapsed sets");
   });
   document.querySelectorAll("[data-volwin]").forEach(b=> b.onclick=()=>{
     S.volWindow = b.dataset.volwin;
@@ -6113,11 +6361,17 @@ function scoreWorkout(sess){
 
   /* 5, REP-RANGE ADHERENCE ---------------------------------------------------- */
   (()=>{
-    let inR = 0, under = 0, over = 0, checked = 0;
+    let inR = 0, under = 0, over = 0, checked = 0, excused = 0;
     const overEx = {}, underEx = {};
     allSets.forEach(({e, st})=>{
       const range = repRange(e.reps);
       if(!range) return;
+      /* A set you chose to stop, or stopped because something hurt, did exactly what it
+         should have. Marking it down for missing a rep range would be scoring you for
+         making the right call, and would then push "come down slightly and earn the
+         reps back" at someone whose shoulder just went. Excused sets leave the
+         calculation entirely rather than counting as a miss. */
+      if(st.why && REASON_EXEMPT[st.why.code]){ excused++; return; }
       checked++;
       const r = parseFloat(st.reps)||0;
       if(r < range[0]){ under++; underEx[e.name] = (underEx[e.name]||0)+1; }
@@ -6127,8 +6381,11 @@ function scoreWorkout(sess){
     const why = [];
     if(!checked){
       add("reprange","Rep-range adherence",10,0,
-        ["None of today's exercises carry a prescribed rep range."],null,
-        {na:true, unlock:"Add a range like 8-12 to these exercises in Program."});
+        [excused
+          ? "Every set with a prescribed range was one you flagged as deliberately cut short, so there's nothing here to mark."
+          : "None of today's exercises carry a prescribed rep range."],null,
+        {na:true, unlock: excused ? "Nothing to do, this just wasn't a scoreable session for rep ranges."
+                                  : "Add a range like 8-12 to these exercises in Program."});
       return;
     }
     const earned = 10 * ((inR + (under+over)*0.45)/checked);  // one rep out is a near miss
@@ -6138,11 +6395,22 @@ function scoreWorkout(sess){
       (topOf(overEx)?" (mostly "+topOf(overEx)+")":"")+", so that load has become too light.");
     if(under) why.push(under+" set"+(under>1?"s":"")+" fell short"+
       (topOf(underEx)?" (mostly "+topOf(underEx)+")":"")+", so the load is likely too heavy for that range.");
+    if(excused) why.push(excused+" set"+(excused>1?"s":"")+" left out of this, because you flagged "+
+      (excused>1?"them":"it")+" as deliberately cut short or stopped for pain.");
+    /* Whatever you told the app is a better explanation than the app's own guess, so a
+       logged reason writes the advice for this section. */
+    const flags = sessionFlags(sess);
+    const heavyFlag = flags.filter(f=>f.code==="heavy");
+    const painFlag  = flags.filter(f=>f.code==="pain");
     add("reprange","Rep-range adherence",10,earned,why,
-      over > under && over > 1 ? "Sets finishing above the range are your cue to add weight. Move those up about 5 lb next session."
+      painFlag.length ? "You flagged pain on "+painFlag[0].name+". Leave that movement alone until it's settled, and don't chase the reps you missed."
+      : heavyFlag.length ? "You said the weight was too heavy on "+heavyFlag[0].name+". Take about 10% off it next session and earn it back from there."
+      : over > under && over > 1 ? "Sets finishing above the range are your cue to add weight. Move those up about 5 lb next session."
       : under > 1 ? "Dropping below the range means the load is winning. Come down slightly and earn the reps back."
       : null,
-      {ex: over > under ? topOf(overEx) : topOf(underEx)});
+      {ex: painFlag.length ? painFlag[0].name
+         : heavyFlag.length ? heavyFlag[0].name
+         : over > under ? topOf(overEx) : topOf(underEx)});
   })();
 
   /* 6, FATIGUE MANAGEMENT ----------------------------------------------------- */
@@ -6245,6 +6513,7 @@ function scoreWorkout(sess){
     sections: secs,
     skipped: skipped.map(s=>({key:s.key, label:s.label, unlock:s.unlock})),
     prs,
+    flags: sessionFlags(sess),
     advice: sessionAdvice(secs),
     when: Date.now(),
     v: 2
@@ -6294,6 +6563,25 @@ function scoreCardHTML(q, sess){
   if(q.prs && q.prs.length){
     h += `<div class="rev-head">Personal records, ${q.prs.length}</div>`;
     q.prs.forEach(p=> h += `<div class="rev-line"><b>🔥 ${esc(p.name)}</b><span class="num">${esc(p.kind)} · ${esc(p.weight||"bw")}×${esc(p.reps||"")}</span></div>`);
+  }
+  /* Sets you told the app about at the time. Above the sections, because your own
+     account of what happened outranks anything the app inferred from the numbers. */
+  if(q.flags && q.flags.length){
+    h += `<div class="rev-head">What you flagged</div>`;
+    q.flags.forEach(f=>{
+      const r = REASON_BY_CODE[f.code];
+      if(!r) return;
+      h += `<div class="rev-line" style="align-items:flex-start">
+        <b>${r.icon} ${esc(f.name)}<span style="color:var(--faint);font-weight:400"> · set ${f.set}</span></b>
+        <span class="num" style="color:${f.code==="pain"?"var(--bad)":"var(--dim)"};text-align:right">${esc(r.short)}</span>
+      </div>${f.note?`<div class="sub" style="margin:-4px 0 6px;font-style:italic">"${esc(f.note)}"</div>`:""}`;
+    });
+    if(q.flags.some(f=>f.code==="pain")){
+      h += `<div class="sc-tip" style="border-left:3px solid var(--bad);padding-left:10px">
+        <b>Worth saying</b> pain is the one signal that beats everything else on this card.
+        Nothing here is medical advice, but if it's still there next session, stop loading that movement and get it looked at.
+      </div>`;
+    }
   }
   /* The single most useful thing on this card is the top of this list, so it goes above
      the section breakdown rather than being scattered through it. Ranked by the points
@@ -6690,7 +6978,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, exAliases:S.exAliases||{}, volWindow:S.volWindow||"cycle", deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, exAliases:S.exAliases||{}, volWindow:S.volWindow||"cycle", askWhy:S.askWhy!==false, deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -6933,6 +7221,237 @@ async function syncNow(announce){
   }
 }
 
+/* =====================================================================
+   PROGRAM DOCUMENT
+
+   A printable, shareable copy of the whole plan: the rotation, every day's exercises
+   with sets, reps, RPE and starting loads, the alternating (⇄) pairs and which one is
+   up next, the L/R rules, the finisher, and the volume each muscle group actually
+   receives per cycle. It's the thing you hand a coach, print for the gym wall, or keep
+   as a record of what the programme was on a given date.
+
+   Built from the LIVE program rather than the defaults, so it always describes what
+   you're actually running, including anything you've edited.
+   ===================================================================== */
+function planExerciseRow(e, wid, opts){
+  opts = opts || {};
+  const asty = altStyle(e);
+  const bits = [];
+  if(asty === "side")  bits.push("one limb at a time, alternating L/R each set");
+  if(asty === "cross") bits.push("both arms, alternating which crosses on top");
+  if(e.note) bits.push(e.note);
+  const load = (e.weight != null && e.weight !== "") ? e.weight + " lb" : "bodyweight";
+  return `<tr>
+    <td><b>${esc(e.name)}</b>${opts.altOf ? `<br><span class="sm">alternates with ${esc(opts.altOf)}</span>` : ""}</td>
+    <td class="c">${esc(String(e.sets))}</td>
+    <td class="c">${esc(e.reps || "—")}</td>
+    <td class="c">${e.rpe ? esc(String(e.rpe)) : "—"}</td>
+    <td class="c">${esc(load)}</td>
+    <td>${bits.length ? esc(bits.join(" · ")) : ""}</td>
+  </tr>`;
+}
+/* How long a full cycle actually takes you, in days. Needed because the volume
+   landmarks are published PER WEEK while the programme is built per cycle, and a cycle
+   is nowhere near seven days. Measured from your own history where there is any, and
+   falling back to eight, which is seven training days plus the one rest day. */
+function typicalCycleDays(){
+  const spans = [];
+  if(S.lastCycle && S.lastCycle.start && S.lastCycle.end){
+    spans.push((S.lastCycle.end - S.lastCycle.start)/DAY_MS);
+  }
+  /* The current cycle only counts once it is actually complete, and it is measured to
+     its LAST SESSION rather than to now. Measuring to now means a finished cycle that
+     has been sitting idle for a week reports itself as a fortnight long, which halves
+     every per-week figure in the table and turns the whole document into a claim that
+     you are undertraining everything. */
+  if(S.cycleStart && S.sessions.length){
+    const inCycle = S.sessions.filter(s=>s.startedAt >= S.cycleStart);
+    if(inCycle.length >= ROTATION.length){
+      const last = Math.max.apply(null, inCycle.map(s=>s.startedAt));
+      spans.push((last - S.cycleStart)/DAY_MS);
+    }
+  }
+  // seven workouts plus a rest day realistically lands between 5 and 16 days; anything
+  // outside that is a gap in the log rather than a cycle length
+  const usable = spans.filter(d=>d >= 5 && d <= 16);
+  if(!usable.length) return 8;
+  return usable.reduce((a,b)=>a+b,0)/usable.length;
+}
+/* Volume per muscle group across one full pass of the rotation, computed with the same
+   attribution the Body tab uses, so the document and the app can never disagree.
+
+   Both units are printed. Comparing a per-CYCLE total against a per-WEEK target would
+   overstate everything by roughly 15%, and would have this document telling you that
+   you are past what you can recover from on muscles the app calls fine. The verdict
+   column is therefore formed on the per-week figure, which is the unit the research
+   the targets come from is expressed in. */
+function planVolumeTable(){
+  const per = {};
+  GKEYS.forEach(g=>{ per[g] = 0; });
+  ROTATION.forEach(wid=>{
+    resolvedProgram(wid).forEach(({chosen:e})=>{
+      const mm = musclesFor(e.name);
+      if(!mm) return;
+      const n = parseInt(e.sets, 10) || 0;
+      Object.keys(mm).forEach(g=>{ if(per[g] !== undefined) per[g] += mm[g] * n; });
+    });
+  });
+  const days = typicalCycleDays();
+  const toWeek = v => v * 7 / days;
+  const rows = GKEYS
+    .filter(g => per[g] > 0 || !GROUPS[g].optional)
+    .sort((a,b)=> per[b] - per[a])
+    .map(g=>{
+      const G = GROUPS[g];
+      const v = per[g], w = toWeek(v);
+      const verdict = v <= 0 ? "nothing trains it"
+        : w < G.mev  ? "below the minimum that grows it"
+        : w <= G.mav ? "inside the productive range"
+        : w <= G.mrv ? "above target, still recoverable"
+        : "past what it recovers from";
+      return `<tr>
+        <td>${esc(G.name)}</td>
+        <td class="c">${r1(v)}</td>
+        <td class="c">${r1(w)}</td>
+        <td class="c">${G.mev} – ${G.mav}</td>
+        <td>${esc(verdict)}</td>
+      </tr>`;
+    }).join("");
+  return `<table>
+    <thead><tr>
+      <th>Muscle group</th><th>Per cycle</th><th>Per week</th><th>Weekly target</th><th>Where that lands</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p class="meta">Sets are counted with partial credit: a movement pays a full set to the muscle it targets and
+  a fraction to each muscle that assists, which is why the totals aren't whole numbers. The per-week column
+  assumes a cycle takes about ${Math.round(days)} days${S.lastCycle ? ", measured from your own history" : ""},
+  and the verdict is formed on that figure, because the targets are published per week. Targets shown are the
+  population figures for an intermediate lifter, before the personal scaling the app applies on the Body tab.</p>`;
+}
+function buildPlanInner(){
+  const who = profileName();
+  const rotLine = ROTATION.map(w=>META[w].name).join(" → ");
+  const dayCounts = {};
+  ROTATION.forEach(w=>{ dayCounts[w] = (dayCounts[w]||0)+1; });
+
+  let body = `<h1>Training Programme</h1>
+  <p class="meta">${esc(who)} · prepared ${new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"})} · Iron Log v${APP_VERSION}</p>
+
+  <h2>The rotation</h2>
+  <p>The programme runs as a <b>${ROTATION.length}-workout cycle</b>, taken in this order and repeated:</p>
+  <p style="font-size:13pt"><b>${esc(rotLine)}</b></p>
+  <p>The cycle is deliberately not a calendar week. Days advance when you train, not when the date changes,
+  and one rest day is available per cycle. In practice a full cycle takes eight to eleven days.
+  ${Object.keys(dayCounts).filter(k=>dayCounts[k]>1).map(k=>esc(META[k].name)+" appears "+dayCounts[k]+" times per cycle").join("; ")}.</p>
+  <hr>`;
+
+  // one section per training day
+  Object.keys(META).forEach(wid=>{
+    const list = S.program[wid] || [];
+    if(!list.length) return;
+    const totalSets = list.reduce((t,e)=>t+(parseInt(e.sets,10)||0), 0);
+    const times = dayCounts[wid] || 0;
+    body += `<h2>${esc(META[wid].name)} day</h2>
+      <p class="meta">${list.length} exercise${list.length===1?"":"s"} · ${totalSets} working sets ·
+      run ${times} time${times===1?"":"s"} per cycle</p>
+      <table>
+        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>RPE</th><th>Start load</th><th>Notes</th></tr></thead>
+        <tbody>`;
+    list.forEach(e=>{
+      body += planExerciseRow(e, wid);
+      if(e.alt){
+        const upNext = activeVariant(wid, e) === e ? e.name : e.alt.name;
+        body += planExerciseRow(e.alt, wid, {altOf: e.name});
+        body += `<tr><td colspan="6" class="sm">⇄ These two swap every other ${esc(META[wid].name.toLowerCase())} day.
+          Next ${esc(META[wid].name.toLowerCase())} day runs <b>${esc(upNext)}</b>.</td></tr>`;
+      }
+    });
+    body += `</tbody></table>`;
+  });
+
+  const fin = S.program.finisher || [];
+  if(fin.length){
+    body += `<h2>Finisher</h2>
+      <p class="meta">Runs at the end of every workout, in this order.</p>
+      <table>
+        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>RPE</th><th>Start load</th><th>Notes</th></tr></thead>
+        <tbody>${fin.map(e=>planExerciseRow(e, "finisher")).join("")}</tbody>
+      </table>`;
+  }
+
+  body += `<hr><h2>What each muscle gets, per cycle</h2>${planVolumeTable()}`;
+
+  body += `<hr><h2>How to run it</h2>
+  <p><b>RPE</b> is how hard a set felt on a 1–10 scale, and what it really measures is how many reps you had
+  left. RPE 10 is all out, 9 is one rep left, 8 is two. A target of RPE 8–9 means finishing with about one to
+  two reps still in you.</p>
+  <p><b>Rest</b> scales with what the set demanded, not one number for everything: three to five minutes for
+  heavy work of six reps or fewer, one and a half to three minutes for eight-to-twelve rep work, and
+  forty-five seconds to two minutes for high-rep finishing work.</p>
+  <p><b>Progression.</b> When every set of an exercise finishes at or above the top of its rep range, add
+  weight, roughly 5&nbsp;lb on upper-body movements and 10&nbsp;lb on lower-body ones, and rebuild the reps
+  from the bottom of the range. Only one variable has to move for the session to count as progress.</p>
+  <p><b>⇄ pairs</b> alternate automatically every other time that day comes round, so both movements keep
+  getting trained without lengthening the session.</p>
+  <p><b>L/R movements</b> are done one limb at a time, alternating each set, and the side you open with flips
+  every session so neither arm is always the fresh one.</p>`;
+
+  return body;
+}
+function buildPlanHTML(){
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Training Programme, ${esc(profileName())}</title>
+  <style>
+    body{font-family:Georgia,'Times New Roman',serif;color:#111;background:#fff;max-width:7.2in;margin:36px auto;padding:0 20px;line-height:1.55;font-size:12.5pt}
+    h1{font-size:22pt;margin:0 0 2px;border-bottom:3px solid #111;padding-bottom:8px}
+    h2{font-size:14pt;margin:26px 0 6px}
+    p{margin:5px 0}
+    .meta{color:#555;font-size:10.5pt;font-style:italic}
+    .sm{color:#555;font-size:9.5pt}
+    table{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:10.5pt}
+    th,td{border:1px solid #999;padding:5px 9px;text-align:left;vertical-align:top}
+    th{background:#eee;font-size:9pt;text-transform:uppercase;letter-spacing:.05em}
+    td.c{text-align:center;font-variant-numeric:tabular-nums}
+    tr{page-break-inside:avoid}
+    h2{page-break-after:avoid}
+    hr{border:none;border-top:1px solid #bbb;margin:18px 0}
+  </style></head><body>
+  ${buildPlanInner()}</body></html>`;
+}
+// On-screen first, so you can read it before deciding to print or save it.
+function openPlan(){
+  const inner = buildPlanInner();
+  let ov = document.getElementById("reportOverlay");
+  if(ov) ov.remove();
+  ov = document.createElement("div");
+  ov.id = "reportOverlay";
+  ov.innerHTML = `
+    <div class="rep-bar">
+      <button class="rep-btn close" id="planClose">‹ Close</button>
+      <button class="rep-btn ghost" id="planDoc">Save as .doc</button>
+      <button class="rep-btn print" id="planPrint">Print / PDF</button>
+    </div>
+    <div class="rep-scroll">${inner}</div>`;
+  document.body.appendChild(ov);
+  document.body.classList.add("report-open");
+  document.getElementById("planClose").onclick = ()=>{
+    ov.remove();
+    document.body.classList.remove("report-open");
+  };
+  document.getElementById("planPrint").onclick = ()=> window.print();
+  document.getElementById("planDoc").onclick = downloadPlanDoc;
+}
+function downloadPlanDoc(){
+  // The BOM is what makes Word open this as a document rather than as raw markup.
+  const blob = new Blob(["﻿"+buildPlanHTML()], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "training-programme-"+profSlug()+"-"+todayStr()+".doc";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Programme downloaded");
+}
+
 /* ---------- formal training report ---------- */
 function longDate(d){
   return new Date(d+"T12:00:00").toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
@@ -6997,6 +7516,16 @@ function buildReportInner(){
     });
     body += `</tbody></table>`;
     if(vol>0) body += `<p class="meta">Total working volume: ${Math.round(vol).toLocaleString()} lb.</p>`;
+    /* Anything flagged at the time. A coach reading this needs to know that a short set
+       was a deliberate stop or a tweak, not a failed rep, and that is exactly the
+       context a table of numbers loses. */
+    const flags = sessionFlags(s);
+    if(flags.length){
+      body += `<p class="meta"><b>Noted during the session:</b> ` + flags.map(f=>{
+        const r = REASON_BY_CODE[f.code];
+        return esc(f.name)+" set "+f.set+", "+esc(r ? r.short : f.code)+(f.note ? " ("+esc(f.note)+")" : "");
+      }).join("; ") + `.</p>`;
+    }
   });
 
   return body;
