@@ -244,15 +244,19 @@
   ],
   "finisher": []
  },
- "pointer": 2,
+ "pointer": 4,
  "cycleStart": 1785384000000,
  "cycleDone": [
-  1
+  1,
+  3
  ],
- "restDay": null,
+ "restDay": {
+  "date": "2026-07-31"
+ },
  "restLog": [
   "2026-07-14",
-  "2026-07-15"
+  "2026-07-15",
+  "2026-07-31"
  ],
  "lastCycle": {
   "start": 1784779200000,
@@ -416,10 +420,15 @@
   "2026-07-30": {
    "energy": "7",
    "sleep": "6"
+  },
+  "2026-08-01": {
+   "sleep": "12",
+   "energy": "6"
   }
  },
  "exAliases": {},
  "volWindow": "cycle",
+ "askWhy": true,
  "deleted": [
   "mrmrnu1cdzbyx"
  ],
@@ -5291,7 +5300,358 @@
     "when": 1785473101651,
     "v": 2
    }
+  },
+  {
+   "id": "msb8t9mopyoc0",
+   "workoutId": "shoulders",
+   "date": "2026-08-01",
+   "startedAt": 1785641445888,
+   "finishedAt": 1785646148151,
+   "entries": [
+    {
+     "name": "Smith Machine Shoulder Press",
+     "reps": "6-10",
+     "rpe": "8-9",
+     "note": "10 lb plate each side",
+     "sets": [
+      {
+       "weight": "25",
+       "reps": "10",
+       "rpe": "8",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 184
+      },
+      {
+       "weight": "25",
+       "reps": "9",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 289
+      },
+      {
+       "weight": "25",
+       "reps": "12",
+       "rpe": "10",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 325
+      }
+     ]
+    },
+    {
+     "name": "Alternating Cable Lateral Raise",
+     "reps": "12-20",
+     "rpe": "8-10",
+     "note": "single arm — alternate L/R each set",
+     "altStyle": "side",
+     "startSide": "R",
+     "sets": [
+      {
+       "weight": "25",
+       "reps": "10",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 148
+      },
+      {
+       "weight": "25",
+       "reps": "10",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 154
+      },
+      {
+       "weight": "25",
+       "reps": "11",
+       "rpe": "9.5",
+       "done": true,
+       "pr": "REP PR",
+       "rest": 630
+      }
+     ]
+    },
+    {
+     "name": "Cable Reverse Rear Delt Fly",
+     "reps": "12-20",
+     "rpe": "8-10",
+     "note": "both arms, alternate which arm crosses on top each set",
+     "altStyle": "cross",
+     "startSide": "R",
+     "sets": [
+      {
+       "weight": "35",
+       "reps": "10",
+       "rpe": "8.5",
+       "done": true,
+       "pr": "WEIGHT PR",
+       "rest": 215
+      },
+      {
+       "weight": "32.5",
+       "reps": "14",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 215
+      },
+      {
+       "weight": "32.5",
+       "reps": "14",
+       "rpe": "9.5",
+       "done": true,
+       "rest": 389
+      }
+     ]
+    },
+    {
+     "name": "Cable Ab Crunch",
+     "reps": "10-15",
+     "rpe": "9-10",
+     "note": "",
+     "sets": [
+      {
+       "weight": "155",
+       "reps": "14",
+       "rpe": "7.5",
+       "done": true,
+       "rest": 194
+      },
+      {
+       "weight": "160",
+       "reps": "12",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 151
+      },
+      {
+       "weight": "160",
+       "reps": "14",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 290
+      }
+     ]
+    },
+    {
+     "name": "Leg Raises",
+     "reps": "10-15",
+     "rpe": "9-10",
+     "note": "bodyweight",
+     "sets": [
+      {
+       "weight": "12",
+       "reps": "11",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 166
+      },
+      {
+       "weight": "12",
+       "reps": "11",
+       "rpe": "8.5",
+       "done": true,
+       "rest": 282
+      },
+      {
+       "weight": "12",
+       "reps": "12",
+       "rpe": "9.5",
+       "done": true
+      }
+     ]
+    }
+   ],
+   "note": "",
+   "feel": 5,
+   "quality": {
+    "total": 89,
+    "max": 100,
+    "pct": 0.8939999999999999,
+    "grade": "B+",
+    "sections": [
+     {
+      "key": "completion",
+      "label": "Completion",
+      "max": 14,
+      "pts": 14,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "15 working sets logged against 15 planned (100%).",
+       "Everything on the card got done."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "max": 20,
+      "pts": 16,
+      "pct": 0.8,
+      "grade": "B−",
+      "why": [
+       "4 of 5 lifts went up, 0 held, 1 went down.",
+       "Personal records today: Smith Machine Shoulder Press, Alternating Cable Lateral Raise, Cable Reverse Rear Delt Fly.",
+       "Up: Smith Machine Shoulder Press (28→35 est. 1RM), Alternating Cable Lateral Raise (28→34 est. 1RM), Cable Reverse Rear Delt Fly (42→47 est. 1RM), Cable Ab Crunch (210→224 est. 1RM).",
+       "Down: Leg Raises (25→17 est. 1RM)."
+      ],
+      "tip": "Most things moved, but Leg Raises went backwards. If that keeps happening, try moving Leg Raises earlier, while you're still fresh.",
+      "ex": "Leg Raises"
+     },
+     {
+      "key": "intensity",
+      "label": "Effective intensity",
+      "max": 16,
+      "pts": 15.5,
+      "pct": 0.9680000000000001,
+      "grade": "A",
+      "why": [
+       "Average RPE 8.7 across 15 scored sets.",
+       "15 of 15 sets landed in the productive RPE 7-10 band."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "max": 12,
+      "pts": 9.9,
+      "pct": 0.8222420634920636,
+      "grade": "B−",
+      "why": [
+       "4 of 14 timed rests sat inside the window that set's load called for.",
+       "6 rests ran well past the window, which stretches the session without adding stimulus.",
+       "Set mix: 8 hypertrophy, 3 heavy, 3 metabolic.",
+       "1 of 15 sets weren't timed, so this is graded on the ones that were."
+      ],
+      "tip": "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing.",
+      "ex": null
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "max": 10,
+      "pts": 8.2,
+      "pct": 0.8166666666666667,
+      "grade": "B−",
+      "why": [
+       "10 of 15 sets finished inside their prescribed rep range.",
+       "1 set went over the top of the range (mostly Smith Machine Shoulder Press), so that load has become too light.",
+       "4 sets fell short (mostly Alternating Cable Lateral Raise), so the load is likely too heavy for that range."
+      ],
+      "tip": "Dropping below the range means the load is winning. Come down slightly and earn the reps back.",
+      "ex": "Alternating Cable Lateral Raise"
+     },
+     {
+      "key": "fatigue",
+      "label": "Fatigue management",
+      "max": 10,
+      "pts": 10,
+      "pct": 1,
+      "grade": "A+",
+      "why": [
+       "Reps fell -10% on average from first set to last at the same load. Up to about 25% is normal.",
+       "Performance held well across sets, so rest and load were matched to the work."
+      ],
+      "tip": null,
+      "ex": null
+     },
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "max": 8,
+      "pts": 6.8,
+      "pct": 0.8551962746447828,
+      "grade": "B",
+      "why": [
+       "78 minutes for 15 working sets, 11.5 sets per hour.",
+       "Duration sits in the productive 40-80 minute window."
+      ],
+      "tip": "Around 11.5 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time.",
+      "ex": null
+     },
+     {
+      "key": "logquality",
+      "label": "Log quality",
+      "max": 10,
+      "pts": 9,
+      "pct": 0.9,
+      "grade": "A−",
+      "why": [
+       "Captured: RPE logged on 100% of sets, rest timed on most sets, session feel rated, daily check-in filled in.",
+       "Missing: no session note.",
+       "This is what makes every other section, and your Body map, accurate rather than guesswork."
+      ],
+      "tip": "Each missing field is a place the analysis has to guess. RPE and rest are the two that matter most.",
+      "ex": null
+     }
+    ],
+    "skipped": [],
+    "prs": [
+     {
+      "name": "Smith Machine Shoulder Press",
+      "set": 3,
+      "kind": "REP PR",
+      "weight": "25",
+      "reps": "12"
+     },
+     {
+      "name": "Alternating Cable Lateral Raise",
+      "set": 3,
+      "kind": "REP PR",
+      "weight": "25",
+      "reps": "11"
+     },
+     {
+      "name": "Cable Reverse Rear Delt Fly",
+      "set": 1,
+      "kind": "WEIGHT PR",
+      "weight": "35",
+      "reps": "10"
+     }
+    ],
+    "flags": [],
+    "advice": [
+     {
+      "key": "overload",
+      "label": "Progressive overload",
+      "text": "Most things moved, but Leg Raises went backwards. If that keeps happening, try moving Leg Raises earlier, while you're still fresh.",
+      "ex": "Leg Raises",
+      "lost": 4,
+      "na": false
+     },
+     {
+      "key": "rest",
+      "label": "Rest discipline",
+      "text": "Trim the long rests on accessories to about 90 seconds; you'll cut real time off the session for nothing.",
+      "ex": null,
+      "lost": 2.0999999999999996,
+      "na": false
+     },
+     {
+      "key": "reprange",
+      "label": "Rep-range adherence",
+      "text": "Dropping below the range means the load is winning. Come down slightly and earn the reps back.",
+      "ex": "Alternating Cable Lateral Raise",
+      "lost": 1.8000000000000007,
+      "na": false
+     },
+     {
+      "key": "efficiency",
+      "label": "Session efficiency",
+      "text": "Around 11.5 sets an hour means a lot of standing around. Supersetting unrelated accessories is free time.",
+      "ex": null,
+      "lost": 1.2000000000000002,
+      "na": false
+     }
+    ],
+    "when": 1785646148158,
+    "v": 2
+   }
   }
  ],
- "savedAt": 1785473101652
+ "savedAt": 1785646148159
 }
