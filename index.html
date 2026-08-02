@@ -172,6 +172,9 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;m
 #reportOverlay .rep-scroll th{background:#eee;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
 #reportOverlay .rep-scroll td.c{text-align:center;font-variant-numeric:tabular-nums}
 #reportOverlay .rep-scroll hr{border:none;border-top:1px solid #bbb;margin:18px 0}
+#reportOverlay .rep-scroll .planchg{border-left:3px solid #111;background:#f4f2ee;padding:9px 14px;margin:20px 0;font-size:14px;color:#111}
+#reportOverlay .rep-scroll .planchg ul{margin:5px 0 0;padding-left:18px}
+#reportOverlay .rep-scroll .planchg li{margin:2px 0}
 @media print{
   body.report-open>*:not(#reportOverlay){display:none!important}
   #reportOverlay{position:static;background:#fff}
@@ -1041,7 +1044,10 @@ body.shake{animation:shakeX .55s both}
 
 <script>
 "use strict";
-const APP_VERSION = "2.0";
+/* Bumped by 0.1 on every round of edits to this file. It is shown on the splash, in
+   Setup, and on the printed programme, so a report you handed to someone last month can
+   be matched against the build that produced it. */
+const APP_VERSION = "2.2";
 /* ================= DATA ================= */
 const LS_KEY = "ironlog.v1";
 const GIST_FILE = "ironlog-data.json";
@@ -1843,6 +1849,12 @@ function migrate(){
   if(!S.checkins) S.checkins = {};
   if(!Array.isArray(S.restLog)) S.restLog = [];
   if(!Array.isArray(S.deleted)) S.deleted = [];
+  /* Every edit to the programme, dated. Nothing recorded the shape of the plan over
+     time, so a lift that "went backwards" after a rep range changed looked identical to
+     one that went backwards on its own, and the printed report described seven months of
+     training as though the card had never moved. Starts empty on an existing install:
+     there is no way to recover edits that were never written down. */
+  if(!Array.isArray(S.planLog)) S.planLog = [];
   if(!S.volWindow) S.volWindow = "cycle";   // Body tab accumulates over the cycle by default
   if(S.askWhy === undefined) S.askWhy = true;   // ask what happened when a set collapses
 
@@ -3312,9 +3324,20 @@ function landmarkExplainerHTML(A){
   return h;
 }
 
-function volState(m, sets, L){
+/* `ctx` carries the accumulation window's own wording and what the rest of the cycle
+   still prescribes, so "not trained" never gets stated as a fact about your training
+   when it is really a fact about which day of the rotation it is. */
+function volState(m, sets, L, ctx){
   L = L || GROUPS[m];
-  if(sets <= 0)      return {k:"none",    label:"not trained", txt:"no sets logged this week"};
+  ctx = ctx || {};
+  if(sets <= 0){
+    return (ctx.pending > 0)
+      ? {k:"queued", label:"not trained yet",
+         txt:"no sets yet, with about "+r1(ctx.pending)+" prescribed on "+(ctx.names||"the days left in this cycle")}
+      : {k:"none", label:"not trained",
+         txt:"no sets logged "+(ctx.short || "this week")+
+             (ctx.cycleOpen ? ", and nothing left in this cycle trains it" : "")};
+  }
   if(sets < L.mev)   return {k:"under",   label:"too little",  txt:r1(sets)+" of the "+L.mev+" weekly sets it takes to grow"};
   if(sets <= L.mav)  return {k:"optimal", label:"just right",  txt:r1(sets)+" sets, inside your productive "+L.mev+" to "+L.mav+" window"};
   if(sets <= L.mrv)  return {k:"high",    label:"a lot",       txt:r1(sets)+" sets, above your target of "+L.mav+" but still recoverable"};
@@ -3355,6 +3378,67 @@ function volWindowInfo(now){
     prevLabel: prev ? "last cycle" : "the period before"
   };
 }
+/* ---------- WHERE YOU ARE IN THE CYCLE ----------
+   Every verdict on this tab reads a window of logged sets and compares it against a
+   weekly target. That is only a fair comparison at the END of a rotation. Two workouts
+   into a seven-workout cycle, legs day is four sessions away, so the app was reading
+   "no quad volume" off a schedule that hadn't got there yet and reporting it as a weak
+   point: the one thing guaranteed to teach you to ignore the section.
+
+   So the rotation itself is consulted. For each muscle this works out how many sets the
+   REMAINING days of the current cycle still prescribe, and how many a full pass of the
+   rotation prescribes in total. A muscle whose work is still queued is not
+   under-stimulated, and a muscle the programme genuinely never trains is a different
+   finding from one whose day comes round on Thursday.
+
+   `pending` is prescribed sets, not logged ones, so it says what the plan owes you, and
+   it drops to zero for a day the moment that day is logged.                          */
+function programVolume(widList){
+  const per = blankMuscleMap(0);
+  widList.forEach(wid=>{
+    if(!S.program[wid]) return;
+    resolvedProgram(wid).forEach(({chosen:e})=>{
+      const mm = musclesFor(e.name);
+      if(!mm) return;
+      const n = parseInt(e.sets, 10) || 0;
+      Object.keys(mm).forEach(g=>{ if(per[g] !== undefined) per[g] += mm[g] * n; });
+    });
+  });
+  return per;
+}
+function cycleProgress(){
+  const done = new Set((S.cycleDone||[]).map(Number));
+  const remaining = [];
+  ROTATION.forEach((wid,i)=>{ if(!done.has(i)) remaining.push(wid); });
+  const names = [...new Set(remaining.map(widName))];
+  // per-day volume, kept so a muscle can name the days that actually carry ITS work
+  // rather than reciting every day you have left
+  const byDay = {};
+  [...new Set(remaining)].forEach(wid=>{ byDay[wid] = programVolume([wid]); });
+  return {
+    done: ROTATION.length - remaining.length,
+    total: ROTATION.length,
+    remaining,
+    names,
+    byDay,
+    pending: programVolume(remaining),          // what the rest of this cycle still owes
+    planned: programVolume(ROTATION),           // what one full pass prescribes
+    complete: remaining.length === 0
+  };
+}
+/* The days left in this cycle that train a given muscle, named. "3 sets on Legs day" is
+   a schedule you can check; "3 sets on Arms, Chest, and Legs" is a list you have to
+   decode. */
+function pendingDayNames(cyc, m){
+  if(!cyc || !cyc.byDay) return [];
+  return [...new Set(Object.keys(cyc.byDay)
+    .filter(wid => (cyc.byDay[wid][m] || 0) > 0)
+    .map(widName))];
+}
+function dayList(names){
+  if(!names || !names.length) return "the days you have left this cycle";
+  return joinList(names) + (names.length === 1 ? " day" : " days");
+}
 /* One call, everything the Body tab needs. */
 function bodyAnalysis(){
   const now = Date.now();
@@ -3370,8 +3454,12 @@ function bodyAnalysis(){
   const A0 = {wk, modInfo, win};
   MKEYS.forEach(m=>{ lm[m] = adjustedLandmarks(A0, m); });
   const inj    = injuryByMuscle(now, wk, fat, rec, lm, win);
+  const cyc    = cycleProgress();
   const vol    = blankMuscleMap(m => wk[m].sets);
-  const state  = blankMuscleMap(m => volState(m, wk[m].sets, lm[m]));
+  const stCtx  = {short: win.short, cycleOpen: !cyc.complete};
+  const state  = blankMuscleMap(m => volState(m, wk[m].sets, lm[m],
+                   Object.assign({pending: cyc.pending[m] || 0,
+                                  names: dayList(pendingDayNames(cyc, m))}, stCtx)));
 
   /* Whole-body load. Deliberately NOT the sum of the per-muscle numbers: a bench press
      set pays into chest, front delts and triceps, so summing those columns would report
@@ -3397,8 +3485,8 @@ function bodyAnalysis(){
   totals.acwr = chronicWkAll >= 4 ? ((totals.setsWk/(win.scale||1))/chronicWkAll) : null;
 
   const rwk = regionStats(win.from, win.to);
-  return {now, win, lm, wk, prevWk, fat, rec, grow, inj, vol, state, totals, modInfo, rwk,
-          weak: weakPoints({wk, prevWk, fat, rec, grow, inj, state, lm, win, rwk})};
+  return {now, win, lm, wk, prevWk, fat, rec, grow, inj, vol, state, totals, modInfo, rwk, cyc,
+          weak: weakPoints({wk, prevWk, fat, rec, grow, inj, state, lm, win, rwk, cyc})};
 }
 
 /* =============== WEAK POINT DETECTION ===============
@@ -3426,35 +3514,63 @@ function weakPoints(A){
   const push = (score, muscle, kind, title, act, why, detail)=> out.push({
     score, sev: score>=68 ? 3 : score>=38 ? 2 : 1, muscle, kind, title, act, why, detail
   });
+  /* What the rest of this cycle still prescribes for each muscle. Every rule below that
+     reads a shortfall has to net this off first, or it reports the rotation's own
+     ordering back to you as a training error. */
+  const cyc = A.cyc || {pending:{}, planned:{}, names:[], done:0, total:0, complete:true};
+  const pend = m => (cyc.pending && cyc.pending[m]) || 0;
 
   // 1, under-stimulated relative to minimum effective volume
   MKEYS.forEach(m=>{
     const M = MUSCLES[m], lm = L(m), s = A.wk[m].sets, p = A.prevWk[m].sets;
     if(s <= 0 && p <= 0) return;                     // rule 2 owns the "not trained at all" case
     if(!(lm.mev > 0) || s >= lm.mev) return;
-    const shortfall = (lm.mev - s)/lm.mev;           // 0 → at MEV, 1 → nothing at all
+    /* The sets the remaining days of the cycle still owe this muscle count towards the
+       threshold. Being 4 sets short with 6 prescribed on a day you haven't done yet is
+       a schedule, not a shortfall, and calling it one is how the section loses you. */
+    const projected = s + pend(m);
+    if(projected >= lm.mev * 0.95) return;
+    const shortfall = (lm.mev - projected)/lm.mev;   // 0 → will reach MEV, 1 → nothing at all
     const chronic = p < lm.mev;
     const score = Math.min(100, Math.round(shortfall*80*(chronic?1.25:0.8)));
     if(score < 18) return;                           // a rounding-error shortfall isn't a weak point
-    const need = Math.max(2, Math.ceil(lm.mev - s));
+    const need = Math.max(2, Math.ceil(lm.mev - projected));
     push(score, m, "under",
       M.name+" "+mIs(m)+" under-stimulated",
       "Add about "+need+" more hard sets of direct "+mMovement(m)+".",
-      r1(s)+" of the "+r1(lm.mev)+" sets it takes to grow, "+win.short+".",
+      r1(s)+" of the "+r1(lm.mev)+" sets it takes to grow, "+win.short+
+        (pend(m) > 0 ? ", and only "+r1(pend(m))+" more scheduled before the cycle ends" : "")+".",
       "A muscle needs a certain amount of total work before it has any reason to adapt, and effort doesn't substitute for it. "+
+      (pend(m) > 0
+        ? "The rest of this cycle is already counted here: even once "+dayList(pendingDayNames(cyc, m))+
+          " "+(pendingDayNames(cyc, m).length===1?"is":"are")+" done, it still lands short. "
+        : cyc.complete ? "" : "Nothing left in this cycle trains it. ")+
       (chronic ? "It was short in the previous period too, so this isn't one quiet week."
                : "Last time round it was in range, so this may just be a light spell.")+
       " One extra "+(GROUPS[m].lc||gName(m).toLowerCase())+" movement of 3 sets does it, or a set added to each one you already run.");
   });
 
-  // 2, nothing in the program trains it
+  // 2, nothing trains it, which is three different claims and used to be one
   MKEYS.forEach(m=>{
     if(A.wk[m].sets > 0 || A.prevWk[m].sets > 0) return;
     if(A.grow[m].score !== null) return;             // trained inside 3 weeks, just not lately
+    const planned = (cyc.planned && cyc.planned[m]) || 0;
+    // (a) the rotation trains it and hasn't got there yet: not a finding at all
+    if(pend(m) > 0) return;
+    if(planned > 0){
+      // (b) the programme does prescribe it, but the days that carry it went unlogged
+      push(58, m, "none",
+        MUSCLES[m].name+" "+mIs(m)+" in the plan but not in the log",
+        "Run the days that carry your "+MUSCLES[m].lc+" work, or move it onto a day you actually do.",
+        "The rotation prescribes about "+r1(planned)+" sets a cycle, and none have been logged in 3 weeks.",
+        "A prescription only counts once it's performed. Either those days are the ones getting dropped, in which case the work belongs on a day you reliably train, or the log is behind reality.");
+      return;
+    }
+    // (c) genuinely nothing in the programme touches it
     push(92, m, "none",
       "Nothing in your program trains "+MUSCLES[m].name.toLowerCase(),
       "Add one direct "+MUSCLES[m].lc+" movement to your rotation.",
-      "No logged sets at all in the last 3 weeks.",
+      "No logged sets at all in the last 3 weeks, and nothing across a full pass of the rotation prescribes any.",
       "With no direct work, "+MUSCLES[m].lc+"s can only fall behind everything around them. Even "+
       r1(L(m).mev)+" sets is the difference between holding ground and losing it, and assisting on other lifts is not the same as being trained.");
   });
@@ -3503,15 +3619,26 @@ function weakPoints(A){
     const sa = R.a.reduce((t,m)=>t+A.wk[m].sets,0);
     const sb = R.b.reduce((t,m)=>t+A.wk[m].sets,0);
     if(sa + sb < 6) return;                          // too little data to call it
+    /* Mid-rotation, this compares a side that has come round against one that hasn't.
+       Chest day then back day reads as 2:1 pushing on the Monday and 1:1 on the Tuesday,
+       and only one of those is about you. The projected ratio, with the rest of the
+       cycle's prescribed sets added in, has to be out of band as well before it counts. */
+    const pa = R.a.reduce((t,m)=>t+pend(m),0);
+    const pb = R.b.reduce((t,m)=>t+pend(m),0);
+    const proj = (sa+pa)/Math.max(0.5, sb+pb);
     if(sb < 1){
+      if(pb > 0) return;                             // the balancing work is still queued
       push(88, R.b[0], "balance",
         "No "+R.bn+" volume at all",
         R.actHigh,
-        r1(sa)+" sets of "+R.an+" work with nothing balancing it, "+win.short+".",
+        r1(sa)+" sets of "+R.an+" work with nothing balancing it, "+win.short+
+          ", and nothing left in this cycle trains it.",
         R.whyHigh);
       return;
     }
     const ratio = sa/sb;
+    if(ratio > R.hi && proj <= R.hi) return;         // the rest of the cycle already fixes it
+    if(ratio < R.lo && proj >= R.lo) return;
     if(ratio > R.hi){
       push(Math.min(95, Math.round(40 + (ratio/R.hi - 1)*90)), R.b[0], "balance",
         R.bn.replace(/^./,c=>c.toUpperCase())+"s lag behind "+R.an+"s",
@@ -4303,7 +4430,14 @@ function bmGroup(key, shapes, A, metric, isHead, selected){
    otherwise the group's own verdict on the selected metric. */
 function groupTileMetric(A, g, metric){
   const trained = (A.wk[g] && A.wk[g].sets > 0);
-  if(!trained) return {v:null, txt:"not trained", color:C_GREY, glow:0};
+  if(!trained){
+    // grey means "no data", and there are two ways to have none: the rotation hasn't
+    // reached this muscle yet, or nothing is training it. Only the second is a problem.
+    const q = (A.cyc && A.cyc.pending[g]) || 0;
+    return q > 0
+      ? {v:null, txt:"not yet this cycle, "+r1(q)+" sets due on "+dayList(pendingDayNames(A.cyc, g)), color:C_GREY, glow:0, queued:q}
+      : {v:null, txt:"not trained", color:C_GREY, glow:0};
+  }
   return muscleMetric(A, g, metric);
 }
 function regionLabel(r){ return REGIONS[r] ? REGIONS[r].name : (GROUPS[r] ? GROUPS[r].name : r); }
@@ -4630,13 +4764,16 @@ function drillBarHTML(A, metric){
   const g = BODY_FOCUS, heads = GROUP_REGIONS[g] || [];
   const gm = groupTileMetric(A, g, metric);
   const L = A.lm[g] || adjustedLandmarks(A, g);
+  const queued = (A.cyc && A.cyc.pending[g]) || 0;
   const stat = A.wk[g].sets > 0
     ? r1(A.wk[g].sets)+" of "+L.mav+" target sets "+A.win.short
-    : "no work logged "+A.win.short;
+    : queued > 0
+      ? "not trained yet, "+r1(queued)+" sets due on "+dayList(pendingDayNames(A.cyc, g))
+      : "no work logged "+A.win.short;
   if(!BODY_EXPAND){
     return `<div class="bm-drill">
       <span><b>${esc(gName(g))}</b><br><small>${esc(stat)}${
-        gm.txt && gm.txt !== "not trained" && metric !== "volume"
+        gm.txt && gm.v != null && metric !== "volume"
           ? " · "+esc(metricLabel(metric, A.win).toLowerCase())+" "+esc(gm.txt) : ""
       }</small></span>
       <span style="display:flex;gap:7px;flex-shrink:0">
@@ -4697,7 +4834,7 @@ function viewBody(){
       <div class="bm-fig">${bodyFrontSVG(A, metric)}<div class="bm-fig-label">Front</div></div>
       <div class="bm-fig">${bodyBackSVG(A, metric)}<div class="bm-fig-label">Back</div></div>
     </div>
-    <div class="bm-legend">${metricLegend(metric)}<span class="bm-lg"><span class="bm-sw" style="background:${C_GREY}"></span>not trained</span></div>
+    <div class="bm-legend">${metricLegend(metric)}<span class="bm-lg"><span class="bm-sw" style="background:${C_GREY}"></span>${A.cyc.complete?"not trained":"not trained yet"}</span></div>
     ${drillBarHTML(A, metric)}
   </div>`;
 
@@ -4709,17 +4846,33 @@ function viewBody(){
   const dir = (metric==="recovery"||metric==="growth") ? 1 : -1;
   const scored = grank.filter(x=>x.mm.v!=null).sort((a,b)=> dir===1 ? a.mm.v-b.mm.v : b.mm.v-a.mm.v);
   const worst = scored[0];
-  const untrained = grank.filter(x=>x.mm.v==null);
+  /* A muscle with no logged work is two different statements depending on where the
+     rotation has got to, and saying "your quads got no work" on day two of a cycle whose
+     legs day is on Friday is simply wrong. They're split accordingly. */
+  const cyc = A.cyc;
+  const blank = grank.filter(x=>x.mm.v==null);
+  const queued = blank.filter(x=>(cyc.pending[x.g]||0) > 0);
+  const untrained = blank.filter(x=>!((cyc.pending[x.g]||0) > 0));
   const t = A.totals;
   h += `<div class="card bm-lead">
     <div class="bm-lead-k">In one line</div>
+    <div class="bm-lead-v">
+      <span class="bm-dot" style="background:${DAY_HEX[cyc.remaining[0]] || C_GREY}"></span>
+      <span>${cyc.complete
+        ? `A full <b>${cyc.total} of ${cyc.total}</b> workouts done: this cycle is complete, so everything below is a whole rotation's worth of training.`
+        : `You're <b>${cyc.done} of ${cyc.total}</b> workouts into this cycle, with ${esc(dayList(cyc.names))} still to come. Anything those days will cover is counted as scheduled, not missing.`}</span>
+    </div>
     ${worst?`<div class="bm-lead-v">
       <span class="bm-dot" style="background:${worst.mm.color}"></span>
       <span><b>${esc(gName(worst.g))}</b> ${esc(headlineFor(metric, {mm:worst.mm}))}</span>
     </div>`:""}
+    ${queued.length?`<div class="bm-lead-v">
+      <span class="bm-dot" style="background:${C_GREY}"></span>
+      <span><b>${queued.length}</b> muscle group${queued.length===1?"":"s"} ${queued.length===1?"hasn't":"haven't"} come round yet: ${esc(queued.slice(0,4).map(x=>gName(x.g)).join(", "))}${queued.length>4?" and "+(queued.length-4)+" more":""}. Their work sits on days you still have left, so it isn't counted as missing.</span>
+    </div>`:""}
     ${untrained.length?`<div class="bm-lead-v">
       <span class="bm-dot" style="background:${C_GREY}"></span>
-      <span><b>${untrained.length}</b> muscle group${untrained.length===1?"":"s"} got no work ${esc(win.short)}: ${esc(untrained.slice(0,4).map(x=>gName(x.g)).join(", "))}${untrained.length>4?" and "+(untrained.length-4)+" more":""}.</span>
+      <span><b>${untrained.length}</b> muscle group${untrained.length===1?"":"s"} got no work ${esc(win.short)}${cyc.complete?"":" and nothing left in this cycle trains "+(untrained.length===1?"it":"them")}: ${esc(untrained.slice(0,4).map(x=>gName(x.g)).join(", "))}${untrained.length>4?" and "+(untrained.length-4)+" more":""}.</span>
     </div>`:""}
     <div class="bm-lead-v" style="border-top:1px solid var(--line);margin-top:11px;padding-top:11px">
       <span class="bm-dot" style="background:${ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], t.fat/100)}"></span>
@@ -4732,9 +4885,10 @@ function viewBody(){
   const enoughWP = S.sessions.length >= 4 && spanDays >= 6;
   let wpBody = "";
   if(!enoughWP){
-    wpBody = `<div class="sub">This needs at least 4 sessions across a full week before it can tell a real weak point from a rotation that hasn't come round yet. You're at ${S.sessions.length} session${S.sessions.length===1?"":"s"} over ${Math.max(1,Math.round(spanDays))} day${Math.round(spanDays)===1?"":"s"}.</div>`;
+    wpBody = `<div class="sub">This needs at least 4 sessions across a full week before it can tell a real weak point from a rotation that hasn't come round yet. You're at ${S.sessions.length} session${S.sessions.length===1?"":"s"} over ${Math.max(1,Math.round(spanDays))} day${Math.round(spanDays)===1?"":"s"}, and ${cyc.done} of ${cyc.total} workouts into this cycle.</div>`;
   } else if(!A.weak.length){
-    wpBody = `<div class="sub">Nothing to fix. Every muscle group is inside its productive volume range, balanced against its opposite, and either progressing or holding.</div>`;
+    wpBody = `<div class="sub">Nothing to fix. Every muscle group is inside its productive volume range, balanced against its opposite, and either progressing or holding.${
+      cyc.complete ? "" : " Muscles still waiting on "+esc(dayList(cyc.names))+" are counted as covered, not short."}</div>`;
   } else {
     const show = BODY_OPEN.wpall ? A.weak : A.weak.slice(0,3);
     wpBody = show.map((w,i)=>`<button class="wp sev${w.sev}" data-wp="${A.weak.indexOf(w)}">
@@ -4771,11 +4925,18 @@ function viewBody(){
       const L = A.lm[g] || adjustedLandmarks(A, g);
       const gm = muscleMetric(A, g, metric);
       const trained = A.wk[g].sets > 0;
-      const val = metric==="volume" ? r1(A.wk[g].sets)+" / "+L.mav+" sets" : (trained ? gm.txt : "not trained");
+      const q = cyc.pending[g] || 0;
+      const val = metric==="volume"
+        ? r1(A.wk[g].sets)+" / "+L.mav+" sets"
+        : (trained ? gm.txt : (q > 0 ? "still to come" : "not trained"));
       const col = trained ? gm.color : C_GREY;
+      // an untrained muscle with work still queued says so, rather than reading as a gap
+      const note = (!trained && q > 0)
+        ? r1(q)+" sets scheduled on "+dayList(pendingDayNames(cyc, g))
+        : (gm.note || "");
       rows += `<button class="bm-row" data-grow="${g}" style="width:100%;background:none;border:none;border-bottom:1px solid var(--line);text-align:left;color:var(--text);font:inherit">
         <span class="bm-swatch" style="background:${col}"></span>
-        <span class="bm-name"><span>${esc(gName(g))}</span><small>${esc(GROUP_REGIONS[g].length)} part${GROUP_REGIONS[g].length===1?"":"s"} · ${esc(gm.note||"")}</small></span>
+        <span class="bm-name"><span>${esc(gName(g))}</span><small>${esc(GROUP_REGIONS[g].length)} part${GROUP_REGIONS[g].length===1?"":"s"} · ${esc(note)}</small></span>
         <span class="bm-right">
           <span class="bm-val">${esc(val)}</span>
           <span class="bm-bar"><i style="width:${Math.max(3,gm.v==null?0:gm.v)}%;background:${col}"></i></span>
@@ -4891,6 +5052,9 @@ function openGroupDetail(g){
     ? (()=>{ const hrs = Math.round((Date.now()-o.lastMs)/3600e3);
              return hrs < 48 ? hrs+" h ago" : Math.round(hrs/24)+" days ago"; })()
     : "not in this window";
+  // which of the days you have left this cycle actually carry work for this muscle
+  const queued = A.cyc.pending[g] || 0;
+  const queuedDays = pendingDayNames(A.cyc, g);
 
   let h = `<h3>${esc(G.name)}</h3>
   <div class="md-what">
@@ -4902,6 +5066,7 @@ function openGroupDetail(g){
   ${line(term("hardset","Hard sets"), r1(o.sets)+" of "+L.mav+" target", muscleMetric(A,g,"volume").color)}
   ${line("Your range", term("mev","MEV")+" "+L.mev+" / "+term("mav","MAV")+" "+L.mav+" / "+term("mrv","MRV")+" "+L.mrv)}
   ${line("Trained", lastTxt+", "+(o.days||0)+" session"+((o.days||0)===1?"":"s"))}
+  ${queued > 0 ? line("Still scheduled", r1(queued)+" sets on "+dayList(queuedDays)) : ""}
   ${line(term("fatigue","How tired"), A.fat[g]+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], A.fat[g]/100))}
   ${line(term("recovery","How recovered"), A.rec[g]+"%", ramp([[0,C_BAD],[.5,C_WARN],[1,C_OK]], A.rec[g]/100))}
   ${line(term("injury","Injury risk"), inj.score+"%", ramp([[0,C_OK],[.5,C_WARN],[1,C_BAD]], inj.score/100))}
@@ -4913,7 +5078,8 @@ function openGroupDetail(g){
     exs.forEach(n=> h += `<div class="wd-ex"><b>${esc(n)}</b><span class="num">${r1(o.exs[n])} sets</span></div>`);
     h += `<div class="bm-explain" style="margin-top:9px">A set is not worth the same to every muscle it touches. ${term("weighting","Why the fractions")}</div>`;
   } else {
-    h += `<div class="wd-none">Nothing in ${esc(A.win.label)}.</div>`;
+    h += `<div class="wd-none">Nothing in ${esc(A.win.label)}${
+      queued > 0 ? `. Its work sits on ${esc(dayList(queuedDays))}, which ${queuedDays.length===1?"hasn't":"haven't"} come round yet this cycle` : ""}.</div>`;
   }
 
   const spanDays = S.sessions.length ? (Date.now() - S.sessions[0].startedAt)/DAY_MS : 0;
@@ -5816,6 +5982,98 @@ function openPicker(){
   });
 }
 
+/* =====================================================================
+   PROGRAMME CHANGE LOG
+
+   The programme is a living document, and until now it was the only part of the app
+   with no memory. That cost two things that both read as the app being wrong:
+
+     • The printed report described every session against a plan it silently assumed had
+       always looked the way it looks today. A coach reading "3 sets of 8-12" at the top
+       and a session of 4 sets of 6 in March had no way to know the card changed in May.
+     • The quality score compared each lift against the last time you did it without
+       knowing whether the prescription underneath it had moved. Take a movement from
+       6-10 to 12-15 and the estimated 1RM drops by design; the grade called that
+       going backwards.
+
+   So every edit is written down: what changed, on which day, from what to what. It
+   starts from the moment this version runs, because edits made before it were never
+   recorded anywhere and cannot be invented after the fact.
+   ===================================================================== */
+const PLAN_FIELDS = [
+  {k:"name",   label:"name"},
+  {k:"sets",   label:"sets"},
+  {k:"reps",   label:"rep range"},
+  {k:"rpe",    label:"target RPE"},
+  {k:"weight", label:"starting weight"},
+  {k:"note",   label:"note"}
+];
+// Fields that change what the numbers in the log MEAN, as opposed to how the row reads.
+// Only these excuse a lift for coming in lower than last time.
+const PLAN_PRESCRIPTION_FIELDS = {name:1, sets:1, reps:1, weight:1};
+function planFieldVal(e, k){
+  if(!e) return "";
+  if(k === "weight") return (e.weight==null || e.weight==="") ? "bodyweight" : String(e.weight)+" lb";
+  return String(e[k]==null ? "" : e[k]).trim();
+}
+/* One flat list of what actually differs between two versions of an exercise, including
+   its alternating partner, which is part of the prescription. */
+function planDiff(a, b){
+  const out = [];
+  PLAN_FIELDS.forEach(f=>{
+    const x = planFieldVal(a, f.k), y = planFieldVal(b, f.k);
+    if(x !== y) out.push({field:f.label, key:f.k, from:x, to:y});
+  });
+  const an = (a && a.alt && a.alt.name) || "", bn = (b && b.alt && b.alt.name) || "";
+  if(an !== bn){
+    out.push({field:"alternating partner", key:"name", from:an||"none", to:bn||"none"});
+  } else if(a && a.alt && b && b.alt){
+    PLAN_FIELDS.forEach(f=>{
+      if(f.k === "name") return;
+      const x = planFieldVal(a.alt, f.k), y = planFieldVal(b.alt, f.k);
+      if(x !== y) out.push({field:bn+" "+f.label, key:f.k, from:x, to:y});
+    });
+  }
+  return out;
+}
+/* `name` is always the name the exercise ends up with, so a renamed movement's changes
+   still come back from planChangesFor() under the name you look it up by. */
+function logPlanChange(kind, wid, name, changes, extra){
+  if(!Array.isArray(S.planLog)) S.planLog = [];
+  S.planLog.push(Object.assign({
+    at: Date.now(), date: todayStr(), day: wid, kind,
+    name: String(name||""), changes: changes || []
+  }, extra || {}));
+  if(S.planLog.length > 500) S.planLog = S.planLog.slice(-500);
+}
+/* Every logged change to one exercise inside a time window. Matched on the canonical
+   name, so a rename doesn't hide the change that renamed it. */
+function planChangesFor(exName, fromAt, toAt){
+  const k = nrm(exName);
+  return (S.planLog||[]).filter(c=>{
+    if(!(c.at > fromAt && c.at <= toAt)) return false;
+    return nrm(c.name) === k || (c.prevName && nrm(c.prevName) === k);
+  });
+}
+// Did the prescription itself move, as opposed to a note or an RPE target?
+function prescriptionMoved(changes){
+  return changes.some(c=>
+    c.kind === "add" || c.kind === "remove" ||
+    (c.changes||[]).some(d=>PLAN_PRESCRIPTION_FIELDS[d.key]));
+}
+function planChangeSentence(c){
+  const day = c.day === "finisher" ? "the finisher" : widName(c.day)+" day";
+  if(c.kind === "add")    return "Added <b>"+esc(c.name)+"</b> to "+esc(day)+
+    (c.spec ? " ("+esc(c.spec)+")" : "")+".";
+  if(c.kind === "remove") return "Removed <b>"+esc(c.name)+"</b> from "+esc(day)+
+    ". Sessions already logged keep it.";
+  if(c.kind === "move")   return "Moved <b>"+esc(c.name)+"</b> "+(c.dir<0?"earlier":"later")+
+    " in "+esc(day)+", to position "+c.pos+" of "+c.of+".";
+  const bits = (c.changes||[]).map(d=>
+    esc(d.field)+" "+(d.from ? esc(d.from) : "blank")+" → "+(d.to ? esc(d.to) : "blank"));
+  return "Changed <b>"+esc(c.prevName || c.name)+"</b> on "+esc(day)+": "+bits.join("; ")+".";
+}
+
 /* ---------- program editor ---------- */
 function openExEditor(wid, idx){
   idx = parseInt(idx,10);
@@ -5898,7 +6156,12 @@ function openExEditor(wid, idx){
        overload grade all keep working; and the logged entries are rewritten so History
        and the printed report show the new name too. */
     const oldName = isNew ? "" : String(e.name||"");
-    if(!isNew && oldName && nrm(oldName) !== nrm(ne.name)){
+    // taken before anything is written back, while `e` is still the previous version
+    const diff = isNew ? [] : planDiff(e, ne);
+    // taken now, because registering the alias below makes the two names canonicalise
+    // to the same thing, at which point the rename is invisible to nrm()
+    const renamed = !isNew && !!oldName && nrm(oldName) !== nrm(ne.name);
+    if(renamed){
       const oldKey = nrmRaw(oldName);
       let moved = 0;
       S.sessions.forEach(s=>{
@@ -5913,13 +6176,22 @@ function openExEditor(wid, idx){
       if(moved) toast("Renamed, and "+moved+" logged entr"+(moved===1?"y":"ies")+" came with it");
     }
     if(isNew) S.program[wid].push(ne); else S.program[wid][idx]=ne;
+    if(isNew){
+      logPlanChange("add", wid, ne.name, [],
+        {spec: ne.sets+" × "+(ne.reps||"?")+(ne.rpe?" at RPE "+ne.rpe:"")});
+    } else if(diff.length){
+      logPlanChange("edit", wid, ne.name, diff, renamed ? {prevName: oldName} : null);
+    }
     invalidateMultiDay();
     save(); queueSync(); hideModal(); render();
   };
   const del = $("#delEx");
   if(del) del.onclick = ()=>{
     if(confirm("Remove this exercise from the program? Past logs keep it.")){
-      S.program[wid].splice(idx,1); invalidateMultiDay(); save(); queueSync(); hideModal(); render();
+      const gone = S.program[wid][idx];
+      S.program[wid].splice(idx,1);
+      logPlanChange("remove", wid, gone ? gone.name : "", []);
+      invalidateMultiDay(); save(); queueSync(); hideModal(); render();
     }
   };
 }
@@ -5928,6 +6200,9 @@ function moveEx(wid, idx, dir){
   const arr = S.program[wid], j = idx+dir;
   if(j<0||j>=arr.length) return;
   [arr[idx],arr[j]]=[arr[j],arr[idx]];
+  /* Order is a real prescription change, not cosmetic: what sits at the end of a session
+     pays for everything in front of it, and the quality score reads the running order. */
+  logPlanChange("move", wid, arr[j].name, [], {dir, pos:j+1, of:arr.length});
   save(); queueSync(); render();
 }
 
@@ -6169,6 +6444,63 @@ function topE1RM(sets){
     return v > b ? v : b;
   }, 0);
 }
+/* ---------- why a lift came in lower than last time ----------
+   Estimated 1RM going down was treated as one thing, and it is at least three:
+
+     • a genuine regression, which is the thing worth grading;
+     • a comparison that was never like-for-like, because the sets, the rep range or the
+       exercise itself moved underneath it;
+     • a set you deliberately stopped, or stopped because something hurt, which is the
+       correct decision and the last thing that should cost you points.
+
+   The first stays a mark against the session. The other two are EXCUSED: they earn the
+   same partial credit a held lift does, and the reason is printed on the card, so the
+   grade is still honest about what happened, it just stops calling it regression.
+
+   Deliberately NOT excused, only explained: "too heavy", "ran out of gas" and "form
+   broke down". Those are what a regression feels like from the inside; naming them
+   doesn't undo it. Same for a comparison drawn from another rotation day, or a movement
+   that ran later in the session, which are context for the advice rather than reasons
+   the number shouldn't count.                                                        */
+function downContext(sess, entry, idx, prior){
+  const excuses = [], context = [];
+
+  // 1, fewer sets today: the top set simply had fewer attempts at being the best one
+  const nowSets = (entry.sets||[]).filter(isWorkingSet).length;
+  const wasSets = (prior.entry.sets||[]).filter(isWorkingSet).length;
+  if(nowSets > 0 && nowSets < wasSets){
+    excuses.push(nowSets+" working set"+(nowSets===1?"":"s")+" today against "+wasSets+
+      " last time, so the best set had fewer goes at being the best one");
+  }
+
+  // 2, the prescription moved in between, so the two numbers aim at different things
+  const moved = planChangesFor(entry.name, prior.sess.startedAt, sess.startedAt);
+  if(prescriptionMoved(moved)){
+    const bits = [];
+    moved.forEach(c=> (c.changes||[]).forEach(x=>{
+      if(PLAN_PRESCRIPTION_FIELDS[x.key]) bits.push(x.field+" "+(x.from||"blank")+" → "+(x.to||"blank"));
+    }));
+    excuses.push("the prescription changed in between"+(bits.length?" ("+bits.slice(0,2).join(", ")+")":"")+
+      ", so today's sets were aimed at a different target");
+  }
+
+  // 3, you said at the time that the set did what it was supposed to
+  const codes = [...new Set((entry.sets||[]).map(st=>st.why && st.why.code).filter(Boolean))];
+  const exempt = codes.filter(c=>REASON_EXEMPT[c] && REASON_BY_CODE[c]);
+  if(exempt.length){
+    excuses.push("you flagged it at the time: "+
+      exempt.map(c=>REASON_BY_CODE[c].short).join(" and "));
+  }
+
+  const other = codes.filter(c=>!REASON_EXEMPT[c] && c !== "fine" && REASON_BY_CODE[c]);
+  if(other.length) context.push("you logged "+other.map(c=>REASON_BY_CODE[c].short).join(" and ")+" on it");
+  if(!prior.sameDay) context.push("the comparison comes from a "+widName(prior.sess.workoutId).toLowerCase()+
+    " session rather than the same rotation day");
+  const wasIdx = (prior.sess.entries||[]).findIndex(en=> nrm(en.name) === nrm(entry.name));
+  if(wasIdx >= 0 && idx - wasIdx >= 2) context.push("it ran "+(idx-wasIdx)+" places later in the session than last time");
+
+  return {excuse: excuses[0] || null, excuses, context};
+}
 function scoreWorkout(sess){
   const secs = [];
   /* `opt.na` marks a section as unmeasurable: it keeps its explanation and its
@@ -6233,7 +6565,9 @@ function scoreWorkout(sess){
       const d = (a - b)/b;
       let kind = d > 0.004 ? "up" : d >= -0.015 ? "held" : "down";
       if(isPR) kind = "up";                      // a record beats any comparison
-      rows.push({name:e.name, a, b, d, kind, pr:isPR, sameDay:prior.sameDay});
+      const row = {name:e.name, a, b, d, kind, pr:isPR, sameDay:prior.sameDay};
+      if(kind === "down") Object.assign(row, downContext(sess, e, i, prior));
+      rows.push(row);
     });
     const cmp = rows.filter(r=>r.kind!=="new");
     const why = [];
@@ -6248,11 +6582,15 @@ function scoreWorkout(sess){
     }
     const up = cmp.filter(r=>r.kind==="up");
     const held = cmp.filter(r=>r.kind==="held");
-    const down = cmp.filter(r=>r.kind==="down");
+    // A lift that came in lower for a reason that isn't regression is separated out here
+    // and credited as though it held. See downContext() for what counts as a reason.
+    const excused = cmp.filter(r=>r.kind==="down" && r.excuse);
+    const down = cmp.filter(r=>r.kind==="down" && !r.excuse);
     // Beating a lift earns full credit; holding earns most of it, because holding under
     // accumulated fatigue is a real outcome; going backwards earns nothing.
-    const earned = 20 * ((up.length + held.length*0.62)/cmp.length);
-    why.push(up.length+" of "+cmp.length+" lifts went up, "+held.length+" held, "+down.length+" went down.");
+    const earned = 20 * ((up.length + (held.length + excused.length)*0.62)/cmp.length);
+    why.push(up.length+" of "+cmp.length+" lifts went up, "+held.length+" held, "+down.length+" went down"+
+      (excused.length ? ", and "+excused.length+" came in lower for a reason that isn't going backwards" : "")+".");
     if(prs.length) why.push("Personal record"+(prs.length>1?"s":"")+" today: "+
       [...new Set(prs.map(p=>p.name))].join(", ")+".");
     const fmtRow = r=>r.name+" ("+Math.round(r.b)+"→"+Math.round(r.a)+" est. 1RM)";
@@ -6260,9 +6598,20 @@ function scoreWorkout(sess){
       (up.length>4?" +"+(up.length-4)+" more":"")+".");
     if(down.length) why.push("Down: "+down.slice(0,4).map(fmtRow).join(", ")+
       (down.length>4?" +"+(down.length-4)+" more":"")+".");
+    excused.slice(0,3).forEach(r=> why.push(
+      "Not counted as going backwards, "+fmtRow(r)+": "+
+      (r.excuses || [r.excuse]).slice(0,2).join("; and ")+". Credited the same as holding."));
+    if(excused.length > 3) why.push((excused.length-3)+" more were excused the same way.");
+    // Context that explains a drop without excusing it: it belongs in the reasoning, not
+    // in the arithmetic, because none of it means the lift didn't actually go backwards.
+    const noted = down.filter(r=>r.context && r.context.length).slice(0,2);
+    noted.forEach(r=> why.push("On "+r.name+": "+r.context.join(", and ")+"."));
     const worst = down.slice().sort((x,y)=>x.d-y.d)[0];
     add("overload","Progressive overload",20,earned,why,
-      up.length === 0 && down.length > 0
+      up.length === 0 && down.length === 0 && excused.length
+        ? "The lifts that came in lower all had a reason on record, so nothing here is treated as regression. Next time round, run "+
+          excused[0].name+" under the same conditions as before and you get a comparison worth reading."
+        : up.length === 0 && down.length > 0
         ? "Nothing moved up and some lifts went backwards. That is usually accumulated fatigue rather than effort, and a lighter week often unlocks the next jump."
         : up.length === 0
           ? "Holding is not failing, but pick one lift next session and add either 2.5-5 lb or a single rep. Overload only needs one variable to move."
@@ -6972,7 +7321,7 @@ async function gistFetch(path, opts={}){
   return res.json();
 }
 function payload(){
-  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, exAliases:S.exAliases||{}, volWindow:S.volWindow||"cycle", askWhy:S.askWhy!==false, deleted:(S.deleted||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
+  return JSON.stringify({program:S.program, pointer:S.pointer, cycleStart:S.cycleStart, cycleDone:S.cycleDone, restDay:S.restDay||null, restLog:S.restLog||[], lastCycle:S.lastCycle||null, lastReview:S.lastReview||null, checkins:S.checkins||{}, exAliases:S.exAliases||{}, volWindow:S.volWindow||"cycle", askWhy:S.askWhy!==false, deleted:(S.deleted||[]).slice(-500), planLog:(S.planLog||[]).slice(-500), sessions:S.sessions, savedAt:S.savedAt}, null, 1);
 }
 async function connectGist(){
   S.sync.token = $("#tokenIn").value.trim();
@@ -7032,6 +7381,17 @@ function mergeSessions(localArr, remoteArr, tomb){
   localArr.forEach(consider);
   remoteArr.forEach(consider);
   return [...byId.values()].sort((a,b)=>a.startedAt-b.startedAt);
+}
+/* The change log is append-only, so merging is a union. Two devices editing the same
+   exercise in the same millisecond is the only collision possible, and keeping both
+   entries is the honest answer to it. */
+function mergePlanLog(localArr, remoteArr){
+  const byKey = new Map();
+  [...(localArr||[]), ...(remoteArr||[])].forEach(c=>{
+    if(!c || !c.at) return;
+    byKey.set(c.at+"|"+c.kind+"|"+(c.day||"")+"|"+(c.name||""), c);
+  });
+  return [...byKey.values()].sort((a,b)=>a.at-b.at).slice(-500);
 }
 function pickRestDay(localRD, remoteRD){
   // never let a blank erase a real rest day; if both exist keep the more recent date
@@ -7109,6 +7469,7 @@ async function pullFromGist(){
     S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
     USER_ALIASES = S.exAliases; invalidateTableOrigin();
     S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
+    S.planLog = mergePlanLog(S.planLog, remote.planLog);
     S.restDay = pickRestDay(S.restDay, remote.restDay);
     S.deleted = [...tomb];
     S.sessions = mergeSessions(S.sessions, remote.sessions||[], tomb);
@@ -7170,6 +7531,7 @@ async function syncNow(announce){
       S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
       USER_ALIASES = S.exAliases; invalidateTableOrigin();
       S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
+      S.planLog = mergePlanLog(S.planLog, remote.planLog);
       S.deleted = [...tomb];
       S.sessions = mergeSessions(S.sessions, remote.sessions||[], tomb);
       reconcileCycleAfterMerge(remote.cycleStart);
@@ -7183,6 +7545,7 @@ async function syncNow(announce){
       S.exAliases = Object.assign({}, remote.exAliases||{}, S.exAliases||{});
       USER_ALIASES = S.exAliases; invalidateTableOrigin();
       S.restLog = [...new Set([...(S.restLog||[]), ...(remote.restLog||[])])].sort();
+      S.planLog = mergePlanLog(S.planLog, remote.planLog);
       S.restDay = pickRestDay(S.restDay, remote.restDay);
       S.deleted = [...tomb];
       S.sessions = mergeSessions(S.sessions, remote.sessions||[], tomb);
@@ -7467,12 +7830,40 @@ function buildReportInner(){
   sessions.forEach(s=>{ counts[s.workoutId]=(counts[s.workoutId]||0)+1; });
   const countLine = joinList(Object.keys(counts).map(k=>counts[k]+" "+META[k].name.toLowerCase()+" "+(counts[k]===1?"session":"sessions")));
 
+  /* Programme edits, placed in the timeline where they happened rather than collected in
+     an appendix. Read top to bottom, the report now says "these sessions, then the card
+     changed like this, then these sessions", which is the only ordering in which a
+     change in the numbers afterwards can be interpreted. */
+  const changes = (S.planLog||[]).slice().sort((a,b)=>a.at-b.at);
+  let ci_ = 0;
+  const changeBlock = until=>{
+    const batch = [];
+    while(ci_ < changes.length && changes[ci_].at < until) batch.push(changes[ci_++]);
+    if(!batch.length) return "";
+    // one block per calendar day, because that is the resolution the rest of the report reads at
+    let out = "", day = null, items = [];
+    const flush = ()=>{
+      if(!items.length) return;
+      out += `<div class="planchg"><b>Programme changed, ${longDate(day)}</b>
+        <ul>${items.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+      items = [];
+    };
+    batch.forEach(c=>{
+      if(c.date !== day){ flush(); day = c.date; }
+      items.push(planChangeSentence(c));
+    });
+    flush();
+    return out;
+  };
+
   let body = `<h1>Training History Report</h1>
   <p class="meta">Prepared ${new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"})} · Iron Log</p>
   <p>This report covers <b>${sessions.length}</b> logged training ${sessions.length===1?"session":"sessions"} from ${longDate(first.date)} through ${longDate(lastS.date)}, comprising ${countLine}.${(S.restLog&&S.restLog.length)?" Rest days taken: "+joinList(S.restLog.slice().sort().map(d=>longDate(d)))+".":""}</p>
+  ${changes.length?`<p>The programme was edited <b>${changes.length}</b> time${changes.length===1?"":"s"} over this period. Each edit is shown in place, between the sessions it sits between, so a change in the numbers after one of them can be read against it. Edits made before ${longDate(changes[0].date)} were not recorded.</p>`:""}
   <hr>`;
 
   sessions.forEach(s=>{
+    body += changeBlock(s.startedAt);
     const m = META[s.workoutId];
     const vol = s.entries.reduce((t,e)=>t+e.sets.reduce((u,st)=>u+((parseFloat(st.weight)||0)*(parseFloat(st.reps)||0)),0),0);
     const dur = durFmt(s);
@@ -7522,6 +7913,7 @@ function buildReportInner(){
     }
   });
 
+  body += changeBlock(Infinity);      // anything edited since the last logged session
   return body;
 }
 function buildReportHTML(){
@@ -7538,6 +7930,9 @@ function buildReportHTML(){
     td.c{text-align:center;font-variant-numeric:tabular-nums}
     tr{page-break-inside:avoid}
     hr{border:none;border-top:1px solid #bbb;margin:18px 0}
+    .planchg{border-left:3px solid #111;background:#f4f2ee;padding:9px 14px;margin:20px 0;font-size:11pt;page-break-inside:avoid}
+    .planchg ul{margin:5px 0 0;padding-left:18px}
+    .planchg li{margin:2px 0}
   </style></head><body>
   ${buildReportInner()}</body></html>`;
 }
@@ -7710,6 +8105,7 @@ function importJSON(e){
       if(d.cycleStart) S.cycleStart = d.cycleStart;
       if(d.checkins) S.checkins = d.checkins;
       if(Array.isArray(d.restLog)) S.restLog = d.restLog;
+      if(Array.isArray(d.planLog)) S.planLog = d.planLog;
       S.sessions = d.sessions;
       recomputeCycle(false);
       save(); queueSync(); render(); toast("Imported ✓");
